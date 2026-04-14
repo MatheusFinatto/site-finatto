@@ -2,11 +2,7 @@ import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 
 export default function EquipeSection() {
   return (
-    <section
-      id="sobre"
-      className="grid border-t border-border"
-      style={{ gridTemplateColumns: '1fr 1fr', minHeight: 560 }}
-    >
+    <section id="sobre" className="equipe-grid border-t border-border">
       {/* Left — CSS landscape */}
       <div className="relative overflow-hidden hidden md:block">
         <div

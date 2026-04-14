@@ -6,16 +6,13 @@ const stats = [
 
 export default function NumbersBar() {
   return (
-    <div
-      className="grid border-b border-border"
-      style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}
-    >
+    <div className="numbers-grid border-b border-border">
       {stats.map((s, i) => (
         <div
           key={s.label}
-          className="flex flex-col gap-1.5"
+          className="flex flex-col gap-1.5 border-b md:border-b-0"
           style={{
-            padding: 'clamp(32px, 4vw, 48px) clamp(24px, 5vw, 60px)',
+            padding: 'clamp(28px, 4vw, 48px) clamp(20px, 5vw, 60px)',
             borderRight: i < stats.length - 1 ? '1px solid var(--border)' : undefined,
           }}
         >

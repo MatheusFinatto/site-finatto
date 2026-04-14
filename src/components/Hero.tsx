@@ -3,10 +3,7 @@ import { WHATSAPP_FINATTO, whatsappLink } from '@/lib/utils'
 
 export default function Hero() {
   return (
-    <section
-      className="grid border-b border-border"
-      style={{ gridTemplateColumns: '1fr 1fr', minHeight: 'calc(100vh - 72px)' }}
-    >
+    <section className="hero-grid border-b border-border">
       {/* Left — text */}
       <div
         className="flex flex-col justify-center px-14 py-20 border-r border-border"

@@ -24,20 +24,10 @@ export default function ImovelRow({ imovel }: Props) {
   const waLink = `https://wa.me/${WHATSAPP_FINATTO}?text=${msg}`
 
   return (
-    <a
-      href={waLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="grid items-center border-b border-border group transition-colors hover:bg-muted"
-      style={{
-        gridTemplateColumns: '180px 1fr auto auto auto',
-        gap: 32,
-        padding: '20px 0',
-        textDecoration: 'none',
-      }}
-    >
+    <a href={waLink} target="_blank" rel="noopener noreferrer" className="imovel-row group">
+
       {/* Thumb */}
-      <div className="relative overflow-hidden" style={{ height: 120, flexShrink: 0 }}>
+      <div className="imovel-row-thumb relative overflow-hidden flex-shrink-0">
         <div
           className="w-full h-full group-hover:scale-105 transition-transform duration-300"
           style={{ background: thumbGradient[imovel.tipo] ?? thumbGradient.chacara }}
@@ -57,25 +47,23 @@ export default function ImovelRow({ imovel }: Props) {
         <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}>
           {tipoLabel[imovel.tipo]} · {imovel.bairro}
         </p>
-        <p
-          className="text-fg"
-          style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20, marginBottom: 8 }}
-        >
+        <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20, marginBottom: 8 }}>
           {imovel.titulo}
         </p>
-        <div className="flex gap-4 text-muted-fg" style={{ fontSize: 13 }}>
+        <div className="flex flex-wrap gap-3 text-muted-fg" style={{ fontSize: 13 }}>
           {imovel.quartos != null && <span>{imovel.quartos} quartos</span>}
           {imovel.banheiros != null && <span>{imovel.banheiros} banheiros</span>}
           {imovel.vagas != null && <span>{imovel.vagas} vagas</span>}
+          {/* Price visible on mobile only */}
+          <span className="md:hidden font-semibold text-fg">
+            {formatPreco(imovel.preco)}
+          </span>
         </div>
       </div>
 
-      {/* Area */}
-      <div className="text-right" style={{ minWidth: 110 }}>
-        <span
-          className="text-fg"
-          style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22, display: 'block' }}
-        >
+      {/* Area — desktop only */}
+      <div className="imovel-row-area text-right" style={{ minWidth: 110 }}>
+        <span className="text-fg block" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>
           {formatArea(imovel.area_total)}
         </span>
         <span className="text-muted-fg uppercase" style={{ fontSize: 11, letterSpacing: 1 }}>
@@ -83,19 +71,16 @@ export default function ImovelRow({ imovel }: Props) {
         </span>
       </div>
 
-      {/* Price */}
-      <div className="text-right" style={{ minWidth: 150 }}>
-        <span
-          className="text-fg"
-          style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20, display: 'block' }}
-        >
+      {/* Price — desktop only */}
+      <div className="imovel-row-price text-right" style={{ minWidth: 150 }}>
+        <span className="text-fg block" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20 }}>
           {formatPreco(imovel.preco)}
         </span>
         <span className="text-muted-fg" style={{ fontSize: 11 }}>preço</span>
       </div>
 
-      {/* Arrow */}
-      <div className="flex justify-end" style={{ minWidth: 60 }}>
+      {/* Arrow — desktop only */}
+      <div className="imovel-row-arrow flex justify-end" style={{ minWidth: 60 }}>
         <span
           className="inline-flex items-center justify-center border border-border text-fg group-hover:bg-fg group-hover:text-bg group-hover:border-fg transition-all"
           style={{ width: 44, height: 44, fontSize: 18 }}

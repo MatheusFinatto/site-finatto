@@ -31,7 +31,7 @@ export default function ImoveisSection({ imoveis }: Props) {
     <section id="imoveis" style={{ padding: 'clamp(48px, 6vw, 80px) clamp(24px, 5vw, 60px)' }}>
       {/* Header */}
       <div
-        className="flex items-end justify-between border-b border-border"
+        className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 border-b border-border"
         style={{ marginBottom: 0, paddingBottom: 24 }}
       >
         <div>
@@ -52,8 +52,8 @@ export default function ImoveisSection({ imoveis }: Props) {
 
         {/* Tabs */}
         <div
-          className="flex gap-1 self-end"
-          style={{ background: 'var(--muted)', padding: 4 }}
+          className="flex gap-1 self-start md:self-end overflow-x-auto"
+          style={{ background: 'var(--muted)', padding: 4, flexShrink: 0 }}
         >
           {tabs.map((t) => (
             <button
