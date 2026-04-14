@@ -20,7 +20,7 @@ export default function ParceriaSection() {
         </h2>
         <p className="text-muted-fg text-lg max-w-2xl mx-auto mb-8">
           Fazemos estudo de viabilidade, projeto urbanístico, regularização e
-          acompanhamento técnico completo — da ideia à entrega dos lotes.
+          acompanhamento técnico completo, da ideia à entrega dos lotes.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">

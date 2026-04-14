@@ -56,7 +56,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-fg transition-colors"
                 >
-                  (54) 99163-6937 — Finatto
+                  (54) 99163-6937 · Finatto
                 </a>
               </li>
               <li>
@@ -66,7 +66,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-fg transition-colors"
                 >
-                  (54) 99100-1050 — Flávia
+                  (54) 99100-1050 · Flávia Finatto
                 </a>
               </li>
             </ul>
@@ -75,7 +75,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-muted-fg">
           <span>© 2025 Finatto Incorporadora e Engenharia LTDA</span>
-          <span>CRECI 51910</span>
+          <span>CRECI/RS 51910</span>
         </div>
       </div>
     </footer>

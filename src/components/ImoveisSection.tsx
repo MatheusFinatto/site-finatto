@@ -50,9 +50,21 @@ export default function ImoveisSection({ imoveis }: Props) {
           </h2>
         </div>
 
-        {/* Tabs */}
+        {/* Mobile: select */}
+        <select
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value as TipoImovel | '')}
+          className="md:hidden border border-border bg-card text-fg font-medium uppercase"
+          style={{ padding: '8px 12px', fontSize: 12, letterSpacing: 1, cursor: 'pointer' }}
+        >
+          {tabs.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </select>
+
+        {/* Desktop: tabs */}
         <div
-          className="flex gap-1 self-start md:self-end overflow-x-auto"
+          className="hidden md:flex gap-1 self-end"
           style={{ background: 'var(--muted)', padding: 4, flexShrink: 0 }}
         >
           {tabs.map((t) => (

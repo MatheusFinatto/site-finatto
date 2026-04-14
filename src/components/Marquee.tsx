@@ -1,7 +1,7 @@
 const items = [
   'Chácaras', 'Terrenos', 'Casas', 'Pavilhões',
   'Erechim', 'Loteamentos', 'Assessoria Técnica',
-  'Corretor CRECI 51910', 'Engenharia Civil', '17 Anos',
+  'Finatto Corretor', 'Engenharia Civil', '17 Anos',
 ]
 
 export default function Marquee() {
@@ -10,7 +10,7 @@ export default function Marquee() {
   return (
     <div
       className="overflow-hidden border-y border-zinc-800"
-      style={{ background: 'var(--fg)', padding: '14px 0' }}
+      style={{ background: '#0a0a0a', padding: '14px 0' }}
     >
       <div
         className="inline-flex whitespace-nowrap"

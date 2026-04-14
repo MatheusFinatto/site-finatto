@@ -39,7 +39,7 @@ export default function EquipeSection() {
           Quem vai te atender
         </h2>
         <p className="text-muted-fg" style={{ fontSize: 16, lineHeight: 1.9, maxWidth: 440, marginBottom: 36 }}>
-          Atendimento direto com os sócios — sem intermediários. Experiência
+          Atendimento direto com os sócios, sem intermediários. Experiência
           técnica e conhecimento profundo do mercado local.
         </p>
 
@@ -50,15 +50,15 @@ export default function EquipeSection() {
         >
           {[
             {
-              nome: 'Matheus Finatto',
+              nome: 'Finatto Corretor',
               cargo: 'Corretor de Imóveis',
-              info: 'CRECI 51910\n(54) 99163-6937',
+              info: 'CRECI/RS 51910\n(54) 99163-6937',
               wa: WHATSAPP_FINATTO,
             },
             {
-              nome: 'Flávia',
+              nome: 'Flávia Finatto',
               cargo: 'Engenheira Civil',
-              info: 'CREA\n(54) 99100-1050',
+              info: 'CREA/RS 242604\n(54) 99100-1050',
               wa: WHATSAPP_FLAVIA,
             },
           ].map((p) => (
