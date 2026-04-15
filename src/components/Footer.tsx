@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
+import { ANO_FUNDACAO, IMOVEIS_ENTREGUES, anosDeExperiencia } from '@/lib/constants'
+import WppIcon from './WppIcon'
 
 export default function Footer() {
   return (
@@ -20,10 +22,10 @@ export default function Footer() {
               className="h-8 w-auto object-contain mb-4"
             />
             <p className="text-sm text-muted-fg leading-relaxed max-w-xs">
-              17 anos transformando sonhos em imóveis. Erechim e região.
+              {anosDeExperiencia()} anos transformando sonhos em imóveis. Erechim e região.
             </p>
             <p className="text-xs text-muted-fg mt-3">
-              Fundada em 2008 · 500+ imóveis entregues
+              Fundada em {ANO_FUNDACAO} · {IMOVEIS_ENTREGUES} imóveis entregues
             </p>
           </div>
 
@@ -54,9 +56,9 @@ export default function Footer() {
                   href={whatsappLink(WHATSAPP_FINATTO)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-fg transition-colors"
+                  className="inline-flex items-center gap-1.5 hover:text-fg transition-colors"
                 >
-                  (54) 99163-6937 · Finatto
+                  <WppIcon size={12} />(54) 99163-6937 · Finatto
                 </a>
               </li>
               <li>
@@ -64,9 +66,9 @@ export default function Footer() {
                   href={whatsappLink(WHATSAPP_FLAVIA)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-fg transition-colors"
+                  className="inline-flex items-center gap-1.5 hover:text-fg transition-colors"
                 >
-                  (54) 99100-1050 · Flávia Finatto
+                  <WppIcon size={12} />(54) 99100-1050 · Flávia Finatto
                 </a>
               </li>
             </ul>
