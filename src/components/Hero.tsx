@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from "@/lib/utils";
 import {
+  ANO_FUNDACAO,
   IMOVEIS_ENTREGUES,
   WPP_MSG_FINATTO,
   WPP_MSG_FLAVIA,
@@ -34,7 +35,7 @@ export default function Hero() {
             className="text-muted-fg uppercase"
             style={{ fontSize: 11, letterSpacing: 3 }}
           >
-            Erechim · RS · Desde 2008
+            Erechim · RS · Desde {ANO_FUNDACAO}
           </span>
         </div>
 
@@ -106,39 +107,6 @@ export default function Hero() {
           className="absolute inset-0"
           style={{ background: "rgba(0,0,0,0.25)", zIndex: 1 }}
         />
-
-        {/* Floating stat card */}
-        <div
-          className="absolute bg-bg"
-          style={{
-            bottom: 40,
-            left: 40,
-            padding: "20px 24px",
-            zIndex: 2,
-            minWidth: 200,
-            borderTop: "3px solid var(--accent)",
-          }}
-        >
-          <p
-            className="text-muted-fg uppercase"
-            style={{ fontSize: 10, letterSpacing: 2, marginBottom: 6 }}
-          >
-            Imóveis entregues
-          </p>
-          <p
-            className="text-fg"
-            style={{
-              fontFamily: "var(--font-dm-serif)",
-              fontSize: 44,
-              lineHeight: 1,
-            }}
-          >
-            {IMOVEIS_ENTREGUES}
-          </p>
-          <p className="text-muted-fg" style={{ fontSize: 12, marginTop: 4 }}>
-            {anosDeExperiencia()} anos de experiência
-          </p>
-        </div>
       </div>
     </section>
   );
