@@ -8,6 +8,7 @@ import { WPP_MSG_FINATTO, WPP_MSG_FLAVIA } from '@/lib/constants'
 
 export default function WppFloat() {
   const pathname = usePathname()
+  const isStudio = pathname === '/studio' || pathname.startsWith('/studio/')
   const isHome = pathname === '/'
 
   const [open, setOpen] = useState(false)
@@ -21,7 +22,7 @@ export default function WppFloat() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [isHome])
 
-  const visible = !isHome || scrolled
+  const visible = !isStudio && (!isHome || scrolled)
 
   // Fecha ao clicar fora
   useEffect(() => {
