@@ -13,6 +13,7 @@
     "vagas": 2,
     "cidade": "Erechim",
     "bairro": "Zona Rural",
+    "logradouro": "Comunidade Rio Turvo",
     "descricao": "Chácara com 2,42 hectares, açude, área de lazer completa e vista para o campo. Energia elétrica, água de poço artesiano.",
     "fotos": ["/img/placeholder-chacara.jpg"]
   },
@@ -30,6 +31,7 @@
     "vagas": 4,
     "cidade": "Erechim",
     "bairro": "Zona Rural",
+    "logradouro": "Linha São Paulo",
     "descricao": "Chácara com sede bem conservada, pomar variado, galinheiro e pastagem. Ótima para moradia ou lazer.",
     "fotos": ["/img/placeholder-chacara.jpg"]
   },
@@ -47,6 +49,7 @@
     "vagas": null,
     "cidade": "Erechim",
     "bairro": "São Cristóvão",
+    "logradouro": "Rua das Acácias, 450",
     "descricao": "Terreno plano, 12x30m, em rua pavimentada. Toda infraestrutura disponível.",
     "fotos": ["/img/placeholder-terreno.jpg"]
   },
@@ -64,6 +67,7 @@
     "vagas": 2,
     "cidade": "Erechim",
     "bairro": "Centro",
+    "logradouro": "Rua Bento Gonçalves, 890",
     "descricao": "Casa espaçosa com área de lazer, churrasqueira e jardim. Próximo a escolas e comércio.",
     "fotos": ["/img/placeholder-casa.jpg"]
   },
@@ -81,6 +85,7 @@
     "vagas": 6,
     "cidade": "Erechim",
     "bairro": "Zona Rural",
+    "logradouro": "Estrada Municipal ERC-040, km 8",
     "descricao": "3 alqueires a 8km do centro. Casa sede ampla, galpão, curral, rios naturais e mata nativa preservada.",
     "fotos": ["/img/placeholder-chacara.jpg"]
   },
@@ -98,6 +103,8 @@
     "vagas": 10,
     "cidade": "Erechim",
     "bairro": "Industrial",
+    "logradouro": "Rua Marechal Floriano, 1200",
+    "complemento": "Galpão B",
     "descricao": "Pavilhão com pé-direito alto, piso industrial, escritório e refeitório. Pronto para operação.",
     "fotos": ["/img/placeholder-pavilhao.jpg"]
   }

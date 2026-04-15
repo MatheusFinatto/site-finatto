@@ -1,4 +1,5 @@
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
+import { WPP_MSG_FINATTO, WPP_MSG_FLAVIA } from '@/lib/constants'
 import WppIcon from './WppIcon'
 
 export default function CTASection() {
@@ -21,24 +22,22 @@ export default function CTASection() {
 
       <div className="flex flex-col gap-3 flex-shrink-0">
         <a
-          href={whatsappLink(WHATSAPP_FINATTO, 'Olá, Finatto! Gostaria de informações sobre imóveis.')}
+          href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 font-medium transition-opacity hover:opacity-90"
-          style={{ background: '#25D366', color: '#fff', padding: '14px 28px', fontSize: 14 }}
+          style={{ background: 'var(--wpp-green)', color: '#fff', padding: '14px 28px', fontSize: 14 }}
         >
-          <WppIcon size={18} />
-          Finatto Corretor
+          <WppIcon size={18} /> Finatto Corretor
         </a>
         <a
-          href={whatsappLink(WHATSAPP_FLAVIA, 'Olá, Flávia! Gostaria de informações sobre imóveis.')}
+          href={whatsappLink(WHATSAPP_FLAVIA, WPP_MSG_FLAVIA)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 font-medium transition-opacity hover:opacity-90"
-          style={{ background: '#25D366', color: '#fff', padding: '14px 28px', fontSize: 14 }}
+          style={{ background: 'var(--wpp-green)', color: '#fff', padding: '14px 28px', fontSize: 14 }}
         >
-          <WppIcon size={18} />
-          Flávia Engenheira
+          <WppIcon size={18} /> Flávia Engenheira
         </a>
       </div>
     </section>

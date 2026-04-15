@@ -14,6 +14,8 @@ export interface Imovel {
   vagas: number | null
   cidade: string
   bairro: string
+  logradouro?: string   // "Rua das Flores, 123" ou "Comunidade Rio Turvo"
+  complemento?: string  // "Ap 201", "Galpão dos fundos", etc.
   descricao: string
   fotos: string[]
 }

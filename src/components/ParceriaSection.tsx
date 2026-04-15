@@ -1,4 +1,5 @@
 import { WHATSAPP_FINATTO, whatsappLink } from '@/lib/utils'
+import WppIcon from './WppIcon'
 
 export default function ParceriaSection() {
   const waLink = whatsappLink(
@@ -41,9 +42,9 @@ export default function ParceriaSection() {
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-8 py-4 rounded-xl bg-accent text-accent-fg font-semibold hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-accent text-accent-fg font-semibold hover:opacity-90 transition-opacity"
         >
-          Falar sobre minha área
+          <WppIcon size={16} /> Falar sobre minha área
         </a>
       </div>
     </section>

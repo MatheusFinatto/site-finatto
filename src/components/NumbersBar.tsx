@@ -1,7 +1,11 @@
-const stats = [
-  { value: '500+', label: 'Imóveis entregues', desc: 'desde a fundação em 2008' },
-  { value: '17', label: 'Anos de mercado', desc: 'em Erechim e região' },
-  { value: '13', label: 'Anos como construtora', desc: 'antes de ser incorporadora' },
+import { ANO_FUNDACAO, ANOS_CONSTRUTORA, IMOVEIS_ENTREGUES, anosDeExperiencia } from '@/lib/constants'
+
+interface Stat { value: string; label: string; desc: string }
+
+const stats: Stat[] = [
+  { value: IMOVEIS_ENTREGUES,        label: 'Imóveis entregues',    desc: `desde a fundação em ${ANO_FUNDACAO}` },
+  { value: String(anosDeExperiencia()), label: 'Anos de mercado',   desc: 'em Erechim e região' },
+  { value: String(ANOS_CONSTRUTORA), label: 'Anos como construtora', desc: 'antes de ser incorporadora' },
 ]
 
 export default function NumbersBar() {
@@ -22,10 +26,7 @@ export default function NumbersBar() {
           >
             {s.value}
           </span>
-          <span
-            className="text-muted-fg uppercase"
-            style={{ fontSize: 12, letterSpacing: 1 }}
-          >
+          <span className="text-muted-fg uppercase" style={{ fontSize: 12, letterSpacing: 1 }}>
             {s.label}
           </span>
           <span className="text-muted-fg" style={{ fontSize: 14, marginTop: 2 }}>

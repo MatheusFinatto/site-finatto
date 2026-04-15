@@ -1,27 +1,15 @@
 import { Imovel } from '@/lib/types'
-import { formatArea, formatPreco, WHATSAPP_FINATTO } from '@/lib/utils'
-
-const thumbGradient: Record<string, string> = {
-  chacara: 'linear-gradient(150deg, #2a5010 0%, #3d7020 60%, #285010 100%)',
-  casa:    'linear-gradient(150deg, #2a3a4a 0%, #3a5068 60%, #243040 100%)',
-  terreno: 'linear-gradient(150deg, #5a4020 0%, #7a5830 60%, #4a3018 100%)',
-  pavilhao:'linear-gradient(150deg, #1e2a3a 0%, #2a3a50 60%, #161e2a 100%)',
-}
-
-const tipoLabel: Record<string, string> = {
-  chacara: 'Chácara',
-  casa:    'Casa',
-  terreno: 'Terreno',
-  pavilhao:'Pavilhão',
-}
+import { formatArea, formatPreco, WHATSAPP_FINATTO, whatsappLink } from '@/lib/utils'
+import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from '@/lib/constants'
+import WppIcon from './WppIcon'
 
 interface Props { imovel: Imovel }
 
 export default function ImovelRow({ imovel }: Props) {
-  const msg = encodeURIComponent(
-    `Olá! Tenho interesse no imóvel: ${imovel.titulo} (${formatPreco(imovel.preco)}). Poderia me dar mais informações?`
+  const waLink = whatsappLink(
+    WHATSAPP_FINATTO,
+    wppMsgImovel(imovel.titulo, formatPreco(imovel.preco))
   )
-  const waLink = `https://wa.me/${WHATSAPP_FINATTO}?text=${msg}`
 
   return (
     <a href={waLink} target="_blank" rel="noopener noreferrer" className="imovel-row group">
@@ -30,7 +18,7 @@ export default function ImovelRow({ imovel }: Props) {
       <div className="imovel-row-thumb relative overflow-hidden flex-shrink-0">
         <div
           className="w-full h-full group-hover:scale-105 transition-transform duration-300"
-          style={{ background: thumbGradient[imovel.tipo] ?? thumbGradient.chacara }}
+          style={{ background: THUMB_GRADIENT[imovel.tipo] ?? THUMB_GRADIENT.chacara }}
         />
         {imovel.tag && (
           <span
@@ -45,18 +33,21 @@ export default function ImovelRow({ imovel }: Props) {
       {/* Info */}
       <div>
         <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}>
-          {tipoLabel[imovel.tipo]} · {imovel.bairro}
+          {TIPO_LABEL[imovel.tipo]} · {imovel.logradouro ?? imovel.bairro}
+          {imovel.complemento ? `, ${imovel.complemento}` : ''}
         </p>
         <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20, marginBottom: 8 }}>
           {imovel.titulo}
         </p>
         <div className="flex flex-wrap gap-3 text-muted-fg" style={{ fontSize: 13 }}>
-          {imovel.quartos != null && <span>{imovel.quartos} quartos</span>}
+          {imovel.quartos   != null && <span>{imovel.quartos}   quartos</span>}
           {imovel.banheiros != null && <span>{imovel.banheiros} banheiros</span>}
-          {imovel.vagas != null && <span>{imovel.vagas} vagas</span>}
-          {/* Price visible on mobile only */}
-          <span className="md:hidden font-semibold text-fg">
-            {formatPreco(imovel.preco)}
+          {imovel.vagas     != null && <span>{imovel.vagas}     vagas</span>}
+
+          {/* Price + WPP hint — mobile only */}
+          <span className="md:hidden font-semibold text-fg">{formatPreco(imovel.preco)}</span>
+          <span className="md:hidden inline-flex items-center gap-1" style={{ color: 'var(--wpp-green)', fontSize: 12 }}>
+            <WppIcon size={12} /> Saber mais
           </span>
         </div>
       </div>
@@ -79,13 +70,13 @@ export default function ImovelRow({ imovel }: Props) {
         <span className="text-muted-fg" style={{ fontSize: 11 }}>preço</span>
       </div>
 
-      {/* Arrow — desktop only */}
-      <div className="imovel-row-arrow flex justify-end" style={{ minWidth: 60 }}>
+      {/* WPP button — desktop only */}
+      <div className="imovel-row-arrow flex justify-end" style={{ minWidth: 120 }}>
         <span
-          className="inline-flex items-center justify-center border border-border text-fg group-hover:bg-fg group-hover:text-bg group-hover:border-fg transition-all"
-          style={{ width: 44, height: 44, fontSize: 18 }}
+          className="inline-flex items-center gap-2 font-medium transition-opacity group-hover:opacity-80"
+          style={{ background: 'var(--wpp-green)', color: '#fff', padding: '10px 16px', fontSize: 12, whiteSpace: 'nowrap' }}
         >
-          →
+          <WppIcon size={14} /> Saber mais
         </span>
       </div>
     </a>

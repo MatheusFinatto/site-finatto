@@ -1,4 +1,5 @@
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
+import WppIcon from './WppIcon'
 
 export default function EquipeSection() {
   return (
@@ -82,6 +83,9 @@ export default function EquipeSection() {
               <p className="text-muted-fg" style={{ fontSize: 12, lineHeight: 1.6, whiteSpace: 'pre-line' }}>
                 {p.info}
               </p>
+              <span className="inline-flex items-center gap-1 mt-2" style={{ color: 'var(--wpp-green)', fontSize: 11 }}>
+                <WppIcon size={11} /> Enviar mensagem
+              </span>
             </a>
           ))}
         </div>

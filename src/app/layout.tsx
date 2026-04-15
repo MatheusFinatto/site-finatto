@@ -18,7 +18,7 @@ const dmSerif = DM_Serif_Display({
 export const metadata: Metadata = {
   title: 'Finatto Incorporadora e Engenharia | Erechim, RS',
   description:
-    'Encontre seu imóvel ideal em Erechim e região. Chácaras, casas, terrenos e pavilhões. 17 anos de mercado, 500+ imóveis entregues.',
+    `Encontre seu imóvel ideal em Erechim e região. Chácaras, casas, terrenos e pavilhões. ${new Date().getFullYear() - 2008} anos de mercado, 500+ imóveis entregues.`,
 }
 
 export default function RootLayout({

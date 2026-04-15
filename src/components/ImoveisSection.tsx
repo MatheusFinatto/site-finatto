@@ -1,29 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Imovel, TipoImovel } from '@/lib/types'
+import { TIPO_TABS } from '@/lib/constants'
 import ImovelRow from './ImovelRow'
-
-const tabs: { value: TipoImovel | ''; label: string }[] = [
-  { value: '',        label: 'Todos' },
-  { value: 'chacara', label: 'Chácaras' },
-  { value: 'casa',    label: 'Casas' },
-  { value: 'terreno', label: 'Terrenos' },
-  { value: 'pavilhao',label: 'Pavilhões' },
-]
 
 interface Props { imoveis: Imovel[] }
 
 export default function ImoveisSection({ imoveis }: Props) {
   const [filtro, setFiltro] = useState<TipoImovel | ''>('')
-
-  useEffect(() => {
-    function handleFiltro(e: Event) {
-      setFiltro(((e as CustomEvent).detail?.tipo || '') as TipoImovel | '')
-    }
-    window.addEventListener('filtro-imoveis', handleFiltro)
-    return () => window.removeEventListener('filtro-imoveis', handleFiltro)
-  }, [])
 
   const filtrados = filtro ? imoveis.filter((i) => i.tipo === filtro) : imoveis
 
@@ -57,7 +42,7 @@ export default function ImoveisSection({ imoveis }: Props) {
           className="md:hidden border border-border bg-card text-fg font-medium uppercase"
           style={{ padding: '8px 12px', fontSize: 12, letterSpacing: 1, cursor: 'pointer' }}
         >
-          {tabs.map((t) => (
+          {TIPO_TABS.map((t) => (
             <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>
@@ -67,7 +52,7 @@ export default function ImoveisSection({ imoveis }: Props) {
           className="hidden md:flex gap-1 self-end"
           style={{ background: 'var(--muted)', padding: 4, flexShrink: 0 }}
         >
-          {tabs.map((t) => (
+          {TIPO_TABS.map((t) => (
             <button
               key={t.value}
               onClick={() => setFiltro(t.value)}
