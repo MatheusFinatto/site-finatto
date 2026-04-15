@@ -9,17 +9,27 @@ import WppIcon from '@/components/WppIcon'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 import { BASE_URL, TIPO_LABEL, THUMB_GRADIENT, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
 
+const data = imoveis as Imovel[]
+
+interface Props { params: Promise<{ slug: string }> }
+
+const ArrowLeft = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
+  </svg>
+)
+
 // ── Static params ────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
-  return (imoveis as Imovel[]).map((i) => ({ slug: i.id }))
+  return data.map((i) => ({ slug: i.id }))
 }
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const imovel = (imoveis as Imovel[]).find((i) => i.id === slug)
+  const imovel = data.find((i) => i.id === slug)
   if (!imovel) return {}
   const title = `${imovel.titulo} — Finatto Imóveis`
   const url = `${BASE_URL}/imoveis/${imovel.id}`
@@ -40,14 +50,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-interface Props { params: Promise<{ slug: string }> }
-
 export default async function ImovelPage({ params }: Props) {
   const { slug } = await params
-  const imovel = (imoveis as Imovel[]).find((i) => i.id === slug)
+  const imovel = data.find((i) => i.id === slug)
   if (!imovel) notFound()
 
   const waMsg = wppMsgImovel(imovel.titulo, formatPreco(imovel.preco))
+
+  const attrs: { label: string; value: string }[] = [
+    { label: 'Área total',      value: formatArea(imovel.area_total) },
+    ...(imovel.area_construida != null ? [{ label: 'Área construída', value: formatArea(imovel.area_construida) }] : []),
+    ...(imovel.quartos   != null ? [{ label: 'Quartos',   value: String(imovel.quartos)   }] : []),
+    ...(imovel.banheiros != null ? [{ label: 'Banheiros', value: String(imovel.banheiros) }] : []),
+    ...(imovel.vagas     != null ? [{ label: 'Vagas',     value: String(imovel.vagas)     }] : []),
+  ]
 
   return (
     <>
@@ -65,10 +81,7 @@ export default async function ImovelPage({ params }: Props) {
               className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
               style={{ fontSize: 12, padding: '8px 14px' }}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
-              </svg>
-              Voltar
+              <ArrowLeft size={12} /> Voltar
             </Link>
             <span className="text-muted-fg" style={{ fontSize: 13 }}>/</span>
             <span className="text-fg truncate" style={{ fontSize: 13 }}>{imovel.titulo}</span>
@@ -80,7 +93,6 @@ export default async function ImovelPage({ params }: Props) {
           className="w-full relative"
           style={{ height: 'clamp(280px, 45vw, 560px)', background: THUMB_GRADIENT[imovel.tipo] }}
         >
-          {/* Tag badge */}
           {imovel.tag && (
             <span
               className={`absolute top-5 left-5 px-3 py-1 text-xs font-semibold uppercase z-10 ${TAG_COLORS[imovel.tag] ?? 'bg-fg text-bg'}`}
@@ -89,14 +101,13 @@ export default async function ImovelPage({ params }: Props) {
               {imovel.tag}
             </span>
           )}
-          {/* Tipo badge */}
           <span
             className="absolute top-5 right-5 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10"
             style={{ letterSpacing: 1 }}
           >
             {TIPO_LABEL[imovel.tipo]}
           </span>
-          {/* Photo placeholder label — remove when real photos arrive */}
+          {/* placeholder — remove when real photos arrive */}
           <div className="absolute inset-0 flex items-center justify-center opacity-10">
             <span className="text-white font-bold" style={{ fontSize: 'clamp(60px, 12vw, 120px)', letterSpacing: 8 }}>
               {TIPO_LABEL[imovel.tipo].toUpperCase()}
@@ -131,26 +142,16 @@ export default async function ImovelPage({ params }: Props) {
               className="grid grid-cols-2 sm:grid-cols-4 border border-border"
               style={{ gap: 1, background: 'var(--border)' }}
             >
-              {[
-                { label: 'Área total',      value: formatArea(imovel.area_total) },
-                imovel.area_construida != null
-                  ? { label: 'Área construída', value: formatArea(imovel.area_construida) }
-                  : null,
-                imovel.quartos   != null ? { label: 'Quartos',   value: String(imovel.quartos)   } : null,
-                imovel.banheiros != null ? { label: 'Banheiros', value: String(imovel.banheiros) } : null,
-                imovel.vagas     != null ? { label: 'Vagas',     value: String(imovel.vagas)     } : null,
-              ]
-                .filter(Boolean)
-                .map((attr) => (
-                  <div key={attr!.label} className="flex flex-col gap-1 bg-card" style={{ padding: '16px 20px' }}>
-                    <span className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>
-                      {attr!.label}
-                    </span>
-                    <span className="text-fg font-semibold" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>
-                      {attr!.value}
-                    </span>
-                  </div>
-                ))}
+              {attrs.map((attr) => (
+                <div key={attr.label} className="flex flex-col gap-1 bg-card" style={{ padding: '16px 20px' }}>
+                  <span className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>
+                    {attr.label}
+                  </span>
+                  <span className="text-fg font-semibold" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>
+                    {attr.value}
+                  </span>
+                </div>
+              ))}
             </div>
 
             {/* Description */}
@@ -161,16 +162,12 @@ export default async function ImovelPage({ params }: Props) {
               </p>
             </div>
 
-            {/* Back link */}
             <Link
               href="/#imoveis"
               className="btn-details inline-flex items-center gap-2 font-medium self-start"
               style={{ fontSize: 13, padding: '10px 18px' }}
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
-              </svg>
-              Voltar para imóveis
+              <ArrowLeft size={13} /> Voltar para imóveis
             </Link>
           </div>
 
