@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Space_Grotesk, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import WppFloat from '@/components/WppFloat'
+import { BASE_URL, IMOVEIS_ENTREGUES, anosDeExperiencia } from '@/lib/constants'
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-space-grotesk',
@@ -16,10 +17,21 @@ const dmSerif = DM_Serif_Display({
   style: ['normal', 'italic'],
 })
 
+const description = `Encontre seu imóvel ideal em Erechim e região. Chácaras, casas, terrenos e pavilhões. ${anosDeExperiencia()} anos de mercado, ${IMOVEIS_ENTREGUES} imóveis entregues.`
+
 export const metadata: Metadata = {
   title: 'Finatto Incorporadora e Engenharia | Erechim, RS',
-  description:
-    `Encontre seu imóvel ideal em Erechim e região. Chácaras, casas, terrenos e pavilhões. ${new Date().getFullYear() - 2008} anos de mercado, 500+ imóveis entregues.`,
+  description,
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: BASE_URL,
+    siteName: 'Finatto Imóveis',
+    title: 'Finatto Incorporadora e Engenharia | Erechim, RS',
+    description,
+    images: [{ url: '/img/hero-landscape.jpg', width: 1600, alt: 'Finatto Imóveis — Erechim, RS' }],
+  },
 }
 
 export default function RootLayout({
