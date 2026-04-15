@@ -1,15 +1,16 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import imoveis from '@/data/imoveis.json'
 import type { Imovel } from '@/lib/types'
+import { client } from '@/sanity/lib/client'
+import { allImovelIdsQuery, imovelByIdQuery } from '@/sanity/lib/queries'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import WppIcon from '@/components/WppIcon'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 import { BASE_URL, TIPO_LABEL, THUMB_GRADIENT, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
 
-const data = imoveis as Imovel[]
+export const revalidate = 60
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -21,15 +22,16 @@ const ArrowLeft = ({ size = 12 }: { size?: number }) => (
 
 // ── Static params ────────────────────────────────────────────────────────────
 
-export function generateStaticParams() {
-  return data.map((i) => ({ slug: i.id }))
+export async function generateStaticParams() {
+  const ids: string[] = await client.fetch(allImovelIdsQuery)
+  return ids.map((id) => ({ slug: id }))
 }
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const imovel = data.find((i) => i.id === slug)
+  const imovel: Imovel | null = await client.fetch(imovelByIdQuery, { id: slug })
   if (!imovel) return {}
   const title = `${imovel.titulo} — Finatto Imóveis`
   const url = `${BASE_URL}/imoveis/${imovel.id}`
@@ -43,7 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'Finatto Imóveis',
       title,
       description: imovel.descricao,
-      images: [{ url: '/img/hero-landscape.jpg', width: 1600, alt: imovel.titulo }],
+      images: imovel.fotos?.[0]
+        ? [{ url: imovel.fotos[0], width: 1200, alt: imovel.titulo }]
+        : [{ url: '/img/hero-landscape.jpg', width: 1600, alt: imovel.titulo }],
     },
   }
 }
@@ -52,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ImovelPage({ params }: Props) {
   const { slug } = await params
-  const imovel = data.find((i) => i.id === slug)
+  const imovel: Imovel | null = await client.fetch(imovelByIdQuery, { id: slug })
   if (!imovel) notFound()
 
   const waMsg = wppMsgImovel(imovel.titulo, formatPreco(imovel.preco))
@@ -70,17 +74,10 @@ export default async function ImovelPage({ params }: Props) {
       <Navbar />
       <main style={{ background: 'var(--bg)' }}>
 
-        {/* Breadcrumb + back button */}
-        <div
-          className="border-b border-border"
-          style={{ padding: '10px clamp(24px, 5vw, 60px)' }}
-        >
+        {/* Breadcrumb */}
+        <div className="border-b border-border" style={{ padding: '10px clamp(24px, 5vw, 60px)' }}>
           <div className="max-w-7xl mx-auto flex items-center gap-4">
-            <Link
-              href="/#imoveis"
-              className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
-              style={{ fontSize: 12, padding: '8px 14px' }}
-            >
+            <Link href="/#imoveis" className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0" style={{ fontSize: 12, padding: '8px 14px' }}>
               <ArrowLeft size={12} /> Voltar
             </Link>
             <span className="text-muted-fg" style={{ fontSize: 13 }}>/</span>
@@ -89,130 +86,83 @@ export default async function ImovelPage({ params }: Props) {
         </div>
 
         {/* Photo hero */}
-        <div
-          className="w-full relative"
-          style={{ height: 'clamp(280px, 45vw, 560px)', background: THUMB_GRADIENT[imovel.tipo] }}
-        >
+        <div className="w-full relative" style={{ height: 'clamp(280px, 45vw, 560px)', background: THUMB_GRADIENT[imovel.tipo] }}>
+          {imovel.fotos?.[0] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={imovel.fotos[0]} alt={imovel.titulo} className="w-full h-full object-cover" />
+          )}
           {imovel.tag && (
-            <span
-              className={`absolute top-5 left-5 px-3 py-1 text-xs font-semibold uppercase z-10 ${TAG_COLORS[imovel.tag] ?? 'bg-fg text-bg'}`}
-              style={{ letterSpacing: 1 }}
-            >
+            <span className={`absolute top-5 left-5 px-3 py-1 text-xs font-semibold uppercase z-10 ${TAG_COLORS[imovel.tag] ?? 'bg-fg text-bg'}`} style={{ letterSpacing: 1 }}>
               {imovel.tag}
             </span>
           )}
-          <span
-            className="absolute top-5 right-5 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10"
-            style={{ letterSpacing: 1 }}
-          >
+          <span className="absolute top-5 right-5 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10" style={{ letterSpacing: 1 }}>
             {TIPO_LABEL[imovel.tipo]}
           </span>
-          {/* placeholder — remove when real photos arrive */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-10">
-            <span className="text-white font-bold" style={{ fontSize: 'clamp(60px, 12vw, 120px)', letterSpacing: 8 }}>
-              {TIPO_LABEL[imovel.tipo].toUpperCase()}
-            </span>
-          </div>
+          {!imovel.fotos?.[0] && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-10">
+              <span className="text-white font-bold" style={{ fontSize: 'clamp(60px, 12vw, 120px)', letterSpacing: 8 }}>
+                {TIPO_LABEL[imovel.tipo].toUpperCase()}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content grid */}
-        <div
-          className="max-w-7xl mx-auto detail-grid"
-          style={{ padding: 'clamp(32px, 5vw, 60px) clamp(24px, 5vw, 60px)' }}
-        >
-          {/* Left — main content */}
-          <div className="flex flex-col gap-8">
+        <div className="max-w-7xl mx-auto detail-grid" style={{ padding: 'clamp(32px, 5vw, 60px) clamp(24px, 5vw, 60px)' }}>
 
-            {/* Title & location */}
+          {/* Left */}
+          <div className="flex flex-col gap-8">
             <div>
               <p className="text-accent uppercase" style={{ fontSize: 11, letterSpacing: 3, marginBottom: 8 }}>
                 {imovel.cidade}/RS · {imovel.logradouro ?? imovel.bairro}
                 {imovel.complemento ? `, ${imovel.complemento}` : ''}
               </p>
-              <h1
-                className="text-fg"
-                style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 400, lineHeight: 1.15 }}
-              >
+              <h1 className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 400, lineHeight: 1.15 }}>
                 {imovel.titulo}
               </h1>
             </div>
 
-            {/* Attributes grid */}
-            <div
-              className="grid grid-cols-2 sm:grid-cols-4 border border-border"
-              style={{ gap: 1, background: 'var(--border)' }}
-            >
+            <div className="grid grid-cols-2 sm:grid-cols-4 border border-border" style={{ gap: 1, background: 'var(--border)' }}>
               {attrs.map((attr) => (
                 <div key={attr.label} className="flex flex-col gap-1 bg-card" style={{ padding: '16px 20px' }}>
-                  <span className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>
-                    {attr.label}
-                  </span>
-                  <span className="text-fg font-semibold" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>
-                    {attr.value}
-                  </span>
+                  <span className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>{attr.label}</span>
+                  <span className="text-fg font-semibold" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>{attr.value}</span>
                 </div>
               ))}
             </div>
 
-            {/* Description */}
             <div>
               <h2 className="text-fg font-semibold mb-3" style={{ fontSize: 16 }}>Descrição</h2>
-              <p className="text-muted-fg" style={{ fontSize: 16, lineHeight: 1.9, maxWidth: 640 }}>
-                {imovel.descricao}
-              </p>
+              <p className="text-muted-fg" style={{ fontSize: 16, lineHeight: 1.9, maxWidth: 640 }}>{imovel.descricao}</p>
             </div>
 
-            <Link
-              href="/#imoveis"
-              className="btn-details inline-flex items-center gap-2 font-medium self-start"
-              style={{ fontSize: 13, padding: '10px 18px' }}
-            >
+            <Link href="/#imoveis" className="btn-details inline-flex items-center gap-2 font-medium self-start" style={{ fontSize: 13, padding: '10px 18px' }}>
               <ArrowLeft size={13} /> Voltar para imóveis
             </Link>
           </div>
 
           {/* Right — sticky price card */}
           <div>
-            <div
-              className="sticky border border-border bg-card flex flex-col gap-5"
-              style={{ top: 88, padding: '28px 24px' }}
-            >
+            <div className="sticky border border-border bg-card flex flex-col gap-5" style={{ top: 88, padding: '28px 24px' }}>
               <div>
-                <p className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 6 }}>
-                  Preço
-                </p>
-                <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 36, lineHeight: 1 }}>
-                  {formatPreco(imovel.preco)}
-                </p>
+                <p className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 6 }}>Preço</p>
+                <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 36, lineHeight: 1 }}>{formatPreco(imovel.preco)}</p>
               </div>
-
               <div className="border-t border-border pt-4 flex flex-col gap-2">
-                <p className="text-muted-fg" style={{ fontSize: 12, marginBottom: 4 }}>
-                  Fale diretamente com a equipe:
-                </p>
-                <a
-                  href={whatsappLink(WHATSAPP_FINATTO, waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p className="text-muted-fg" style={{ fontSize: 12, marginBottom: 4 }}>Fale diretamente com a equipe:</p>
+                <a href={whatsappLink(WHATSAPP_FINATTO, waMsg)} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-90"
-                  style={{ background: 'var(--wpp-green)', color: '#fff', padding: '13px 20px', fontSize: 14 }}
-                >
+                  style={{ background: 'var(--wpp-green)', color: '#fff', padding: '13px 20px', fontSize: 14 }}>
                   <WppIcon size={16} /> Finatto Corretor
                 </a>
-                <a
-                  href={whatsappLink(WHATSAPP_FLAVIA, waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <a href={whatsappLink(WHATSAPP_FLAVIA, waMsg)} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-90"
-                  style={{ color: 'var(--wpp-green)', padding: '13px 20px', fontSize: 14, border: '1px solid var(--wpp-green)' }}
-                >
+                  style={{ color: 'var(--wpp-green)', padding: '13px 20px', fontSize: 14, border: '1px solid var(--wpp-green)' }}>
                   <WppIcon size={16} /> Flávia Finatto
                 </a>
               </div>
-
-              <p className="text-muted-fg text-center" style={{ fontSize: 11 }}>
-                CRECI/RS 51910 · CREA/RS 242604
-              </p>
+              <p className="text-muted-fg text-center" style={{ fontSize: 11 }}>CRECI/RS 51910 · CREA/RS 242604</p>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
-import imoveis from '@/data/imoveis.json'
-import { Imovel } from '@/lib/types'
+import { client } from '@/sanity/lib/client'
+import { allImoveisQuery } from '@/sanity/lib/queries'
+import type { Imovel } from '@/lib/types'
 import Navbar from '@/components/Navbar'
 import Hero from '@/components/Hero'
 import Marquee from '@/components/Marquee'
@@ -10,7 +11,11 @@ import EquipeSection from '@/components/EquipeSection'
 import CTASection from '@/components/CTASection'
 import Footer from '@/components/Footer'
 
-export default function HomePage() {
+export const revalidate = 60 // ISR: revalida a cada 60s
+
+export default async function HomePage() {
+  const imoveis: Imovel[] = await client.fetch(allImoveisQuery)
+
   return (
     <>
       <Navbar />
@@ -18,7 +23,7 @@ export default function HomePage() {
         <Hero />
         <Marquee />
         <NumbersBar />
-        <ImoveisSection imoveis={imoveis as Imovel[]} />
+        <ImoveisSection imoveis={imoveis} />
         <ParceriaSection />
         <EquipeSection />
         <CTASection />
