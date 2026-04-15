@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import WppIcon from '@/components/WppIcon'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
-import { TIPO_LABEL, THUMB_GRADIENT, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
+import { BASE_URL, TIPO_LABEL, THUMB_GRADIENT, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
 
 // ── Static params ────────────────────────────────────────────────────────────
 
@@ -21,9 +21,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const imovel = (imoveis as Imovel[]).find((i) => i.id === slug)
   if (!imovel) return {}
+  const title = `${imovel.titulo} — Finatto Imóveis`
+  const url = `${BASE_URL}/imoveis/${imovel.id}`
   return {
-    title: `${imovel.titulo} — Finatto Imóveis`,
+    title,
     description: imovel.descricao,
+    openGraph: {
+      type: 'website',
+      locale: 'pt_BR',
+      url,
+      siteName: 'Finatto Imóveis',
+      title,
+      description: imovel.descricao,
+      images: [{ url: '/img/hero-landscape.jpg', width: 1600, alt: imovel.titulo }],
+    },
   }
 }
 
@@ -43,15 +54,24 @@ export default async function ImovelPage({ params }: Props) {
       <Navbar />
       <main style={{ background: 'var(--bg)' }}>
 
-        {/* Breadcrumb */}
+        {/* Breadcrumb + back button */}
         <div
           className="border-b border-border"
-          style={{ padding: '12px clamp(24px, 5vw, 60px)' }}
+          style={{ padding: '10px clamp(24px, 5vw, 60px)' }}
         >
-          <div className="max-w-7xl mx-auto flex items-center gap-2 text-sm text-muted-fg">
-            <Link href="/#imoveis" className="hover:text-fg transition-colors">Imóveis</Link>
-            <span>/</span>
-            <span className="text-fg truncate">{imovel.titulo}</span>
+          <div className="max-w-7xl mx-auto flex items-center gap-4">
+            <Link
+              href="/#imoveis"
+              className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
+              style={{ fontSize: 12, padding: '8px 14px' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
+              </svg>
+              Voltar
+            </Link>
+            <span className="text-muted-fg" style={{ fontSize: 13 }}>/</span>
+            <span className="text-fg truncate" style={{ fontSize: 13 }}>{imovel.titulo}</span>
           </div>
         </div>
 
