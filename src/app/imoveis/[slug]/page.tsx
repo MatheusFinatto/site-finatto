@@ -9,6 +9,7 @@ import Footer from '@/components/Footer'
 import WppIcon from '@/components/WppIcon'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 import { BASE_URL, TIPO_LABEL, THUMB_GRADIENT, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
+import FotoCarrossel from '@/components/FotoCarrossel'
 
 export const revalidate = 60
 
@@ -85,27 +86,25 @@ export default async function ImovelPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Photo hero */}
-        <div className="w-full relative" style={{ height: 'clamp(280px, 45vw, 560px)', background: THUMB_GRADIENT[imovel.tipo] }}>
-          {imovel.fotos?.[0] && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={imovel.fotos[0]} alt={imovel.titulo} className="w-full h-full object-cover" />
+        {/* Photo hero / carrossel */}
+        <div className="w-full relative" style={{ background: THUMB_GRADIENT[imovel.tipo] }}>
+          {imovel.fotos?.length > 0 ? (
+            <FotoCarrossel fotos={imovel.fotos} alt={imovel.titulo} />
+          ) : (
+            <div className="w-full flex items-center justify-center opacity-10" style={{ height: 'clamp(280px, 45vw, 560px)' }}>
+              <span className="text-white font-bold" style={{ fontSize: 'clamp(60px, 12vw, 120px)', letterSpacing: 8 }}>
+                {TIPO_LABEL[imovel.tipo].toUpperCase()}
+              </span>
+            </div>
           )}
           {imovel.tag && (
             <span className={`absolute top-5 left-5 px-3 py-1 text-xs font-semibold uppercase z-10 ${TAG_COLORS[imovel.tag] ?? 'bg-fg text-bg'}`} style={{ letterSpacing: 1 }}>
               {imovel.tag}
             </span>
           )}
-          <span className="absolute top-5 right-5 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10" style={{ letterSpacing: 1 }}>
+          <span className="absolute top-5 right-16 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10" style={{ letterSpacing: 1 }}>
             {TIPO_LABEL[imovel.tipo]}
           </span>
-          {!imovel.fotos?.[0] && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-              <span className="text-white font-bold" style={{ fontSize: 'clamp(60px, 12vw, 120px)', letterSpacing: 8 }}>
-                {TIPO_LABEL[imovel.tipo].toUpperCase()}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Content grid */}

@@ -16,6 +16,7 @@ export default function Hero() {
         src="/img/hero-landscape.jpg"
         alt=""
         fill
+        sizes="100vw"
         className="object-cover md:hidden"
         style={{ opacity: 0.3 }}
         priority

@@ -23,7 +23,12 @@ export default function ImovelRow({ imovel }: Props) {
       <Link href={detailHref} className="imovel-row-thumb relative overflow-hidden flex-shrink-0 block">
         <div
           className="w-full h-full group-hover:scale-105 transition-transform duration-300"
-          style={{ background: THUMB_GRADIENT[imovel.tipo] ?? THUMB_GRADIENT.chacara }}
+          style={{
+            background: THUMB_GRADIENT[imovel.tipo] ?? THUMB_GRADIENT.chacara,
+            backgroundImage: imovel.fotos?.[0] ? `url(${imovel.fotos[0]})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
         />
         {imovel.tag && (
           <span className="absolute top-2 left-2 bg-fg text-bg uppercase" style={{ fontSize: 9, letterSpacing: 1, padding: "3px 7px" }}>
