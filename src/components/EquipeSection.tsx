@@ -17,6 +17,8 @@ const team = [
   },
 ]
 
+const waMsg = (nome: string) => `Olá, ${nome}! Gostaria de mais informações.`
+
 export default function EquipeSection() {
   return (
     <section id="sobre" className="border-t border-border">
@@ -55,7 +57,7 @@ export default function EquipeSection() {
           {team.map((p) => (
             <a
               key={p.nome}
-              href={whatsappLink(p.wa, `Olá, ${p.nome}! Gostaria de mais informações.`)}
+              href={whatsappLink(p.wa, waMsg(p.nome))}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between bg-card hover:bg-muted transition-colors"
@@ -114,7 +116,7 @@ export default function EquipeSection() {
             {team.map((p) => (
               <a
                 key={p.nome}
-                href={whatsappLink(p.wa, `Olá, ${p.nome}! Gostaria de mais informações.`)}
+                href={whatsappLink(p.wa, waMsg(p.nome))}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col gap-1 bg-card hover:bg-muted transition-colors"
