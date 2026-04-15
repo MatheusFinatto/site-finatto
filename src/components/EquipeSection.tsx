@@ -1,24 +1,20 @@
+import Image from 'next/image'
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 import WppIcon from './WppIcon'
 
 export default function EquipeSection() {
   return (
     <section id="sobre" className="equipe-grid border-t border-border">
-      {/* Left — CSS landscape */}
+      {/* Left — landscape photo */}
       <div className="relative overflow-hidden hidden md:block">
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(150deg, #1e3d0f 0%, #2d5a18 50%, #1a3a0e 100%)' }}
+        <Image
+          src="/img/equipe-landscape.jpg"
+          alt="Campo e natureza em Erechim e região"
+          fill
+          className="object-cover"
+          sizes="50vw"
         />
-        <div
-          className="absolute"
-          style={{
-            bottom: 0, left: 0, right: 0,
-            height: '40%',
-            background: 'rgba(10,20,5,0.7)',
-            clipPath: 'polygon(0% 100%, 0% 60%, 10% 40%, 20% 60%, 30% 30%, 40% 55%, 50% 20%, 60% 48%, 70% 35%, 80% 58%, 90% 40%, 100% 55%, 100% 100%)',
-          }}
-        />
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.2)' }} />
       </div>
 
       {/* Right — content */}
