@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
+import WppFloat from '@/components/WppFloat'
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-space-grotesk',
@@ -42,6 +43,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-bg text-fg">
         {children}
+        <WppFloat />
       </body>
     </html>
   )

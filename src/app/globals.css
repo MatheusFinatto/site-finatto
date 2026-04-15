@@ -4,7 +4,7 @@
 :root {
   --bg: #ffffff;
   --fg: #0a0a0a;
-  --wpp-green: #25D366;
+  --wpp-green: #4a8a28;
   --accent: #2d5a18;
   --accent-hover: #3d7a22;
   --accent-fg: #ffffff;
@@ -46,10 +46,18 @@
 }
 
 /* ── Logo swap ── */
-.logo-light-img { display: block; }
-.logo-dark-img  { display: none; }
-[data-theme="dark"] .logo-light-img { display: none; }
-[data-theme="dark"] .logo-dark-img  { display: block; }
+.logo-light-img {
+  display: block;
+}
+.logo-dark-img {
+  display: none;
+}
+[data-theme="dark"] .logo-light-img {
+  display: none;
+}
+[data-theme="dark"] .logo-dark-img {
+  display: block;
+}
 
 /* ── Responsive grids ── */
 .hero-grid {
@@ -89,11 +97,17 @@
   text-decoration: none;
   transition: background 0.2s;
 }
-.imovel-row:hover { background: var(--muted); }
+.imovel-row:hover {
+  background: var(--muted);
+}
 .imovel-row-area,
 .imovel-row-price,
-.imovel-row-arrow { display: none; }
-.imovel-row-thumb { height: 180px; }
+.imovel-row-arrow {
+  display: none;
+}
+.imovel-row-thumb {
+  height: 180px;
+}
 
 @media (min-width: 768px) {
   .imovel-row {
@@ -103,10 +117,33 @@
     padding: 20px 0;
   }
   .imovel-row-area,
-  .imovel-row-price,
-  .imovel-row-arrow { display: block; }
-  .imovel-row-thumb { height: 120px; }
-  .imovel-row:hover { margin: 0; padding: 20px 0; }
+  .imovel-row-price {
+    display: block;
+  }
+  .imovel-row-arrow {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-details {
+    color: var(--fg);
+    border: 1px solid var(--fg);
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+  .btn-details:hover {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .imovel-row-thumb {
+    height: 120px;
+  }
+  .imovel-row:hover {
+    margin: 0;
+    padding: 20px 0;
+  }
 }
 
 /* ── Imovel detail ── */
@@ -122,6 +159,20 @@
   }
 }
 
+/* ── Hero WPP buttons: solid on mobile (photo bg), outline on desktop ── */
+.hero-wpp-btn {
+  color: #fff;
+  background: var(--wpp-green);
+  border: 1px solid var(--wpp-green);
+}
+@media (min-width: 768px) {
+  .hero-wpp-btn {
+    color: var(--wpp-green);
+    background: transparent;
+    border: 1px solid var(--wpp-green);
+  }
+}
+
 /* ── Base ── */
 html {
   scroll-behavior: smooth;
@@ -132,5 +183,7 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   font-family: var(--font-space-grotesk), sans-serif;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }

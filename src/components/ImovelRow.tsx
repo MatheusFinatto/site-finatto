@@ -48,6 +48,16 @@ export default function ImovelRow({ imovel }: Props) {
           {/* Price — mobile only */}
           <span className="md:hidden font-semibold text-fg">{formatPreco(imovel.preco)}</span>
         </div>
+        {/* "Ver detalhes" button — mobile only */}
+        <span
+          className="md:hidden inline-flex items-center gap-2 mt-3 font-medium"
+          style={{ fontSize: 12, color: 'var(--fg)', border: '1px solid var(--border)', padding: '8px 14px' }}
+        >
+          Ver detalhes
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12,5 19,12 12,19" />
+          </svg>
+        </span>
       </Link>
 
       {/* Area — desktop only */}
@@ -62,22 +72,32 @@ export default function ImovelRow({ imovel }: Props) {
 
       {/* Price — desktop only */}
       <div className="imovel-row-price text-right" style={{ minWidth: 150 }}>
-        <span className="text-fg block" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20 }}>
+        <span className="text-fg block" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 22 }}>
           {formatPreco(imovel.preco)}
         </span>
-        <span className="text-muted-fg" style={{ fontSize: 11 }}>preço</span>
       </div>
 
-      {/* WPP button — desktop only */}
-      <div className="imovel-row-arrow flex justify-end items-center" style={{ minWidth: 120 }}>
+      {/* Actions — desktop only */}
+      <div className="imovel-row-arrow" style={{ minWidth: 140 }}>
+        <Link
+          href={`/imoveis/${imovel.id}`}
+          className="btn-details inline-flex items-center justify-center gap-2 font-medium"
+          style={{ fontSize: 12, padding: '9px 16px', whiteSpace: 'nowrap' }}
+        >
+          Ver detalhes
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12,5 19,12 12,19" />
+          </svg>
+        </Link>
         <a
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 font-medium transition-opacity hover:opacity-80"
-          style={{ background: 'var(--wpp-green)', color: '#fff', padding: '10px 16px', fontSize: 12, whiteSpace: 'nowrap' }}
+          className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-80"
+          style={{ background: 'var(--wpp-green)', color: '#fff', padding: '9px 16px', fontSize: 12, whiteSpace: 'nowrap' }}
         >
-          <WppIcon size={14} /> Consultar
+          <WppIcon size={13} /> Consultar
         </a>
       </div>
     </div>

@@ -42,7 +42,8 @@ export default function ParceriaSection() {
           href={waLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-accent text-accent-fg font-semibold hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          style={{ background: 'var(--wpp-green)', color: '#fff' }}
         >
           <WppIcon size={16} /> Falar sobre minha área
         </a>

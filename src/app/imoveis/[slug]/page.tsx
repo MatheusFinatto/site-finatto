@@ -144,10 +144,13 @@ export default async function ImovelPage({ params }: Props) {
             {/* Back link */}
             <Link
               href="/#imoveis"
-              className="inline-flex items-center gap-2 text-muted-fg hover:text-fg transition-colors"
-              style={{ fontSize: 13 }}
+              className="btn-details inline-flex items-center gap-2 font-medium self-start"
+              style={{ fontSize: 13, padding: '10px 18px' }}
             >
-              ← Voltar para imóveis
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
+              </svg>
+              Voltar para imóveis
             </Link>
           </div>
 
