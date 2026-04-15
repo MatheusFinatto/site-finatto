@@ -1,6 +1,7 @@
 import type { TipoImovel } from './types'
 
-export const ANO_FUNDACAO = 2008
+export const ANO_FUNDACAO = 2006
+export const BASE_URL = 'https://finatto-site.vercel.app'
 export const ANOS_CONSTRUTORA = 13 // anos operando como construtora antes de virar incorporadora
 export const IMOVEIS_ENTREGUES = '500+'
 
