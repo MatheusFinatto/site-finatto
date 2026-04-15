@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Imovel } from '@/lib/types'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, whatsappLink } from '@/lib/utils'
 import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from '@/lib/constants'
@@ -12,10 +13,10 @@ export default function ImovelRow({ imovel }: Props) {
   )
 
   return (
-    <a href={waLink} target="_blank" rel="noopener noreferrer" className="imovel-row group">
+    <div className="imovel-row group">
 
-      {/* Thumb */}
-      <div className="imovel-row-thumb relative overflow-hidden flex-shrink-0">
+      {/* Thumb — links to detail */}
+      <Link href={`/imoveis/${imovel.id}`} className="imovel-row-thumb relative overflow-hidden flex-shrink-0 block">
         <div
           className="w-full h-full group-hover:scale-105 transition-transform duration-300"
           style={{ background: THUMB_GRADIENT[imovel.tipo] ?? THUMB_GRADIENT.chacara }}
@@ -28,10 +29,10 @@ export default function ImovelRow({ imovel }: Props) {
             {imovel.tag}
           </span>
         )}
-      </div>
+      </Link>
 
-      {/* Info */}
-      <div>
+      {/* Info — links to detail */}
+      <Link href={`/imoveis/${imovel.id}`} className="block" style={{ textDecoration: 'none' }}>
         <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}>
           {TIPO_LABEL[imovel.tipo]} · {imovel.logradouro ?? imovel.bairro}
           {imovel.complemento ? `, ${imovel.complemento}` : ''}
@@ -44,13 +45,10 @@ export default function ImovelRow({ imovel }: Props) {
           {imovel.banheiros != null && <span>{imovel.banheiros} banheiros</span>}
           {imovel.vagas     != null && <span>{imovel.vagas}     vagas</span>}
 
-          {/* Price + WPP hint — mobile only */}
+          {/* Price — mobile only */}
           <span className="md:hidden font-semibold text-fg">{formatPreco(imovel.preco)}</span>
-          <span className="md:hidden inline-flex items-center gap-1" style={{ color: 'var(--wpp-green)', fontSize: 12 }}>
-            <WppIcon size={12} /> Saber mais
-          </span>
         </div>
-      </div>
+      </Link>
 
       {/* Area — desktop only */}
       <div className="imovel-row-area text-right" style={{ minWidth: 110 }}>
@@ -71,14 +69,17 @@ export default function ImovelRow({ imovel }: Props) {
       </div>
 
       {/* WPP button — desktop only */}
-      <div className="imovel-row-arrow flex justify-end" style={{ minWidth: 120 }}>
-        <span
-          className="inline-flex items-center gap-2 font-medium transition-opacity group-hover:opacity-80"
+      <div className="imovel-row-arrow flex justify-end items-center" style={{ minWidth: 120 }}>
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 font-medium transition-opacity hover:opacity-80"
           style={{ background: 'var(--wpp-green)', color: '#fff', padding: '10px 16px', fontSize: 12, whiteSpace: 'nowrap' }}
         >
-          <WppIcon size={14} /> Saber mais
-        </span>
+          <WppIcon size={14} /> Consultar
+        </a>
       </div>
-    </a>
+    </div>
   )
 }

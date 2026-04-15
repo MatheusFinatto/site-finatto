@@ -109,6 +109,19 @@
   .imovel-row:hover { margin: 0; padding: 20px 0; }
 }
 
+/* ── Imovel detail ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+@media (min-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr 340px;
+    gap: 60px;
+  }
+}
+
 /* ── Base ── */
 html {
   scroll-behavior: smooth;

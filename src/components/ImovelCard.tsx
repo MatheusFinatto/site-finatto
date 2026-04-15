@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Imovel } from '@/lib/types'
 import { formatArea, formatPreco, WHATSAPP_FINATTO, whatsappLink } from '@/lib/utils'
 import { TIPO_LABEL, TAG_COLORS, wppMsgImovel } from '@/lib/constants'
@@ -12,7 +13,7 @@ export default function ImovelCard({ imovel }: Props) {
   )
 
   return (
-    <div className="flex flex-col rounded-xl overflow-hidden border border-card-border bg-card hover:shadow-lg transition-shadow group">
+    <Link href={`/imoveis/${imovel.id}`} className="flex flex-col rounded-xl overflow-hidden border border-card-border bg-card hover:shadow-lg transition-shadow group" style={{ textDecoration: 'none' }}>
       {/* Foto */}
       <div className="relative h-52 bg-muted overflow-hidden">
         {/* Placeholder — trocar por <Image> com foto real */}
@@ -73,6 +74,6 @@ export default function ImovelCard({ imovel }: Props) {
           </a>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

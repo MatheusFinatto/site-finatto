@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from '@/lib/utils'
 import { IMOVEIS_ENTREGUES, WPP_MSG_FINATTO, WPP_MSG_FLAVIA, anosDeExperiencia } from '@/lib/constants'
 import WppIcon from './WppIcon'
@@ -63,21 +64,21 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Right — CSS landscape */}
+      {/* Right — landscape photo */}
       <div className="relative overflow-hidden hidden md:block">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #1a3a0e 0%, #2d5a18 30%, #3e7020 55%, #2a5010 75%, #1e3d0c 100%)' }} />
-        <div className="absolute" style={{ bottom: '30%', left: 0, right: 0, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-        <div
-          className="absolute"
-          style={{
-            bottom: 0, left: 0, right: 0, height: '35%', background: '#0f2008',
-            clipPath: 'polygon(0% 100%, 0% 70%, 6% 50%, 11% 68%, 14% 35%, 18% 58%, 22% 28%, 27% 52%, 31% 20%, 35% 48%, 39% 32%, 43% 55%, 47% 18%, 51% 45%, 55% 30%, 59% 52%, 63% 22%, 67% 48%, 71% 35%, 75% 58%, 79% 28%, 83% 52%, 87% 38%, 91% 60%, 95% 42%, 100% 62%, 100% 100%)',
-          }}
+        <Image
+          src="/img/hero-landscape.jpg"
+          alt="Chácara em Erechim e região"
+          fill
+          className="object-cover"
+          priority
+          sizes="50vw"
         />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(244,244,244,0.06) 0%, transparent 100%)', zIndex: 2 }} />
+        {/* Subtle dark overlay for contrast */}
+        <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.25)', zIndex: 1 }} />
 
         {/* Floating stat card */}
-        <div className="absolute bg-bg" style={{ bottom: 40, left: 40, padding: '20px 24px', zIndex: 3, minWidth: 200, borderTop: '3px solid var(--accent)' }}>
+        <div className="absolute bg-bg" style={{ bottom: 40, left: 40, padding: '20px 24px', zIndex: 2, minWidth: 200, borderTop: '3px solid var(--accent)' }}>
           <p className="text-muted-fg uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 6 }}>
             Imóveis entregues
           </p>
