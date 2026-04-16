@@ -16,9 +16,13 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
 
   const [current, setCurrent] = useState(0)
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
-  const scrollTo   = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi])
+  const stopAutoplay = useCallback(() => {
+    emblaApi?.plugins()?.autoplay?.stop()
+  }, [emblaApi])
+
+  const scrollPrev = useCallback(() => { emblaApi?.scrollPrev(); stopAutoplay() }, [emblaApi, stopAutoplay])
+  const scrollNext = useCallback(() => { emblaApi?.scrollNext(); stopAutoplay() }, [emblaApi, stopAutoplay])
+  const scrollTo   = useCallback((i: number) => { emblaApi?.scrollTo(i); stopAutoplay() }, [emblaApi, stopAutoplay])
 
   useEffect(() => {
     if (!emblaApi) return
