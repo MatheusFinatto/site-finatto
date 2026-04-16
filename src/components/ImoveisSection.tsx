@@ -5,6 +5,7 @@ import { Imovel, TipoImovel } from "@/lib/types";
 import { TIPO_TABS } from "@/lib/constants";
 import ImovelRow from "./ImovelRow";
 import FilterSelect from "./FilterSelect";
+import DestaquesSection from "./DestaquesSection";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -119,6 +120,10 @@ export default function ImoveisSection({ imoveis }: Props) {
   );
 
   const ativo = temFiltroAtivo(filtros);
+  const destaques = useMemo(
+    () => imoveis.filter((i) => i.tag === "Destaque"),
+    [imoveis],
+  );
 
   return (
     <section id="imoveis" style={{ padding: "clamp(48px, 6vw, 80px) clamp(24px, 5vw, 60px)" }}>
@@ -133,6 +138,9 @@ export default function ImoveisSection({ imoveis }: Props) {
           Imóveis disponíveis
         </h2>
       </div>
+
+      {/* Destaques — antes dos filtros */}
+      {destaques.length > 0 && <DestaquesSection destaques={destaques} />}
 
       {/* ── Desktop filters ── */}
       <div className="hidden md:block border border-border">
