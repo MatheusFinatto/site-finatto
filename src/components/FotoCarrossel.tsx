@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useState } from "react";
@@ -57,12 +58,14 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
         <div className="flex h-full">
           {fotos.map((url, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={url}
                 alt={`${alt} — foto ${i + 1}`}
+                fill
                 draggable={false}
-                className="w-full h-full object-cover select-none"
+                className="object-cover select-none"
+                sizes="(max-width: 768px) 100vw, 80vw"
+                priority={i === 0}
               />
             </div>
           ))}
@@ -85,11 +88,40 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
               zIndex: 2,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" stroke="rgba(0,0,0,0.5)" strokeWidth="4.5" />
-              <polyline points="12,19 5,12 12,5" stroke="rgba(0,0,0,0.5)" strokeWidth="4.5" />
-              <line x1="19" y1="12" x2="5" y2="12" stroke="white" strokeWidth="2.5" />
-              <polyline points="12,19 5,12 12,5" stroke="white" strokeWidth="2.5" />
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line
+                x1="19"
+                y1="12"
+                x2="5"
+                y2="12"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="4.5"
+              />
+              <polyline
+                points="12,19 5,12 12,5"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="4.5"
+              />
+              <line
+                x1="19"
+                y1="12"
+                x2="5"
+                y2="12"
+                stroke="white"
+                strokeWidth="2.5"
+              />
+              <polyline
+                points="12,19 5,12 12,5"
+                stroke="white"
+                strokeWidth="2.5"
+              />
             </svg>
           </button>
           <button
@@ -105,11 +137,40 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
               zIndex: 2,
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" stroke="rgba(0,0,0,0.5)" strokeWidth="4.5" />
-              <polyline points="12,5 19,12 12,19" stroke="rgba(0,0,0,0.5)" strokeWidth="4.5" />
-              <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="2.5" />
-              <polyline points="12,5 19,12 12,19" stroke="white" strokeWidth="2.5" />
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line
+                x1="5"
+                y1="12"
+                x2="19"
+                y2="12"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="4.5"
+              />
+              <polyline
+                points="12,5 19,12 12,19"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="4.5"
+              />
+              <line
+                x1="5"
+                y1="12"
+                x2="19"
+                y2="12"
+                stroke="white"
+                strokeWidth="2.5"
+              />
+              <polyline
+                points="12,5 19,12 12,19"
+                stroke="white"
+                strokeWidth="2.5"
+              />
             </svg>
           </button>
 

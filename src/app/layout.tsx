@@ -2,7 +2,25 @@ import type { Metadata } from 'next'
 import { Space_Grotesk, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import WppFloat from '@/components/WppFloat'
-import { BASE_URL, IMOVEIS_ENTREGUES, anosDeExperiencia } from '@/lib/constants'
+import { BASE_URL, IMOVEIS_ENTREGUES, ANO_FUNDACAO, anosDeExperiencia } from '@/lib/constants'
+
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: 'Finatto Incorporadora e Engenharia',
+  url: BASE_URL,
+  foundingDate: String(ANO_FUNDACAO),
+  telephone: '+55 54 99163-6937',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Rua Sergipe, 1707',
+    addressLocality: 'Erechim',
+    addressRegion: 'RS',
+    postalCountry: 'BR',
+    neighborhood: 'Bela Vista',
+  },
+  areaServed: 'Erechim e região, RS',
+}
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-space-grotesk',
@@ -51,6 +69,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}})()`,
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
         />
       </head>
       <body className="min-h-screen flex flex-col bg-bg text-fg">

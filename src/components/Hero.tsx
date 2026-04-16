@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from "@/lib/utils";
-import { ANO_FUNDACAO, WPP_MSG_FINATTO, WPP_MSG_FLAVIA, anosDeExperiencia } from "@/lib/constants";
+import { ANO_FUNDACAO, IMOVEIS_ENTREGUES, WPP_MSG_FINATTO, WPP_MSG_FLAVIA, anosDeExperiencia } from "@/lib/constants";
 import WppIcon from "./WppIcon";
 
 const wppButtons = [
@@ -42,7 +42,7 @@ export default function Hero() {
         </h1>
 
         <p className="text-muted-fg mb-10" style={{ fontSize: 16, lineHeight: 1.8, maxWidth: 420 }}>
-          {anosDeExperiencia()} anos de mercado. Chácaras, terrenos, casas e pavilhões com assessoria técnica especializada.
+          {anosDeExperiencia()} anos de mercado, {IMOVEIS_ENTREGUES} imóveis entregues em Erechim e região. Atendimento direto com os sócios — sem intermediários.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">

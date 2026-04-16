@@ -10,7 +10,7 @@ export default function Footer() {
       id="contato"
       className="border-t border-border bg-muted mt-auto"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto" style={{ padding: "clamp(40px, 5vw, 60px) clamp(24px, 5vw, 60px)" }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="lg:col-span-2">
@@ -50,6 +50,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-fg text-sm mb-3">Contato</h4>
             <ul className="flex flex-col gap-2 text-sm text-muted-fg">
+              <li>Rua Sergipe, 1707 — Bela Vista</li>
               <li>Erechim, RS</li>
               <li>
                 <a

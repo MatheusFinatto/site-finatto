@@ -70,9 +70,43 @@ export default async function ImovelPage({ params }: Props) {
     ...(imovel.vagas     != null ? [{ label: 'Vagas',     value: String(imovel.vagas)     }] : []),
   ]
 
+  const listingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: imovel.titulo,
+    description: imovel.descricao,
+    url: `${BASE_URL}/imoveis/${imovel.id}`,
+    ...(imovel.fotos?.[0] ? { image: imovel.fotos[0] } : {}),
+    offers: {
+      '@type': 'Offer',
+      price: imovel.preco,
+      priceCurrency: 'BRL',
+      availability:
+        imovel.status === 'disponivel'
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/SoldOut',
+    },
+    floorSize: {
+      '@type': 'QuantitativeValue',
+      value: imovel.area_total,
+      unitCode: 'MTK',
+    },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: imovel.cidade,
+      addressRegion: 'RS',
+      addressCountry: 'BR',
+      ...(imovel.bairro ? { neighborhood: imovel.bairro } : {}),
+    },
+  }
+
   return (
     <>
       <Navbar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(listingSchema) }}
+      />
       <main style={{ background: 'var(--bg)' }}>
 
         {/* Breadcrumb */}

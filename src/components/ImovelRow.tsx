@@ -50,8 +50,13 @@ export default function ImovelRow({ imovel }: Props) {
           {imovel.quartos   != null && <span>{imovel.quartos} quartos</span>}
           {imovel.banheiros != null && <span>{imovel.banheiros} banheiros</span>}
           {imovel.vagas     != null && <span>{imovel.vagas} vagas</span>}
-          <span className="md:hidden font-semibold text-fg">{formatPreco(imovel.preco)}</span>
         </div>
+        <p
+          className="md:hidden text-fg"
+          style={{ fontFamily: "var(--font-dm-serif)", fontSize: 26, lineHeight: 1, marginTop: 8 }}
+        >
+          {formatPreco(imovel.preco)}
+        </p>
       </Link>
 
       {/* Mobile actions */}
@@ -59,12 +64,12 @@ export default function ImovelRow({ imovel }: Props) {
         <a href={waLink} target="_blank" rel="noopener noreferrer"
           className="flex-1 flex items-center justify-center gap-2 font-medium"
           style={{ background: "var(--wpp-green)", color: "#fff", padding: "11px 12px", fontSize: 12 }}>
-          <WppIcon size={13} /> Consultar
+          <WppIcon size={13} /> Falar agora
         </a>
         <Link href={detailHref}
           className="flex-1 flex items-center justify-center gap-2 font-medium no-underline"
           style={{ background: "transparent", color: "var(--fg)", border: "1px solid var(--border)", padding: "11px 12px", fontSize: 12 }}>
-          Ver detalhes <ArrowRight size={11} />
+          Ver imóvel <ArrowRight size={11} />
         </Link>
       </div>
 
@@ -78,7 +83,8 @@ export default function ImovelRow({ imovel }: Props) {
 
       {/* Price — desktop */}
       <div className="imovel-row-price text-right" style={{ minWidth: 150 }}>
-        <span className="text-fg block" style={{ fontFamily: "var(--font-dm-serif)", fontSize: 22 }}>
+        <span className="text-muted-fg uppercase block" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 4 }}>Preço</span>
+        <span className="text-fg block" style={{ fontFamily: "var(--font-dm-serif)", fontSize: 30 }}>
           {formatPreco(imovel.preco)}
         </span>
       </div>
@@ -88,12 +94,12 @@ export default function ImovelRow({ imovel }: Props) {
         <Link href={detailHref}
           className="btn-details inline-flex items-center justify-center gap-2 font-medium"
           style={{ fontSize: 12, padding: "9px 16px", whiteSpace: "nowrap" }}>
-          Ver detalhes <ArrowRight size={13} />
+          Ver imóvel <ArrowRight size={13} />
         </Link>
         <a href={waLink} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-80"
           style={{ background: "var(--wpp-green)", color: "#fff", padding: "9px 16px", fontSize: 12, whiteSpace: "nowrap" }}>
-          <WppIcon size={13} /> Consultar
+          <WppIcon size={13} /> Falar agora
         </a>
       </div>
     </div>
