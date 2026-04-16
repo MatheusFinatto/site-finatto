@@ -11,7 +11,7 @@ interface Props {
 
 export default function FotoCarrossel({ fotos, alt }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true }),
+    Autoplay({ delay: 4000, stopOnInteraction: true }),
   ])
 
   const [current, setCurrent] = useState(0)
