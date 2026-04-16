@@ -38,7 +38,7 @@ export default function ImovelRow({ imovel }: Props) {
       </Link>
 
       {/* Info */}
-      <Link href={detailHref} className="block" style={{ textDecoration: "none" }}>
+      <Link href={detailHref} className="block no-underline">
         <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}>
           {TIPO_LABEL[imovel.tipo]} · {imovel.logradouro ?? imovel.bairro}
           {imovel.complemento ? `, ${imovel.complemento}` : ""}
@@ -62,8 +62,8 @@ export default function ImovelRow({ imovel }: Props) {
           <WppIcon size={13} /> Consultar
         </a>
         <Link href={detailHref}
-          className="flex-1 flex items-center justify-center gap-2 font-medium"
-          style={{ background: "transparent", color: "var(--fg)", border: "1px solid var(--border)", padding: "11px 12px", fontSize: 12, textDecoration: "none" }}>
+          className="flex-1 flex items-center justify-center gap-2 font-medium no-underline"
+          style={{ background: "transparent", color: "var(--fg)", border: "1px solid var(--border)", padding: "11px 12px", fontSize: 12 }}>
           Ver detalhes <ArrowRight size={11} />
         </Link>
       </div>

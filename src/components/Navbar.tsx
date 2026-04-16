@@ -66,7 +66,7 @@ export default function Navbar() {
           {/* Mobile controls */}
           <div className="flex md:hidden items-center gap-2">
             <ThemeToggle />
-            <button onClick={() => setOpen(!open)} aria-label="Menu" className="p-2 rounded-md text-muted-fg hover:text-fg">
+            <button onClick={() => setOpen(!open)} aria-label="Menu" className="p-2 text-muted-fg hover:text-fg">
               {open ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />

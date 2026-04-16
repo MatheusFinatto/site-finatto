@@ -60,12 +60,12 @@ export default function EquipeSection() {
               href={whatsappLink(p.wa, waMsg(p.nome))}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between bg-card hover:bg-muted transition-colors"
-              style={{ padding: '20px', textDecoration: 'none' }}
+              className="flex items-center justify-between bg-card hover:bg-muted transition-colors no-underline"
+              style={{ padding: '20px' }}
             >
               <div className="flex flex-col gap-1">
                 <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>{p.cargo}</p>
-                <p className="text-fg font-semibold" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20 }}>{p.nome}</p>
+                <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 20 }}>{p.nome}</p>
                 <p className="text-muted-fg" style={{ fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{p.info}</p>
               </div>
               <span
@@ -119,8 +119,8 @@ export default function EquipeSection() {
                 href={whatsappLink(p.wa, waMsg(p.nome))}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col gap-1 bg-card hover:bg-muted transition-colors"
-                style={{ padding: '20px 24px', textDecoration: 'none' }}
+                className="flex flex-col gap-1 bg-card hover:bg-muted transition-colors no-underline"
+                style={{ padding: '20px 24px' }}
               >
                 <p className="text-accent uppercase" style={{ fontSize: 10, letterSpacing: 2 }}>{p.cargo}</p>
                 <p className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 18 }}>{p.nome}</p>

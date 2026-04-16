@@ -46,7 +46,9 @@ export const TIPO_TABS: { value: TipoImovel | ''; label: string }[] = [
 // ── WhatsApp messages ────────────────────────────────────────────────────────
 
 export const WPP_MSG_FINATTO = 'Olá, Finatto! Gostaria de informações sobre imóveis.'
-export const WPP_MSG_FLAVIA  = 'Olá, Flávia! Gostaria de informações sobre imóveis.'
+export const WPP_MSG_FLAVIA = 'Olá, Flávia! Gostaria de informações sobre imóveis.'
+export const WPP_MSG_PARCERIA =
+  'Olá! Tenho uma área e gostaria de conversar sobre a possibilidade de um loteamento.'
 
 export function wppMsgImovel(titulo: string, preco: string): string {
   return `Olá! Tenho interesse no imóvel: ${titulo} (${preco}). Poderia me dar mais informações?`
