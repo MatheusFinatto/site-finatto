@@ -41,7 +41,7 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           {fotos.map((url, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`${alt} — foto ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={url} alt={`${alt} — foto ${i + 1}`} draggable={false} className="w-full h-full object-cover select-none" />
             </div>
           ))}
         </div>
@@ -53,8 +53,8 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           <button
             onClick={scrollPrev}
             aria-label="Foto anterior"
-            className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70"
-            style={{ background: 'rgba(0,0,0,0.45)', border: 'none', cursor: 'pointer', width: 40, height: 40, zIndex: 2 }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/45"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', width: 40, height: 40, zIndex: 2 }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
@@ -63,8 +63,8 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           <button
             onClick={scrollNext}
             aria-label="Próxima foto"
-            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70"
-            style={{ background: 'rgba(0,0,0,0.45)', border: 'none', cursor: 'pointer', width: 40, height: 40, zIndex: 2 }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/45"
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', width: 40, height: 40, zIndex: 2 }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12,5 19,12 12,19" />

@@ -6,4 +6,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Project rules
 
-- Always `git push` immediately after every commit, without waiting to be asked.
+- When asked to commit, always `git push` immediately after.
