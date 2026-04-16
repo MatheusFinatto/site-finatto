@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next'
-import imoveis from '@/data/imoveis.json'
-import type { Imovel } from '@/lib/types'
+import { client } from '@/sanity/lib/client'
+import { allImovelIdsQuery } from '@/sanity/lib/queries'
 import { BASE_URL } from '@/lib/constants'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const imovelRoutes = (imoveis as Imovel[]).map((i) => ({
-    url: `${BASE_URL}/imoveis/${i.id}`,
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const ids: string[] = await client.fetch(allImovelIdsQuery)
+  const imovelRoutes = ids.map((id) => ({
+    url: `${BASE_URL}/imoveis/${id}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
