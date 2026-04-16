@@ -109,7 +109,7 @@ export default function DestaquesSection({ destaques }: Props) {
         style={{ margin: "0 calc(-1 * clamp(24px, 5vw, 60px))" }}
       >
         <div ref={emblaRef} className="overflow-hidden">
-        <div className="flex" style={{ gap: 12, paddingLeft: "clamp(24px, 5vw, 60px)", paddingRight: "clamp(24px, 5vw, 60px)" }}>
+        <div className="flex" style={{ gap: 12, paddingLeft: 12, paddingRight: 12 }}>
           {destaques.map((imovel) => (
             <div
               key={imovel.id}
