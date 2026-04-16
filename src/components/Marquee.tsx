@@ -18,8 +18,8 @@ export default function Marquee() {
 
   return (
     <div
-      className="overflow-hidden border-y border-border"
-      style={{ background: "#0a0a0a", padding: "14px 0" }}
+      className="overflow-hidden border-b border-border"
+      style={{ background: "#0a0a0a", padding: "14px 0", lineHeight: 0 }}
     >
       <div
         className="inline-flex whitespace-nowrap"

@@ -10,7 +10,7 @@ const wppButtons = [
 
 export default function Hero() {
   return (
-    <section className="hero-grid border-b border-border relative">
+    <section className="hero-grid relative">
       {/* Mobile background photo */}
       <Image
         src="/img/hero-landscape.jpg"

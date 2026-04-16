@@ -142,6 +142,14 @@ export default function ImoveisSection({ imoveis }: Props) {
       {/* Destaques — antes dos filtros */}
       {destaques.length > 0 && <DestaquesSection destaques={destaques} />}
 
+      {/* Sub-header lista */}
+      <p
+        className="text-muted-fg uppercase"
+        style={{ fontSize: 11, letterSpacing: 3, marginBottom: 16 }}
+      >
+        Todos os imóveis
+      </p>
+
       {/* ── Desktop filters ── */}
       <div className="hidden md:block border border-border">
 
