@@ -3,11 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
-import { useCallback, useEffect, useState } from "react";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
 import { Imovel } from "@/lib/types";
-import { formatPreco, WHATSAPP_FINATTO, whatsappLink } from "@/lib/utils";
+import {
+  formatArea,
+  formatPreco,
+  WHATSAPP_FINATTO,
+  whatsappLink,
+} from "@/lib/utils";
 import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from "@/lib/constants";
 import WppIcon from "./WppIcon";
+import { BedDouble, Bath, Car, SquareDashed, Grid2x2 } from "lucide-react";
 
 interface Props {
   imovel: Imovel;
@@ -20,22 +27,10 @@ export default function DestaqueCard({ imovel }: Props) {
     wppMsgImovel(imovel.titulo, formatPreco(imovel.preco)),
   );
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const [current, setCurrent] = useState(0);
-
-  const scrollTo = useCallback(
-    (i: number) => emblaApi?.scrollTo(i),
-    [emblaApi],
-  );
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => setCurrent(emblaApi.selectedScrollSnap());
-    emblaApi.on("select", onSelect);
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi]);
+  const autoplay = useRef(Autoplay({ delay: 2400, stopOnInteraction: false }));
+  const [emblaRef] = useEmblaCarousel({ loop: true, watchDrag: false }, [
+    autoplay.current,
+  ]);
 
   const hasFotos = imovel.fotos?.length > 0;
 
@@ -48,7 +43,7 @@ export default function DestaqueCard({ imovel }: Props) {
       <Link
         href={detailHref}
         className="relative flex-shrink-0 block no-underline overflow-hidden"
-        style={{ height: "65%" }}
+        style={{ height: "clamp(180px, 20vw, 260px)" }}
       >
         {hasFotos ? (
           <div ref={emblaRef} className="overflow-hidden w-full h-full">
@@ -108,39 +103,15 @@ export default function DestaqueCard({ imovel }: Props) {
         {/* Type badge */}
         <span
           className="absolute top-3 left-3 bg-fg text-bg uppercase"
-          style={{ fontSize: 9, letterSpacing: 1.5, padding: "3px 8px", zIndex: 2 }}
+          style={{
+            fontSize: 9,
+            letterSpacing: 1.5,
+            padding: "3px 8px",
+            zIndex: 2,
+          }}
         >
           {TIPO_LABEL[imovel.tipo]}
         </span>
-
-        {/* Photo dots */}
-        {hasFotos && imovel.fotos.length > 1 && (
-          <div
-            className="absolute top-3 right-3 flex gap-1"
-            style={{ zIndex: 2 }}
-          >
-            {imovel.fotos.map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollTo(i);
-                }}
-                aria-label={`Foto ${i + 1}`}
-                style={{
-                  width: i === current ? 14 : 5,
-                  height: 5,
-                  background:
-                    i === current ? "white" : "rgba(255,255,255,0.5)",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  transition: "all 0.2s",
-                }}
-              />
-            ))}
-          </div>
-        )}
       </Link>
 
       {/* Content area — 35% */}
@@ -169,6 +140,53 @@ export default function DestaqueCard({ imovel }: Props) {
         >
           {imovel.titulo}
         </Link>
+
+        {/* Atributos */}
+        {(imovel.quartos != null ||
+          imovel.banheiros != null ||
+          imovel.vagas != null) && (
+          <div
+            className="flex items-center gap-3 text-muted-fg"
+            style={{ fontSize: 12, marginBottom: 12 }}
+          >
+            {imovel.quartos != null && (
+              <span className="inline-flex items-center gap-1">
+                <BedDouble size={13} strokeWidth={1.8} />
+                {imovel.quartos}
+              </span>
+            )}
+            {imovel.banheiros != null && (
+              <span className="inline-flex items-center gap-1">
+                <Bath size={13} strokeWidth={1.8} />
+                {imovel.banheiros}
+              </span>
+            )}
+            {imovel.vagas != null && (
+              <span className="inline-flex items-center gap-1">
+                <Car size={13} strokeWidth={1.8} />
+                {imovel.vagas}
+              </span>
+            )}
+            {imovel.area_total > 0 && (
+              <span
+                className="inline-flex items-center gap-1"
+                title="Área total"
+              >
+                <SquareDashed size={13} strokeWidth={1.8} />
+                {formatArea(imovel.area_total)}
+              </span>
+            )}
+            {imovel.area_construida != null && imovel.area_construida > 0 && (
+              <span
+                className="inline-flex items-center gap-1"
+                title="Área construída"
+              >
+                <Grid2x2 size={13} strokeWidth={1.8} />
+                {formatArea(imovel.area_construida)}
+              </span>
+            )}
+          </div>
+        )}
 
         {/* CTAs */}
         <div className="flex gap-2">
