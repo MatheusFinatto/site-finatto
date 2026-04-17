@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, startTransition } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import type { SwiperRef } from "swiper/react";
 import { Imovel } from "@/lib/types";
@@ -16,16 +16,24 @@ export default function DestaquesSection({ destaques }: Props) {
   const swiperRef = useRef<SwiperRef>(null);
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    startTransition(() => setMounted(true));
+  }, []);
 
   return (
     <div style={{ marginBottom: 48 }}>
       {/* Sub-header */}
-      <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
-        <p className="text-muted-fg uppercase" style={{ fontSize: 11, letterSpacing: 3 }}>
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: 16 }}
+      >
+        <p
+          className="text-muted-fg uppercase"
+          style={{ fontSize: 11, letterSpacing: 3 }}
+        >
           Destaques
         </p>
-
       </div>
 
       {/* Skeleton pré-mount */}
@@ -33,13 +41,31 @@ export default function DestaquesSection({ destaques }: Props) {
         <div className="flex gap-3" style={{ overflow: "hidden" }}>
           {[1, 0.15].map((w, i) => (
             <div key={i} style={{ flex: `0 0 ${w * 82}%`, minWidth: 0 }}>
-              <div className="animate-pulse bg-muted" style={{ height: "clamp(180px, 20vw, 260px)" }} />
-              <div className="bg-card border-x border-b border-border" style={{ padding: "16px 16px 14px" }}>
-                <div className="animate-pulse bg-muted" style={{ height: 10, width: "50%", marginBottom: 8 }} />
-                <div className="animate-pulse bg-muted" style={{ height: 18, width: "85%", marginBottom: 12 }} />
+              <div
+                className="animate-pulse bg-muted"
+                style={{ height: "clamp(180px, 20vw, 260px)" }}
+              />
+              <div
+                className="bg-card border-x border-b border-border"
+                style={{ padding: "16px 16px 14px" }}
+              >
+                <div
+                  className="animate-pulse bg-muted"
+                  style={{ height: 10, width: "50%", marginBottom: 8 }}
+                />
+                <div
+                  className="animate-pulse bg-muted"
+                  style={{ height: 18, width: "85%", marginBottom: 12 }}
+                />
                 <div className="flex gap-2">
-                  <div className="animate-pulse bg-muted flex-1" style={{ height: 34 }} />
-                  <div className="animate-pulse bg-muted flex-1" style={{ height: 34 }} />
+                  <div
+                    className="animate-pulse bg-muted flex-1"
+                    style={{ height: 34 }}
+                  />
+                  <div
+                    className="animate-pulse bg-muted flex-1"
+                    style={{ height: 34 }}
+                  />
                 </div>
               </div>
             </div>
@@ -48,62 +74,126 @@ export default function DestaquesSection({ destaques }: Props) {
       )}
 
       {/* Carousel */}
-      {mounted && <div style={{ margin: "0 calc(-1 * clamp(24px, 5vw, 60px))", position: "relative" }}>
-
-        {/* Setas laterais — só desktop */}
-        {destaques.length > 1 && <>
-          <button
-            onClick={() => swiperRef.current?.swiper.slidePrev()}
-            aria-label="Anterior"
-            className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
-            style={{
-              position: "absolute", left: 12, top: "40%", transform: "translateY(-50%)",
-              width: 40, height: 40,
-              background: "var(--bg)", border: "1px solid var(--border)",
-              cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
-            </svg>
-          </button>
-          <button
-            onClick={() => swiperRef.current?.swiper.slideNext()}
-            aria-label="Próximo"
-            className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
-            style={{
-              position: "absolute", right: 12, top: "40%", transform: "translateY(-50%)",
-              width: 40, height: 40,
-              background: "var(--bg)", border: "1px solid var(--border)",
-              cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12,5 19,12 12,19" />
-            </svg>
-          </button>
-        </>}
-
-        <Swiper
-          ref={swiperRef}
-          modules={[Navigation, Pagination]}
-          loop={destaques.length > 2}
-          spaceBetween={12}
-          slidesPerView={1.2}
-          centeredSlides={true}
-          breakpoints={{
-            768:  { slidesPerView: 3.15, centeredSlides: false, slidesOffsetBefore: 40, slidesOffsetAfter: 40 },
-            1024: { slidesPerView: 4.15, centeredSlides: false, slidesOffsetBefore: 60, slidesOffsetAfter: 60 },
+      {mounted && (
+        <div
+          style={{
+            margin: "0 calc(-1 * clamp(24px, 5vw, 60px))",
+            position: "relative",
           }}
-          onSlideChange={(s) => setCurrent(s.realIndex)}
         >
-          {destaques.map((imovel) => (
-            <SwiperSlide key={imovel.id}>
-              <DestaqueCard imovel={imovel} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>}
+          {/* Setas laterais — só desktop */}
+          {destaques.length > 1 && (
+            <>
+              <button
+                onClick={() => {
+                  const s = swiperRef.current?.swiper;
+                  s?.autoplay.stop();
+                  s?.slidePrev(300);
+                }}
+                aria-label="Anterior"
+                className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
+                style={{
+                  position: "absolute",
+                  left: 12,
+                  top: "40%",
+                  transform: "translateY(-50%)",
+                  width: 40,
+                  height: 40,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                }}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12,19 5,12 12,5" />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  const s = swiperRef.current?.swiper;
+                  s?.autoplay.stop();
+                  s?.slideNext(300);
+                }}
+                aria-label="Próximo"
+                className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: "40%",
+                  transform: "translateY(-50%)",
+                  width: 40,
+                  height: 40,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                }}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12,5 19,12 12,19" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          <Swiper
+            ref={swiperRef}
+            modules={[Navigation, Pagination, Autoplay]}
+            autoplay={{
+              delay: 2000,
+              pauseOnMouseEnter: true,
+              disableOnInteraction: true,
+            }}
+            speed={2000}
+            loop={destaques.length > 2}
+            spaceBetween={12}
+            slidesPerView={1.2}
+            centeredSlides={true}
+            breakpoints={{
+              768: {
+                slidesPerView: 3.15,
+                centeredSlides: false,
+                slidesOffsetBefore: 40,
+                slidesOffsetAfter: 40,
+              },
+              1024: {
+                slidesPerView: 4.15,
+                centeredSlides: false,
+                slidesOffsetBefore: 60,
+                slidesOffsetAfter: 60,
+              },
+            }}
+            onSlideChange={(s) => setCurrent(s.realIndex)}
+          >
+            {destaques.map((imovel) => (
+              <SwiperSlide key={imovel.id}>
+                <DestaqueCard imovel={imovel} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      )}
 
       {/* Dots */}
       {destaques.length > 1 && (
