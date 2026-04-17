@@ -26,32 +26,6 @@ export default function DestaquesSection({ destaques }: Props) {
           Destaques
         </p>
 
-        {destaques.length > 1 && (
-          <div className="flex gap-1.5">
-            <button
-              onClick={() => swiperRef.current?.swiper.slidePrev()}
-              aria-label="Anterior"
-              className="flex items-center justify-center transition-opacity hover:opacity-60"
-              style={{ width: 30, height: 30, border: "1px solid var(--border)", background: "transparent", cursor: "pointer" }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-fg">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12,19 5,12 12,5" />
-              </svg>
-            </button>
-            <button
-              onClick={() => swiperRef.current?.swiper.slideNext()}
-              aria-label="Próximo"
-              className="flex items-center justify-center transition-opacity hover:opacity-60"
-              style={{ width: 30, height: 30, border: "1px solid var(--border)", background: "transparent", cursor: "pointer" }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-fg">
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12,5 19,12 12,19" />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Skeleton pré-mount */}
@@ -74,18 +48,52 @@ export default function DestaquesSection({ destaques }: Props) {
       )}
 
       {/* Carousel */}
-      {mounted && <div style={{ margin: "0 calc(-1 * clamp(24px, 5vw, 60px))" }}>
+      {mounted && <div style={{ margin: "0 calc(-1 * clamp(24px, 5vw, 60px))", position: "relative" }}>
+
+        {/* Setas laterais — só desktop */}
+        {destaques.length > 1 && <>
+          <button
+            onClick={() => swiperRef.current?.swiper.slidePrev()}
+            aria-label="Anterior"
+            className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
+            style={{
+              position: "absolute", left: 12, top: "40%", transform: "translateY(-50%)",
+              width: 40, height: 40,
+              background: "var(--bg)", border: "1px solid var(--border)",
+              cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12,19 5,12 12,5" />
+            </svg>
+          </button>
+          <button
+            onClick={() => swiperRef.current?.swiper.slideNext()}
+            aria-label="Próximo"
+            className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
+            style={{
+              position: "absolute", right: 12, top: "40%", transform: "translateY(-50%)",
+              width: 40, height: 40,
+              background: "var(--bg)", border: "1px solid var(--border)",
+              cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12,5 19,12 12,19" />
+            </svg>
+          </button>
+        </>}
+
         <Swiper
           ref={swiperRef}
           modules={[Navigation, Pagination]}
           loop={destaques.length > 2}
           spaceBetween={12}
-          slidesPerView={1.15}
-          slidesOffsetBefore={24}
-          slidesOffsetAfter={24}
+          slidesPerView={1.2}
+          centeredSlides={true}
           breakpoints={{
-            768:  { slidesPerView: 3.15, slidesOffsetBefore: 40, slidesOffsetAfter: 40 },
-            1024: { slidesPerView: 4.15, slidesOffsetBefore: 60, slidesOffsetAfter: 60 },
+            768:  { slidesPerView: 3.15, centeredSlides: false, slidesOffsetBefore: 40, slidesOffsetAfter: 40 },
+            1024: { slidesPerView: 4.15, centeredSlides: false, slidesOffsetBefore: 60, slidesOffsetAfter: 60 },
           }}
           onSlideChange={(s) => setCurrent(s.realIndex)}
         >

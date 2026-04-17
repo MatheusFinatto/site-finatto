@@ -14,7 +14,7 @@ import {
 } from "@/lib/utils";
 import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from "@/lib/constants";
 import WppIcon from "./WppIcon";
-import { BedDouble, Bath, Car, SquareDashed, Grid2x2 } from "lucide-react";
+import { BedDouble, Bath, Car, SquareDashed, Grid2x2, ArrowRight } from "lucide-react";
 
 interface Props {
   imovel: Imovel;
@@ -209,7 +209,7 @@ export default function DestaqueCard({ imovel }: Props) {
             className="flex-1 inline-flex items-center justify-center gap-1.5 font-medium no-underline border border-border text-fg transition-colors hover:bg-muted"
             style={{ padding: "9px 10px", fontSize: 11 }}
           >
-            Ver imóvel
+            Ver imóvel <ArrowRight size={11} strokeWidth={2.5} />
           </Link>
         </div>
       </div>

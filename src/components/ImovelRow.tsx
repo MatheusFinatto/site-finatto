@@ -146,7 +146,7 @@ export default function ImovelRow({ imovel }: Props) {
             fontSize: 12,
           }}
         >
-          <WppIcon size={13} /> Consultar
+          <WppIcon size={13} /> Falar agora
         </a>
         <Link
           href={detailHref}
@@ -159,7 +159,7 @@ export default function ImovelRow({ imovel }: Props) {
             fontSize: 12,
           }}
         >
-          Ver detalhes <ArrowRight size={11} />
+          Ver imóvel <ArrowRight size={11} />
         </Link>
       </div>
 
@@ -204,7 +204,7 @@ export default function ImovelRow({ imovel }: Props) {
           className="btn-details inline-flex items-center justify-center gap-2 font-medium"
           style={{ fontSize: 12, padding: "9px 16px", whiteSpace: "nowrap" }}
         >
-          Ver detalhes <ArrowRight size={13} />
+          Ver imóvel <ArrowRight size={13} />
         </Link>
         <a
           href={waLink}
@@ -219,7 +219,7 @@ export default function ImovelRow({ imovel }: Props) {
             whiteSpace: "nowrap",
           }}
         >
-          <WppIcon size={13} /> Consultar
+          <WppIcon size={13} /> Falar agora
         </a>
       </div>
     </div>
