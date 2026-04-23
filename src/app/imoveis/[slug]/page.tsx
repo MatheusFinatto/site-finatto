@@ -148,7 +148,7 @@ export default async function ImovelPage({ params }: Props) {
           <div className="flex flex-col gap-8">
             <div>
               <p className="text-accent uppercase" style={{ fontSize: 11, letterSpacing: 3, marginBottom: 8 }}>
-                {imovel.cidade}/RS · {imovel.logradouro ?? imovel.bairro}
+                {imovel.cidade}/RS · {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
                 {imovel.complemento ? `, ${imovel.complemento}` : ''}
               </p>
               <h1 className="text-fg" style={{ fontFamily: 'var(--font-dm-serif)', fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 400, lineHeight: 1.15 }}>

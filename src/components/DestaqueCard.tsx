@@ -123,7 +123,7 @@ export default function DestaqueCard({ imovel }: Props) {
           className="text-accent uppercase"
           style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}
         >
-          {imovel.logradouro ?? imovel.bairro}
+          {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
           {imovel.complemento ? `, ${imovel.complemento}` : ""}
         </p>
 

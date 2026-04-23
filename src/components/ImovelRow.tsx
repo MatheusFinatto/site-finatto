@@ -71,7 +71,7 @@ export default function ImovelRow({ imovel }: Props) {
           className="text-accent uppercase"
           style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}
         >
-          {TIPO_LABEL[imovel.tipo]} · {imovel.logradouro ?? imovel.bairro}
+          {TIPO_LABEL[imovel.tipo]} · {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
           {imovel.complemento ? `, ${imovel.complemento}` : ""}
         </p>
         <p
