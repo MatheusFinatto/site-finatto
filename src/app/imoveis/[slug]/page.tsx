@@ -167,7 +167,7 @@ export default async function ImovelPage({ params }: Props) {
 
             <div>
               <h2 className="text-fg font-semibold mb-3" style={{ fontSize: 16 }}>Descrição</h2>
-              <p className="text-muted-fg" style={{ fontSize: 16, lineHeight: 1.9, maxWidth: 640 }}>{imovel.descricao}</p>
+              <p className="text-muted-fg" style={{ fontSize: 16, lineHeight: 1.9, maxWidth: 640, whiteSpace: "pre-wrap" }}>{imovel.descricao}</p>
             </div>
 
             <Link href="/#imoveis" className="btn-details inline-flex items-center gap-2 font-medium self-start" style={{ fontSize: 13, padding: '10px 18px' }}>
