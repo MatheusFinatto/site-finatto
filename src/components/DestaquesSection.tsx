@@ -16,10 +16,23 @@ export default function DestaquesSection({ destaques }: Props) {
   const swiperRef = useRef<SwiperRef>(null);
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [canScroll, setCanScroll] = useState(false);
 
   useEffect(() => {
     startTransition(() => setMounted(true));
   }, []);
+
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) setCanScroll(destaques.length > 4);
+      else if (w >= 768) setCanScroll(destaques.length > 3);
+      else setCanScroll(destaques.length >= 2);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [destaques.length]);
 
   return (
     <div style={{ marginBottom: 48 }}>
@@ -160,13 +173,13 @@ export default function DestaquesSection({ destaques }: Props) {
           <Swiper
             ref={swiperRef}
             modules={[Navigation, Pagination, Autoplay]}
-            autoplay={{
+            autoplay={canScroll ? {
               delay: 2000,
               pauseOnMouseEnter: true,
               disableOnInteraction: true,
-            }}
+            } : false}
             speed={2000}
-            loop={destaques.length > 2}
+            loop={canScroll}
             spaceBetween={12}
             slidesPerView={1.2}
             centeredSlides={true}
