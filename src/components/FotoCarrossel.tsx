@@ -3,7 +3,8 @@
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
 
 interface Props {
   fotos: string[];
@@ -15,7 +16,24 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
     Autoplay({ delay: 3500, stopOnInteraction: true }),
   ]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFSChange);
+    return () => document.removeEventListener("fullscreenchange", onFSChange);
+  }, []);
 
   const stopAutoplay = useCallback(() => {
     emblaApi?.plugins()?.autoplay?.stop();
@@ -50,8 +68,9 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
 
   return (
     <div
+      ref={containerRef}
       className="relative w-full"
-      style={{ height: "clamp(280px, 45vw, 560px)" }}
+      style={{ height: isFullscreen ? "100vh" : "clamp(280px, 45vw, 560px)" }}
     >
       {/* Viewport */}
       <div ref={emblaRef} className="overflow-hidden w-full h-full">
@@ -211,6 +230,23 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           >
             {current + 1} / {fotos.length}
           </span>
+
+          {/* Fullscreen — desktop only */}
+          <button
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
+            className="hidden md:flex items-center justify-center absolute bottom-4 right-4 transition-opacity opacity-70 hover:opacity-100"
+            style={{
+              background: "rgba(0,0,0,0.45)",
+              border: "none",
+              cursor: "pointer",
+              width: 32,
+              height: 32,
+              zIndex: 2,
+            }}
+          >
+            {isFullscreen ? <Minimize2 size={14} color="white" /> : <Maximize2 size={14} color="white" />}
+          </button>
         </>
       )}
     </div>
