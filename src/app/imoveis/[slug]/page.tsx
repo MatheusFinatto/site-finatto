@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const imovel: Imovel | null = await client.fetch(imovelByIdQuery, { id: slug })
   if (!imovel) return {}
-  const title = `${imovel.titulo} — Finatto Imóveis`
+  const title = `${imovel.titulo} em ${imovel.cidade}/RS — Finatto Imóveis`
   const url = `${BASE_URL}/imoveis/${imovel.id}`
   return {
     title,
@@ -70,6 +70,15 @@ export default async function ImovelPage({ params }: Props) {
     ...(imovel.vagas     != null ? [{ label: 'Vagas',     value: String(imovel.vagas)     }] : []),
   ]
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Imóveis', item: `${BASE_URL}/#imoveis` },
+      { '@type': 'ListItem', position: 2, name: imovel.titulo, item: `${BASE_URL}/imoveis/${imovel.id}` },
+    ],
+  }
+
   const listingSchema = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
@@ -103,6 +112,10 @@ export default async function ImovelPage({ params }: Props) {
   return (
     <>
       <Navbar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(listingSchema) }}

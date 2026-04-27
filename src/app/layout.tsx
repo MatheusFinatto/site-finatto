@@ -6,7 +6,7 @@ import { BASE_URL, IMOVEIS_ENTREGUES, ANO_FUNDACAO, anosDeExperiencia } from '@/
 
 const businessSchema = {
   '@context': 'https://schema.org',
-  '@type': 'RealEstateAgent',
+  '@type': ['RealEstateAgent', 'LocalBusiness'],
   name: 'Finatto Incorporadora e Engenharia',
   url: BASE_URL,
   foundingDate: String(ANO_FUNDACAO),
@@ -19,7 +19,13 @@ const businessSchema = {
     postalCountry: 'BR',
     neighborhood: 'Bela Vista',
   },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: -27.6339,
+    longitude: -52.2744,
+  },
   areaServed: 'Erechim e região, RS',
+  priceRange: '$$',
 }
 
 const spaceGrotesk = Space_Grotesk({
@@ -49,6 +55,12 @@ export const metadata: Metadata = {
     title: 'Finatto Incorporadora e Engenharia | Erechim, RS',
     description,
     images: [{ url: '/img/hero-landscape.jpg', width: 1600, alt: 'Finatto Imóveis — Erechim, RS' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Finatto Incorporadora e Engenharia | Erechim, RS',
+    description,
+    images: ['/img/hero-landscape.jpg'],
   },
 }
 
