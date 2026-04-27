@@ -3,7 +3,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import type { Imovel } from "@/lib/types";
 import { client } from "@/sanity/lib/client";
-import { allImovelIdsQuery, imovelByIdQuery } from "@/sanity/lib/queries";
+import {
+  allImovelSlugsQuery,
+  imovelBySlugQuery,
+} from "@/sanity/lib/queries";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
@@ -48,20 +51,18 @@ const ArrowLeft = ({ size = 12 }: { size?: number }) => (
 // ── Static params ────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
-  const ids: string[] = await client.fetch(allImovelIdsQuery);
-  return ids.map((id) => ({ slug: id }));
+  const slugs: string[] = await client.fetch(allImovelSlugsQuery);
+  return slugs.map((slug) => ({ slug }));
 }
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const imovel: Imovel | null = await client.fetch(imovelByIdQuery, {
-    id: slug,
-  });
+  const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) return {};
   const title = `${imovel.titulo} em ${imovel.cidade}/RS — Finatto Imóveis`;
-  const url = `${BASE_URL}/imoveis/${imovel.id}`;
+  const url = `${BASE_URL}/imoveis/${imovel.slug}`;
   return {
     title,
     description: imovel.descricao,
@@ -83,9 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ImovelPage({ params }: Props) {
   const { slug } = await params;
-  const imovel: Imovel | null = await client.fetch(imovelByIdQuery, {
-    id: slug,
-  });
+  const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) notFound();
 
   const waMsg = wppMsgImovel(imovel.titulo, formatPreco(imovel.preco));
@@ -125,7 +124,7 @@ export default async function ImovelPage({ params }: Props) {
         "@type": "ListItem",
         position: 2,
         name: imovel.titulo,
-        item: `${BASE_URL}/imoveis/${imovel.id}`,
+        item: `${BASE_URL}/imoveis/${imovel.slug}`,
       },
     ],
   };

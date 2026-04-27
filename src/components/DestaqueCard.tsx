@@ -28,7 +28,7 @@ interface Props {
 }
 
 export default function DestaqueCard({ imovel }: Props) {
-  const detailHref = `/imoveis/${imovel.id}`;
+  const detailHref = `/imoveis/${imovel.slug}`;
   const waLink = whatsappLink(
     WHATSAPP_FINATTO,
     wppMsgImovel(imovel.titulo, formatPreco(imovel.preco)),

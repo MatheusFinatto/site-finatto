@@ -31,7 +31,7 @@ const ArrowRight = ({ size = 13 }: { size?: number }) => (
 );
 
 export default function ImovelRow({ imovel }: Props) {
-  const detailHref = `/imoveis/${imovel.id}`;
+  const detailHref = `/imoveis/${imovel.slug}`;
   const waLink = whatsappLink(
     WHATSAPP_FINATTO,
     wppMsgImovel(imovel.titulo, formatPreco(imovel.preco)),

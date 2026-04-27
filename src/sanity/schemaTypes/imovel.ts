@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { AutoSlugInput } from "../components/AutoSlugInput";
 
 export const imovelType = defineType({
   name: "imovel",
@@ -16,6 +17,15 @@ export const imovelType = defineType({
       title: "Título",
       type: "string",
       group: "info",
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "slug",
+      title: "Slug (URL)",
+      type: "slug",
+      group: "info",
+      options: { source: "titulo" },
+      components: { input: AutoSlugInput },
       validation: (r) => r.required(),
     }),
     defineField({

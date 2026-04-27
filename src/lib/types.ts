@@ -2,6 +2,7 @@ export type TipoImovel = "chacara" | "casa" | "terreno" | "pavilhao";
 
 export interface Imovel {
   id: string;
+  slug: string;
   titulo: string;
   tipo: TipoImovel;
   status: "disponivel" | "vendido" | "reservado";
