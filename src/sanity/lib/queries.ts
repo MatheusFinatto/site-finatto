@@ -1,4 +1,4 @@
-import { groq } from 'next-sanity'
+import { groq } from "next-sanity";
 
 // Campos comuns a todas as queries de imóvel
 const IMOVEL_FIELDS = groq`
@@ -19,20 +19,20 @@ const IMOVEL_FIELDS = groq`
   complemento,
   descricao,
   "fotos": fotos[].asset->url,
-`
+`;
 
 export const allImoveisQuery = groq`
   *[_type == "imovel"] | order(_createdAt desc) {
     ${IMOVEL_FIELDS}
   }
-`
+`;
 
 export const imovelByIdQuery = groq`
   *[_type == "imovel" && _id == $id][0] {
     ${IMOVEL_FIELDS}
   }
-`
+`;
 
 export const allImovelIdsQuery = groq`
   *[_type == "imovel"]._id
-`
+`;

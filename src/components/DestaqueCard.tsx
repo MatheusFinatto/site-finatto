@@ -14,7 +14,14 @@ import {
 } from "@/lib/utils";
 import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from "@/lib/constants";
 import WppIcon from "./WppIcon";
-import { BedDouble, Bath, Car, SquareDashed, Grid2x2, ArrowRight } from "lucide-react";
+import {
+  BedDouble,
+  Bath,
+  Car,
+  SquareDashed,
+  Grid2x2,
+  ArrowRight,
+} from "lucide-react";
 
 interface Props {
   imovel: Imovel;

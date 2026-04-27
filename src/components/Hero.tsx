@@ -1,12 +1,18 @@
 import Image from "next/image";
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from "@/lib/utils";
-import { ANO_FUNDACAO, IMOVEIS_ENTREGUES, WPP_MSG_FINATTO, WPP_MSG_FLAVIA, anosDeExperiencia } from "@/lib/constants";
+import {
+  ANO_FUNDACAO,
+  IMOVEIS_ENTREGUES,
+  WPP_MSG_FINATTO,
+  WPP_MSG_FLAVIA,
+  anosDeExperiencia,
+} from "@/lib/constants";
 import WppIcon from "./WppIcon";
 
 const wppButtons = [
-  { label: 'Finatto Corretor', numero: WHATSAPP_FINATTO, msg: WPP_MSG_FINATTO },
-  { label: 'Flávia Finatto',   numero: WHATSAPP_FLAVIA,  msg: WPP_MSG_FLAVIA  },
-]
+  { label: "Finatto Corretor", numero: WHATSAPP_FINATTO, msg: WPP_MSG_FINATTO },
+  { label: "Flávia Finatto", numero: WHATSAPP_FLAVIA, msg: WPP_MSG_FLAVIA },
+];
 
 export default function Hero() {
   return (
@@ -30,23 +36,43 @@ export default function Hero() {
       >
         <div className="flex items-center gap-3 mb-8">
           <span className="w-6 h-px bg-accent inline-block" />
-          <span className="text-muted-fg uppercase" style={{ fontSize: 11, letterSpacing: 3 }}>
+          <span
+            className="text-muted-fg uppercase"
+            style={{ fontSize: 11, letterSpacing: 3 }}
+          >
             Erechim · RS · Desde {ANO_FUNDACAO}
           </span>
         </div>
 
-        <h1 className="text-fg mb-7" style={{ fontFamily: "var(--font-dm-serif)", fontSize: "clamp(40px, 4.5vw, 64px)", fontWeight: 400, lineHeight: 1.1 }}>
+        <h1
+          className="text-fg mb-7"
+          style={{
+            fontFamily: "var(--font-dm-serif)",
+            fontSize: "clamp(40px, 4.5vw, 64px)",
+            fontWeight: 400,
+            lineHeight: 1.1,
+          }}
+        >
           Encontre seu imóvel{" "}
           <em style={{ fontStyle: "italic", color: "var(--accent)" }}>ideal</em>{" "}
           em Erechim e região.
         </h1>
 
-        <p className="text-muted-fg mb-10" style={{ fontSize: 16, lineHeight: 1.8, maxWidth: 420 }}>
-          {anosDeExperiencia()} anos de mercado, {IMOVEIS_ENTREGUES} imóveis entregues em Erechim e região. Atendimento direto com os sócios — sem intermediários.
+        <p
+          className="text-muted-fg mb-10"
+          style={{ fontSize: 16, lineHeight: 1.8, maxWidth: 420 }}
+        >
+          {anosDeExperiencia()} anos de mercado, {IMOVEIS_ENTREGUES} imóveis
+          entregues em Erechim e região. Atendimento direto com os sócios, sem
+          intermediários.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-          <a href="#imoveis" className="inline-block px-9 py-4 bg-fg text-bg font-medium hover:opacity-80 transition-opacity text-center" style={{ fontSize: 13, letterSpacing: 1 }}>
+          <a
+            href="#imoveis"
+            className="inline-block px-9 py-4 bg-fg text-bg font-medium hover:opacity-80 transition-opacity text-center"
+            style={{ fontSize: 13, letterSpacing: 1 }}
+          >
             Ver imóveis
           </a>
           {wppButtons.map((b) => (
@@ -74,8 +100,11 @@ export default function Hero() {
           priority
           sizes="50vw"
         />
-        <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.25)", zIndex: 1 }} />
+        <div
+          className="absolute inset-0"
+          style={{ background: "rgba(0,0,0,0.25)", zIndex: 1 }}
+        />
       </div>
     </section>
-  )
+  );
 }

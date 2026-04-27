@@ -23,7 +23,10 @@ export default function ParceriaSection() {
           className="text-accent uppercase flex items-center justify-center gap-2"
           style={{ fontSize: 11, letterSpacing: 3, marginBottom: 8 }}
         >
-          <span className="inline-block bg-accent" style={{ width: 24, height: 1.5 }} />
+          <span
+            className="inline-block bg-accent"
+            style={{ width: 24, height: 1.5 }}
+          />
           Parceria · Loteamentos
         </p>
         <h2
@@ -39,7 +42,12 @@ export default function ParceriaSection() {
         </h2>
         <p
           className="text-muted-fg mx-auto"
-          style={{ fontSize: 16, lineHeight: 1.8, maxWidth: 560, marginBottom: 28 }}
+          style={{
+            fontSize: 16,
+            lineHeight: 1.8,
+            maxWidth: 560,
+            marginBottom: 28,
+          }}
         >
           Fazemos estudo de viabilidade, projeto urbanístico, regularização e
           acompanhamento técnico completo, da ideia à entrega dos lotes.
@@ -50,10 +58,19 @@ export default function ParceriaSection() {
           style={{ marginBottom: 36 }}
         >
           {bullets.map((item) => (
-            <div key={item} className="flex items-center gap-2 text-muted-fg" style={{ fontSize: 13 }}>
+            <div
+              key={item}
+              className="flex items-center gap-2 text-muted-fg"
+              style={{ fontSize: 13 }}
+            >
               <span
                 className="rounded-full inline-block"
-                style={{ width: 6, height: 6, background: "var(--accent)", flexShrink: 0 }}
+                style={{
+                  width: 6,
+                  height: 6,
+                  background: "var(--accent)",
+                  flexShrink: 0,
+                }}
               />
               {item}
             </div>
@@ -65,7 +82,12 @@ export default function ParceriaSection() {
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 font-medium hover:opacity-90 transition-opacity"
-          style={{ background: "var(--wpp-green)", color: "#fff", padding: "14px 28px", fontSize: 14 }}
+          style={{
+            background: "var(--wpp-green)",
+            color: "#fff",
+            padding: "14px 28px",
+            fontSize: 14,
+          }}
         >
           <WppIcon size={16} /> Falar sobre minha área
         </a>

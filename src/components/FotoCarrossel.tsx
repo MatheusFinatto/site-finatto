@@ -245,7 +245,11 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
               zIndex: 2,
             }}
           >
-            {isFullscreen ? <Minimize2 size={14} color="white" /> : <Maximize2 size={14} color="white" />}
+            {isFullscreen ? (
+              <Minimize2 size={14} color="white" />
+            ) : (
+              <Maximize2 size={14} color="white" />
+            )}
           </button>
         </>
       )}

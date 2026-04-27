@@ -46,7 +46,13 @@ export default function FilterSelect<T extends string | number>({
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-1.5 font-medium text-fg hover:text-accent transition-colors"
-        style={{ fontSize: 12, background: "none", border: "1px solid var(--border)", cursor: "pointer", padding: "8px 12px" }}
+        style={{
+          fontSize: 12,
+          background: "none",
+          border: "1px solid var(--border)",
+          cursor: "pointer",
+          padding: "8px 12px",
+        }}
       >
         {selected?.label}
         <svg

@@ -29,7 +29,14 @@ export default function CTASection() {
         >
           Pronto para encontrar seu imóvel?
         </h2>
-        <p style={{ fontSize: 15, color: "var(--bg)", opacity: 0.5, marginTop: 12 }}>
+        <p
+          style={{
+            fontSize: 15,
+            color: "var(--bg)",
+            opacity: 0.5,
+            marginTop: 12,
+          }}
+        >
           Fale direto com nossos especialistas.
         </p>
       </div>

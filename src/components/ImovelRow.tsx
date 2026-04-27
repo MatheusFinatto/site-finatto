@@ -71,7 +71,8 @@ export default function ImovelRow({ imovel }: Props) {
           className="text-accent uppercase"
           style={{ fontSize: 10, letterSpacing: 2, marginBottom: 5 }}
         >
-          {TIPO_LABEL[imovel.tipo]} · {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
+          {TIPO_LABEL[imovel.tipo]} ·{" "}
+          {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
           {imovel.complemento ? `, ${imovel.complemento}` : ""}
         </p>
         <p
@@ -97,7 +98,8 @@ export default function ImovelRow({ imovel }: Props) {
           {imovel.banheiros != null && (
             <span className="inline-flex items-center gap-1">
               <Bath size={13} strokeWidth={1.8} />
-              {imovel.banheiros} {imovel.banheiros === 1 ? "banheiro" : "banheiros"}
+              {imovel.banheiros}{" "}
+              {imovel.banheiros === 1 ? "banheiro" : "banheiros"}
             </span>
           )}
           {imovel.vagas != null && (
@@ -113,7 +115,10 @@ export default function ImovelRow({ imovel }: Props) {
             </span>
           )}
           {imovel.area_construida != null && imovel.area_construida > 0 && (
-            <span className="inline-flex items-center gap-1" title="Área construída">
+            <span
+              className="inline-flex items-center gap-1"
+              title="Área construída"
+            >
               <Grid2x2 size={13} strokeWidth={1.8} />
               {formatArea(imovel.area_construida)}
             </span>
@@ -165,22 +170,44 @@ export default function ImovelRow({ imovel }: Props) {
 
       {/* Area — desktop */}
       <div className="imovel-row-area text-right" style={{ minWidth: 110 }}>
-        <span className="inline-flex items-center justify-end gap-1.5 text-fg"
-          style={{ fontFamily: "var(--font-dm-serif)", fontSize: 22 }}>
-          <SquareDashed size={16} strokeWidth={1.5} className="text-muted-fg flex-shrink-0" />
+        <span
+          className="inline-flex items-center justify-end gap-1.5 text-fg"
+          style={{ fontFamily: "var(--font-dm-serif)", fontSize: 22 }}
+        >
+          <SquareDashed
+            size={16}
+            strokeWidth={1.5}
+            className="text-muted-fg flex-shrink-0"
+          />
           {formatArea(imovel.area_total)}
         </span>
-        <span className="text-muted-fg uppercase block" style={{ fontSize: 10, letterSpacing: 1 }}>
+        <span
+          className="text-muted-fg uppercase block"
+          style={{ fontSize: 10, letterSpacing: 1 }}
+        >
           área total
         </span>
         {imovel.area_construida != null && imovel.area_construida > 0 && (
           <>
-            <span className="inline-flex items-center justify-end gap-1.5 text-fg"
-              style={{ fontFamily: "var(--font-dm-serif)", fontSize: 18, marginTop: 6 }}>
-              <Grid2x2 size={14} strokeWidth={1.5} className="text-muted-fg flex-shrink-0" />
+            <span
+              className="inline-flex items-center justify-end gap-1.5 text-fg"
+              style={{
+                fontFamily: "var(--font-dm-serif)",
+                fontSize: 18,
+                marginTop: 6,
+              }}
+            >
+              <Grid2x2
+                size={14}
+                strokeWidth={1.5}
+                className="text-muted-fg flex-shrink-0"
+              />
               {formatArea(imovel.area_construida)}
             </span>
-            <span className="text-muted-fg uppercase block" style={{ fontSize: 10, letterSpacing: 1 }}>
+            <span
+              className="text-muted-fg uppercase block"
+              style={{ fontSize: 10, letterSpacing: 1 }}
+            >
               área construída
             </span>
           </>
