@@ -71,6 +71,7 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
       ref={containerRef}
       className="relative w-full"
       style={{ height: isFullscreen ? "100vh" : "clamp(280px, 45vw, 560px)" }}
+      onDoubleClick={toggleFullscreen}
     >
       {/* Viewport */}
       <div ref={emblaRef} className="overflow-hidden w-full h-full">
