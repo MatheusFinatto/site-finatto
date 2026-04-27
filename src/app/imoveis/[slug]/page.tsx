@@ -8,6 +8,7 @@ import {
   imovelBySlugQuery,
 } from "@/sanity/lib/queries";
 import Navbar from "@/components/Navbar";
+import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
 import {
@@ -177,13 +178,7 @@ export default async function ImovelPage({ params }: Props) {
           style={{ padding: "10px clamp(24px, 5vw, 60px)" }}
         >
           <div className="max-w-7xl mx-auto flex items-center gap-4">
-            <Link
-              href="/#imoveis"
-              className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
-              style={{ fontSize: 12, padding: "8px 14px" }}
-            >
-              <ArrowLeft size={12} /> Voltar
-            </Link>
+            <BackButton />
             <span className="text-muted-fg" style={{ fontSize: 13 }}>
               /
             </span>
@@ -307,13 +302,7 @@ export default async function ImovelPage({ params }: Props) {
               </p>
             </div>
 
-            <Link
-              href="/#imoveis"
-              className="btn-details inline-flex items-center gap-2 font-medium self-start"
-              style={{ fontSize: 13, padding: "10px 18px" }}
-            >
-              <ArrowLeft size={13} /> Voltar para imóveis
-            </Link>
+            <BackButton label="Voltar para imóveis" size={13} style={{ fontSize: 13, padding: "10px 18px" }} />
           </div>
 
           {/* Right — sticky price card */}
