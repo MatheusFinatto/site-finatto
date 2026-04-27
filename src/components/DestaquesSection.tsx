@@ -43,7 +43,7 @@ export default function DestaquesSection({ destaques }: Props) {
       >
         <p
           className="text-muted-fg uppercase"
-          style={{ fontSize: 11, letterSpacing: 3 }}
+          style={{ fontSize: "clamp(12px, 1.5vw, 16px)", letterSpacing: 3 }}
         >
           Destaques
         </p>
@@ -173,11 +173,15 @@ export default function DestaquesSection({ destaques }: Props) {
           <Swiper
             ref={swiperRef}
             modules={[Navigation, Pagination, Autoplay]}
-            autoplay={canScroll ? {
-              delay: 2000,
-              pauseOnMouseEnter: true,
-              disableOnInteraction: true,
-            } : false}
+            autoplay={
+              canScroll
+                ? {
+                    delay: 2000,
+                    pauseOnMouseEnter: true,
+                    disableOnInteraction: true,
+                  }
+                : false
+            }
             speed={2000}
             loop={canScroll}
             spaceBetween={12}
