@@ -26,7 +26,14 @@ export const imovelType = defineType({
       group: "info",
       options: { source: "titulo" },
       components: { input: AutoSlugInput },
-      validation: (r) => r.required(),
+      validation: (r) =>
+        r.required().custom((slug) => {
+          const v = slug?.current ?? "";
+          if (!v) return true;
+          return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v)
+            ? true
+            : "Slug deve conter apenas minúsculas, números e hífens (sem espaços ou acentos).";
+        }),
     }),
     defineField({
       name: "tipo",
