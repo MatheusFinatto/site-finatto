@@ -302,7 +302,7 @@ export default async function ImovelPage({ params }: Props) {
               </p>
             </div>
 
-            <BackButton label="Voltar para imóveis" size={13} style={{ fontSize: 13, padding: "10px 18px" }} />
+            <BackButton size={13} style={{ fontSize: 13, padding: "10px 18px" }} />
           </div>
 
           {/* Right — sticky price card */}

@@ -24,9 +24,16 @@ export default function BackButton({ label = "Voltar", size = 12, style }: {
   style?: React.CSSProperties;
 }) {
   const router = useRouter();
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
   return (
     <button
-      onClick={() => router.back()}
+      onClick={handleBack}
       className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
       style={style ?? { fontSize: 12, padding: "8px 14px" }}
     >
