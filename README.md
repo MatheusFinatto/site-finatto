@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Finatto Incorporadora e Engenharia — Site institucional
 
-## Getting Started
+Production website for a real estate company based in Erechim, RS, Brazil. Live at [finattoincorporadora.com.br](https://finattoincorporadora.com.br/).
 
-First, run the development server:
+## Stack
+
+- **Next.js 15** (App Router)
+- **Sanity CMS** — property listings, team, and photos managed through embedded Sanity Studio at `/studio`
+- **TypeScript**
+- **Styled Components**
+- **Tailwind CSS**
+- **Embla Carousel / Swiper** — photo galleries
+- **Lucide React** — icons
+
+## Features
+
+- Property listing with filtering (type, status)
+- Individual property pages with photo carousel
+- Team section, CTA, partnership section, and animated marquee
+- Dark / light mode (persisted via localStorage, no flash on load)
+- WhatsApp floating button
+- SEO: `sitemap.ts`, `robots.ts`, OpenGraph tags, JSON-LD structured data (`RealEstateAgent` + `LocalBusiness`)
+- Embedded Sanity Studio at `/studio` so the client manages content without touching code
+
+## Getting started
 
 ```bash
+cd site
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires a `.env.local` with your Sanity project credentials:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=production
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/          # Next.js App Router pages
+  components/   # UI components
+  lib/          # Constants, helpers
+  sanity/       # Sanity client, schema types, structure
+```
