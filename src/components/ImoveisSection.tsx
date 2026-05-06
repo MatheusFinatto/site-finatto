@@ -12,7 +12,8 @@ import DestaquesSection from "./DestaquesSection";
 interface Filtros {
   busca: string;
   tipo: TipoImovel | "";
-  precoMax: number; // 0 = sem limite, negativo = "acima de |valor|"
+  precoMin: number | null;
+  precoMax: number | null;
   quartos: number; // 0 = qualquer
 }
 
@@ -24,15 +25,6 @@ type Ordem =
   | "area-desc";
 
 // ── Options ──────────────────────────────────────────────────────────────────
-
-const PRECO_OPTS = [
-  { label: "Qualquer preço", value: 0 },
-  { label: "Até R$ 100 mil", value: 100_000 },
-  { label: "Até R$ 300 mil", value: 300_000 },
-  { label: "Até R$ 500 mil", value: 500_000 },
-  { label: "Até R$ 800 mil", value: 800_000 },
-  { label: "Acima de R$ 800 mil", value: -800_000 },
-];
 
 const QUARTOS_OPTS = [
   { label: "Qualquer", value: 0 },
@@ -53,9 +45,24 @@ const ORDEM_OPTS: { label: string; value: Ordem }[] = [
 const FILTROS_INICIAIS: Filtros = {
   busca: "",
   tipo: "",
-  precoMax: 0,
+  precoMin: null,
+  precoMax: null,
   quartos: 0,
 };
+
+function parsePrecoInput(raw: string): number | null {
+  const cleaned = raw.replace(/[^\d.,]/g, "").trim();
+  if (!cleaned) return null;
+  const normalized = cleaned.includes(",")
+    ? cleaned.replace(/\./g, "").replace(",", ".")
+    : cleaned.replace(/\.(?=\d{3}(\D|$))/g, "");
+  const n = Number(normalized);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function formatPrecoBR(n: number): string {
+  return n.toLocaleString("pt-BR");
+}
 
 // ── Logic ────────────────────────────────────────────────────────────────────
 
@@ -76,8 +83,8 @@ function filtrarEOrdenar(
     if (f.busca && !i.titulo.toLowerCase().includes(f.busca.toLowerCase()))
       return false;
     if (f.tipo && i.tipo !== f.tipo) return false;
-    if (f.precoMax > 0 && i.preco > f.precoMax) return false;
-    if (f.precoMax < 0 && i.preco <= Math.abs(f.precoMax)) return false;
+    if (f.precoMin !== null && i.preco < f.precoMin) return false;
+    if (f.precoMax !== null && i.preco > f.precoMax) return false;
     if (f.quartos === 4 && (i.quartos ?? 0) < 4) return false;
     if (f.quartos > 0 && f.quartos < 4 && i.quartos !== f.quartos) return false;
     return true;
@@ -86,7 +93,13 @@ function filtrarEOrdenar(
 }
 
 function temFiltroAtivo(f: Filtros) {
-  return f.busca !== "" || f.tipo !== "" || f.precoMax !== 0 || f.quartos !== 0;
+  return (
+    f.busca !== "" ||
+    f.tipo !== "" ||
+    f.precoMin !== null ||
+    f.precoMax !== null ||
+    f.quartos !== 0
+  );
 }
 
 // ── Shared UI atoms ───────────────────────────────────────────────────────────
@@ -105,6 +118,88 @@ const SearchIcon = ({ size = 14 }: { size?: number }) => (
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
+
+function PrecoRange({
+  min,
+  max,
+  onChange,
+  size = "md",
+}: {
+  min: number | null;
+  max: number | null;
+  onChange: (next: { min: number | null; max: number | null }) => void;
+  size?: "md" | "sm";
+}) {
+  const [minTxt, setMinTxt] = useState(min === null ? "" : formatPrecoBR(min));
+  const [maxTxt, setMaxTxt] = useState(max === null ? "" : formatPrecoBR(max));
+  const [lastMin, setLastMin] = useState(min);
+  const [lastMax, setLastMax] = useState(max);
+  if (min !== lastMin) {
+    setLastMin(min);
+    setMinTxt(min === null ? "" : formatPrecoBR(min));
+  }
+  if (max !== lastMax) {
+    setLastMax(max);
+    setMaxTxt(max === null ? "" : formatPrecoBR(max));
+  }
+
+  const commit = (which: "min" | "max", raw: string) => {
+    const parsed = parsePrecoInput(raw);
+    if (which === "min") onChange({ min: parsed, max });
+    else onChange({ min, max: parsed });
+  };
+
+  const fontSize = size === "sm" ? 12 : 13;
+  const padding = size === "sm" ? "8px 10px" : "10px 12px";
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="text-muted-fg uppercase"
+        style={{ fontSize: 11, letterSpacing: 1 }}
+      >
+        Preço
+      </span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-muted-fg" style={{ fontSize: 11 }}>
+          R$
+        </span>
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="Mínimo"
+          value={minTxt}
+          onChange={(e) => setMinTxt(e.target.value)}
+          onBlur={(e) => commit("min", e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          }}
+          className="border border-border bg-card text-fg outline-none focus:border-fg"
+          style={{ fontSize, padding, width: 96 }}
+        />
+        <span className="text-muted-fg" style={{ fontSize: 12 }}>
+          —
+        </span>
+        <span className="text-muted-fg" style={{ fontSize: 11 }}>
+          R$
+        </span>
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="Máximo"
+          value={maxTxt}
+          onChange={(e) => setMaxTxt(e.target.value)}
+          onBlur={(e) => commit("max", e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          }}
+          className="border border-border bg-card text-fg outline-none focus:border-fg"
+          style={{ fontSize, padding, width: 96 }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function PillBtn({
   active,
@@ -278,11 +373,12 @@ export default function ImoveisSection({ imoveis }: Props) {
             className="flex items-center border-r border-border"
             style={{ padding: "10px 16px" }}
           >
-            <FilterSelect<number>
-              label="Preço"
-              options={PRECO_OPTS}
-              value={filtros.precoMax}
-              onChange={(v) => set("precoMax", v)}
+            <PrecoRange
+              min={filtros.precoMin}
+              max={filtros.precoMax}
+              onChange={({ min, max }) =>
+                setFiltros((f) => ({ ...f, precoMin: min, precoMax: max }))
+              }
             />
           </div>
 
@@ -430,13 +526,24 @@ export default function ImoveisSection({ imoveis }: Props) {
           className="md:hidden flex flex-col gap-5 border-b border-border"
           style={{ padding: "20px 0" }}
         >
+          <div>
+            <p
+              className="text-muted-fg uppercase mb-2"
+              style={{ fontSize: 11, letterSpacing: 1 }}
+            >
+              Preço
+            </p>
+            <PrecoRange
+              size="sm"
+              min={filtros.precoMin}
+              max={filtros.precoMax}
+              onChange={({ min, max }) =>
+                setFiltros((f) => ({ ...f, precoMin: min, precoMax: max }))
+              }
+            />
+          </div>
+
           {[
-            {
-              label: "Preço máximo",
-              opts: PRECO_OPTS,
-              key: "precoMax" as const,
-              active: filtros.precoMax,
-            },
             {
               label: "Quartos",
               opts: QUARTOS_OPTS,

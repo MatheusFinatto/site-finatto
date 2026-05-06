@@ -15,6 +15,7 @@ export function anosDeExperiencia(): number {
 export const TIPO_LABEL: Record<TipoImovel, string> = {
   chacara: "Chácara",
   casa: "Casa",
+  apartamento: "Apartamento",
   terreno: "Terreno",
   pavilhao: "Pavilhão",
 };
@@ -22,6 +23,8 @@ export const TIPO_LABEL: Record<TipoImovel, string> = {
 export const THUMB_GRADIENT: Record<TipoImovel, string> = {
   chacara: "linear-gradient(150deg, #2a5010 0%, #3d7020 60%, #285010 100%)",
   casa: "linear-gradient(150deg, #2a3a4a 0%, #3a5068 60%, #243040 100%)",
+  apartamento:
+    "linear-gradient(150deg, #3a2a4a 0%, #503a68 60%, #2a1e3a 100%)",
   terreno: "linear-gradient(150deg, #5a4020 0%, #7a5830 60%, #4a3018 100%)",
   pavilhao: "linear-gradient(150deg, #1e2a3a 0%, #2a3a50 60%, #161e2a 100%)",
 };
@@ -39,6 +42,7 @@ export const TIPO_TABS: { value: TipoImovel | ""; label: string }[] = [
   { value: "", label: "Todos" },
   { value: "chacara", label: "Chácaras" },
   { value: "casa", label: "Casas" },
+  { value: "apartamento", label: "Apartamentos" },
   { value: "terreno", label: "Terrenos" },
   { value: "pavilhao", label: "Pavilhões" },
 ];

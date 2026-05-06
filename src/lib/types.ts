@@ -1,4 +1,9 @@
-export type TipoImovel = "chacara" | "casa" | "terreno" | "pavilhao";
+export type TipoImovel =
+  | "chacara"
+  | "casa"
+  | "apartamento"
+  | "terreno"
+  | "pavilhao";
 
 export interface Imovel {
   id: string;

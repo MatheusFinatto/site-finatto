@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import { AutoSlugInput } from "../components/AutoSlugInput";
+import { BrlNumberInput } from "../components/BrlNumberInput";
 
 export const imovelType = defineType({
   name: "imovel",
@@ -44,6 +45,7 @@ export const imovelType = defineType({
         list: [
           { title: "Chácara", value: "chacara" },
           { title: "Casa", value: "casa" },
+          { title: "Apartamento", value: "apartamento" },
           { title: "Terreno", value: "terreno" },
           { title: "Pavilhão", value: "pavilhao" },
         ],
@@ -85,6 +87,8 @@ export const imovelType = defineType({
       title: "Preço (R$)",
       type: "number",
       group: "info",
+      description: "Use vírgula ou ponto. Ex: 480000 ou 480.000,00",
+      components: { input: BrlNumberInput },
       validation: (r) => r.required().positive(),
     }),
 
@@ -94,6 +98,8 @@ export const imovelType = defineType({
       title: "Área total (m²)",
       type: "number",
       group: "detalhes",
+      description: "Use vírgula ou ponto p/ decimais. Ex: 316,49",
+      components: { input: BrlNumberInput },
       validation: (r) => r.required().positive(),
     }),
     defineField({
@@ -101,6 +107,8 @@ export const imovelType = defineType({
       title: "Área construída (m²)",
       type: "number",
       group: "detalhes",
+      description: "Use vírgula ou ponto p/ decimais. Ex: 235,94",
+      components: { input: BrlNumberInput },
     }),
     defineField({
       name: "quartos",
@@ -191,6 +199,7 @@ export const imovelType = defineType({
       const tipos: Record<string, string> = {
         chacara: "Chácara",
         casa: "Casa",
+        apartamento: "Apartamento",
         terreno: "Terreno",
         pavilhao: "Pavilhão",
       };
