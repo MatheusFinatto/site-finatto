@@ -108,21 +108,6 @@ export default function ImovelRow({ imovel }: Props) {
               {imovel.vagas} {imovel.vagas === 1 ? "vaga" : "vagas"}
             </span>
           )}
-          {imovel.area_total > 0 && (
-            <span className="inline-flex items-center gap-1" title="Área total">
-              <SquareDashed size={13} strokeWidth={1.8} />
-              {formatArea(imovel.area_total)}
-            </span>
-          )}
-          {imovel.area_construida != null && imovel.area_construida > 0 && (
-            <span
-              className="inline-flex items-center gap-1"
-              title="Área construída"
-            >
-              <Grid2x2 size={13} strokeWidth={1.8} />
-              {formatArea(imovel.area_construida)}
-            </span>
-          )}
         </div>
         <p
           className="md:hidden text-fg"

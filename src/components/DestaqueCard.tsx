@@ -151,7 +151,9 @@ export default function DestaqueCard({ imovel }: Props) {
         {/* Atributos */}
         {(imovel.quartos != null ||
           imovel.banheiros != null ||
-          imovel.vagas != null) && (
+          imovel.vagas != null ||
+          imovel.area_total > 0 ||
+          (imovel.area_construida != null && imovel.area_construida > 0)) && (
           <div
             className="flex items-center gap-3 text-muted-fg"
             style={{ fontSize: 12, marginBottom: 12 }}
@@ -196,7 +198,7 @@ export default function DestaqueCard({ imovel }: Props) {
         )}
 
         {/* CTAs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-auto">
           <a
             href={waLink}
             target="_blank"

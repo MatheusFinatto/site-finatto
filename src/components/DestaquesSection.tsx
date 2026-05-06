@@ -204,7 +204,7 @@ export default function DestaquesSection({ destaques }: Props) {
             onSlideChange={(s) => setCurrent(s.realIndex)}
           >
             {destaques.map((imovel) => (
-              <SwiperSlide key={imovel.id}>
+              <SwiperSlide key={imovel.id} style={{ height: "auto" }}>
                 <DestaqueCard imovel={imovel} />
               </SwiperSlide>
             ))}
