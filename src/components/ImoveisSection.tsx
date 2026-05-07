@@ -22,7 +22,8 @@ type Ordem =
   | "mais-antigos"
   | "preco-asc"
   | "preco-desc"
-  | "area-desc";
+  | "area-desc"
+  | "area-construida-desc";
 
 // ── Options ──────────────────────────────────────────────────────────────────
 
@@ -40,6 +41,7 @@ const ORDEM_OPTS: { label: string; value: Ordem }[] = [
   { label: "Menor preço", value: "preco-asc" },
   { label: "Maior preço", value: "preco-desc" },
   { label: "Maior área", value: "area-desc" },
+  { label: "Maior área construída", value: "area-construida-desc" },
 ];
 
 const FILTROS_INICIAIS: Filtros = {
@@ -72,6 +74,11 @@ const SORTERS: Record<Ordem, (a: Imovel, b: Imovel) => number> = {
   "preco-asc": (a, b) => a.preco - b.preco,
   "preco-desc": (a, b) => b.preco - a.preco,
   "area-desc": (a, b) => b.area_total - a.area_total,
+  "area-construida-desc": (a, b) => {
+    const av = a.area_construida ?? -Infinity;
+    const bv = b.area_construida ?? -Infinity;
+    return bv - av;
+  },
 };
 
 function filtrarEOrdenar(
