@@ -1,9 +1,11 @@
-import { defineField, defineType, type Rule } from "sanity";
+import { defineField, defineType } from "sanity";
+import type { StringRule } from "sanity";
 import { AutoSlugInput } from "../components/AutoSlugInput";
 import { BrlNumberInput } from "../components/BrlNumberInput";
+import { TrimmedStringInput } from "../components/TrimmedStringInput";
 
-const noEdgeWhitespace = (r: Rule) =>
-  r.custom<string | undefined>((v) =>
+const noEdgeWhitespace = (r: StringRule) =>
+  r.custom<string>((v) =>
     !v || v === v.trim() ? true : "Remova espaços no início/fim.",
   );
 
@@ -23,6 +25,7 @@ export const imovelType = defineType({
       title: "Título",
       type: "string",
       group: "info",
+      components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
     }),
     defineField({
@@ -149,6 +152,7 @@ export const imovelType = defineType({
       type: "string",
       group: "localizacao",
       initialValue: "Erechim",
+      components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
     }),
     defineField({
@@ -156,6 +160,7 @@ export const imovelType = defineType({
       title: "Bairro",
       type: "string",
       group: "localizacao",
+      components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
     }),
     defineField({
@@ -163,6 +168,7 @@ export const imovelType = defineType({
       title: "Logradouro (rua ou comunidade)",
       type: "string",
       group: "localizacao",
+      components: { input: TrimmedStringInput },
       validation: (r) => noEdgeWhitespace(r),
     }),
     defineField({
@@ -170,6 +176,7 @@ export const imovelType = defineType({
       title: "Complemento",
       type: "string",
       group: "localizacao",
+      components: { input: TrimmedStringInput },
       validation: (r) => noEdgeWhitespace(r),
     }),
 
