@@ -3,6 +3,8 @@ import { client } from "@/sanity/lib/client";
 import { allImovelSlugsQuery } from "@/sanity/lib/queries";
 import { BASE_URL } from "@/lib/constants";
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const slugs: string[] = await client.fetch(allImovelSlugsQuery);
   const imovelRoutes = slugs.map((slug) => ({
