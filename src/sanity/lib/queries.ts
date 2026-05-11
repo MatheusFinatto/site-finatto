@@ -19,7 +19,7 @@ const IMOVEL_FIELDS = groq`
   logradouro,
   complemento,
   descricao,
-  "fotos": fotos[].asset->url,
+  "fotos": fotos[defined(asset)].asset->url,
 `;
 
 export const allImoveisQuery = groq`
