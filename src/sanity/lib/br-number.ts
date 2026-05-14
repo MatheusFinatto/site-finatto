@@ -1,9 +1,8 @@
 export function parseBR(raw: string): number | null {
   const trimmed = raw.trim();
   if (!trimmed) return null;
-  const normalized = trimmed.includes(",")
-    ? trimmed.replace(/\./g, "").replace(",", ".")
-    : trimmed;
+  // Dot = thousand separator (always), comma = decimal separator
+  const normalized = trimmed.replace(/\./g, "").replace(",", ".");
   const n = Number(normalized);
   return Number.isFinite(n) ? n : null;
 }

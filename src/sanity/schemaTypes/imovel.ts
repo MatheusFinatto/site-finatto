@@ -1,7 +1,6 @@
 import { defineField, defineType } from "sanity";
 import type { StringRule } from "sanity";
 import { AreaInput } from "../components/AreaInput";
-import { AutoSlugInput } from "../components/AutoSlugInput";
 import { BrlNumberInput } from "../components/BrlNumberInput";
 import { TrimmedStringInput } from "../components/TrimmedStringInput";
 
@@ -14,18 +13,12 @@ export const imovelType = defineType({
   name: "imovel",
   title: "Imóvel",
   type: "document",
-  groups: [
-    { name: "info", title: "Informações" },
-    { name: "detalhes", title: "Detalhes" },
-    { name: "localizacao", title: "Localização" },
-    { name: "midia", title: "Fotos" },
-  ],
+  options: { __experimental_formPreviewTitle: false },
   fields: [
     defineField({
       name: "titulo",
       title: "Título",
       type: "string",
-      group: "info",
       components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
     }),
@@ -33,23 +26,13 @@ export const imovelType = defineType({
       name: "slug",
       title: "Slug (URL)",
       type: "slug",
-      group: "info",
+      hidden: true,
       options: { source: "titulo" },
-      components: { input: AutoSlugInput },
-      validation: (r) =>
-        r.required().custom((slug) => {
-          const v = slug?.current ?? "";
-          if (!v) return true;
-          return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v)
-            ? true
-            : "Slug deve conter apenas minúsculas, números e hífens (sem espaços ou acentos).";
-        }),
     }),
     defineField({
       name: "tipo",
       title: "Tipo",
       type: "string",
-      group: "info",
       options: {
         list: [
           { title: "Chácara", value: "chacara" },
@@ -66,7 +49,6 @@ export const imovelType = defineType({
       name: "status",
       title: "Status",
       type: "string",
-      group: "info",
       initialValue: "disponivel",
       options: {
         list: [
@@ -82,7 +64,6 @@ export const imovelType = defineType({
       name: "tag",
       title: "Tag (opcional)",
       type: "string",
-      group: "info",
       options: {
         list: [
           { title: "Destaque", value: "Destaque" },
@@ -95,20 +76,17 @@ export const imovelType = defineType({
       name: "preco",
       title: "Preço (R$)",
       type: "number",
-      group: "info",
-      description: "Use vírgula ou ponto. Ex: 480000 ou 480.000,00",
+      description:
+        "Use vírgula para casas decimais, e para separação de milhar use ponto ou nada.",
       components: { input: BrlNumberInput },
       validation: (r) => r.required().positive(),
     }),
-
-    // ── Detalhes ─────────────────────────────────────────────────────────────
     defineField({
       name: "area_total",
       title: "Área total",
       type: "number",
-      group: "detalhes",
       description:
-        "Alterne m²/ha. Use vírgula ou ponto p/ decimais. Valor salvo sempre em m².",
+        "Use vírgula para casas decimais, e para separação de milhar use ponto ou nada.",
       components: { input: AreaInput },
       validation: (r) => r.required().positive(),
     }),
@@ -116,9 +94,8 @@ export const imovelType = defineType({
       name: "area_construida",
       title: "Área construída",
       type: "number",
-      group: "detalhes",
       description:
-        "Soma das edificações (casa + anexos). Confira o preview m²/ha antes de salvar.",
+        "Use vírgula para casas decimais, e para separação de milhar use ponto ou nada.",
       components: { input: AreaInput },
       validation: (r) => r.positive(),
     }),
@@ -126,35 +103,28 @@ export const imovelType = defineType({
       name: "quartos",
       title: "Quartos",
       type: "number",
-      group: "detalhes",
     }),
     defineField({
       name: "banheiros",
       title: "Banheiros",
       type: "number",
-      group: "detalhes",
     }),
     defineField({
       name: "vagas",
       title: "Vagas de garagem",
       type: "number",
-      group: "detalhes",
     }),
     defineField({
       name: "descricao",
       title: "Descrição",
       type: "text",
       rows: 4,
-      group: "detalhes",
       validation: (r) => r.required(),
     }),
-
-    // ── Localização ──────────────────────────────────────────────────────────
     defineField({
       name: "cidade",
       title: "Cidade",
       type: "string",
-      group: "localizacao",
       initialValue: "Erechim",
       components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
@@ -163,7 +133,6 @@ export const imovelType = defineType({
       name: "bairro",
       title: "Bairro",
       type: "string",
-      group: "localizacao",
       components: { input: TrimmedStringInput },
       validation: (r) => [r.required(), noEdgeWhitespace(r)],
     }),
@@ -171,7 +140,6 @@ export const imovelType = defineType({
       name: "logradouro",
       title: "Logradouro (rua ou comunidade)",
       type: "string",
-      group: "localizacao",
       components: { input: TrimmedStringInput },
       validation: (r) => noEdgeWhitespace(r),
     }),
@@ -179,17 +147,13 @@ export const imovelType = defineType({
       name: "complemento",
       title: "Complemento",
       type: "string",
-      group: "localizacao",
       components: { input: TrimmedStringInput },
       validation: (r) => noEdgeWhitespace(r),
     }),
-
-    // ── Fotos ────────────────────────────────────────────────────────────────
     defineField({
       name: "fotos",
       title: "Fotos",
       type: "array",
-      group: "midia",
       of: [
         {
           type: "image",
