@@ -1,15 +1,6 @@
 import { useCallback, useState, type ChangeEvent } from "react";
 import { set, unset, type NumberInputProps } from "sanity";
-
-function parseBR(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-  const normalized = trimmed.includes(",")
-    ? trimmed.replace(/\./g, "").replace(",", ".")
-    : trimmed;
-  const n = Number(normalized);
-  return Number.isFinite(n) ? n : null;
-}
+import { parseBR } from "../lib/br-number";
 
 export function BrlNumberInput(props: NumberInputProps) {
   const { value, onChange, elementProps } = props;

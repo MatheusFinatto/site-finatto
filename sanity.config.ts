@@ -9,6 +9,7 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 
 // Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
+import {withPublishConfirm} from './src/sanity/actions/publishImovelWithConfirm'
 import {apiVersion, dataset, projectId} from './src/sanity/env'
 import {schema} from './src/sanity/schemaTypes'
 import {structure} from './src/sanity/structure'
@@ -25,4 +26,12 @@ export default defineConfig({
     // https://www.sanity.io/docs/the-vision-plugin
     visionTool({defaultApiVersion: apiVersion}),
   ],
+  document: {
+    actions: (input, ctx) => {
+      if (ctx.schemaType !== 'imovel') return input
+      return input.map((a) =>
+        a.action === 'publish' ? withPublishConfirm(a) : a,
+      )
+    },
+  },
 })

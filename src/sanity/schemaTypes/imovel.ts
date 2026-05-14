@@ -1,5 +1,6 @@
 import { defineField, defineType } from "sanity";
 import type { StringRule } from "sanity";
+import { AreaInput } from "../components/AreaInput";
 import { AutoSlugInput } from "../components/AutoSlugInput";
 import { BrlNumberInput } from "../components/BrlNumberInput";
 import { TrimmedStringInput } from "../components/TrimmedStringInput";
@@ -103,20 +104,23 @@ export const imovelType = defineType({
     // ── Detalhes ─────────────────────────────────────────────────────────────
     defineField({
       name: "area_total",
-      title: "Área total (m²)",
+      title: "Área total",
       type: "number",
       group: "detalhes",
-      description: "Use vírgula ou ponto p/ decimais. Ex: 316,49",
-      components: { input: BrlNumberInput },
+      description:
+        "Alterne m²/ha. Use vírgula ou ponto p/ decimais. Valor salvo sempre em m².",
+      components: { input: AreaInput },
       validation: (r) => r.required().positive(),
     }),
     defineField({
       name: "area_construida",
-      title: "Área construída (m²)",
+      title: "Área construída",
       type: "number",
       group: "detalhes",
-      description: "Use vírgula ou ponto p/ decimais. Ex: 235,94",
-      components: { input: BrlNumberInput },
+      description:
+        "Soma das edificações (casa + anexos). Confira o preview m²/ha antes de salvar.",
+      components: { input: AreaInput },
+      validation: (r) => r.positive(),
     }),
     defineField({
       name: "quartos",
