@@ -135,7 +135,7 @@ export default async function ImovelPage({ params }: Props) {
     "@type": "RealEstateListing",
     name: imovel.titulo,
     description: imovel.descricao,
-    url: `${BASE_URL}/imoveis/${imovel.id}`,
+    url: `${BASE_URL}/imoveis/${imovel.slug}`,
     ...(imovel.fotos?.[0] ? { image: imovel.fotos[0] } : {}),
     offers: {
       "@type": "Offer",
