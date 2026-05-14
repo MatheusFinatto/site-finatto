@@ -97,10 +97,10 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
         <>
           <button
             onClick={scrollPrev}
+            onDoubleClick={(e) => e.stopPropagation()}
             aria-label="Foto anterior"
-            className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/45"
+            className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/50 md:shadow-lg md:rounded"
             style={{
-              background: "transparent",
               border: "none",
               cursor: "pointer",
               width: 40,
@@ -146,10 +146,10 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           </button>
           <button
             onClick={scrollNext}
+            onDoubleClick={(e) => e.stopPropagation()}
             aria-label="Próxima foto"
-            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/45"
+            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center transition-opacity hover:opacity-100 opacity-70 md:bg-black/50 md:shadow-lg md:rounded"
             style={{
-              background: "transparent",
               border: "none",
               cursor: "pointer",
               width: 40,
