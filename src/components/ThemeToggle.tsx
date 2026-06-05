@@ -11,10 +11,20 @@ const listeners = new Set<() => void>();
 function subscribe(cb: () => void) {
   listeners.add(cb);
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
-  mq.addEventListener("change", cb);
+  const onOSChange = () => {
+    // Follow the OS only when the user has not chosen an explicit theme.
+    if (!localStorage.getItem("theme")) {
+      document.documentElement.setAttribute(
+        "data-theme",
+        mq.matches ? "dark" : "light",
+      );
+    }
+    cb();
+  };
+  mq.addEventListener("change", onOSChange);
   return () => {
     listeners.delete(cb);
-    mq.removeEventListener("change", cb);
+    mq.removeEventListener("change", onOSChange);
   };
 }
 

@@ -56,6 +56,27 @@ Dados ao vivo (36 imóveis publicados):
 - **P3 — bumps maiores:** `next-sanity` 12→13, `typescript` 5→6, `eslint` 9→10 (majors, testar à parte).
 - **Search Console:** verificação via `metadata.verification.google` (preciso do token do GSC) ou registro DNS. `@vercel/analytics` já cobre tráfego; Speed Insights cobre Core Web Vitals.
 
+## Revisão do diff (workflow, 4 lentes + síntese)
+
+Veredito: **SAFE TO SHIP — zero P0/P1, sem regressões.** Fixes centrais confirmados
+corretos (jsonLdSafe fecha o breakout de `</script>`; sort por `_createdAt`;
+headers válidos p/ Next 16; canonical/robots/sitemap ok; `useSyncExternalStore`
+correto; validação Sanity v5 `.custom()` válida; imports removidos sem órfãos).
+
+Ajustes de follow-up aplicados (2º commit):
+- **OG (P2):** detalhe declarava `height:630` mas `sanityImg`/`fit=max` não cortava
+  → `og:image:height` incorreto. Novo `sanityImgCrop()` (1200×630, `fit=crop`).
+- **Thumb retina (P3):** `sanityImg(...,400)` borrava no mobile (slot full-width).
+  Subido para 800.
+- **ThemeToggle (P3):** o listener de `matchMedia` era inerte (snapshot lê
+  `data-theme`, não atualizado). Agora segue o tema do SO quando não há
+  preferência salva.
+- **/studio (P3):** `robots.ts` bloqueia crawl, mas faltava `noindex`. Adicionado
+  `robots:{index:false,follow:false}` no metadata do Studio (defesa em profundidade).
+
+Mantidos no backlog (P3, decisão sua): setas ↑↓ no `FilterSelect`, validação de
+área bidirecional.
+
 ## Gates após correções
 
 - `next build`: ✅ exit 0 (Next 16.2.7), 44 páginas, type-check limpo.

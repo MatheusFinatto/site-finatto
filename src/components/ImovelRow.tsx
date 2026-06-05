@@ -50,7 +50,7 @@ export default function ImovelRow({ imovel }: Props) {
           style={{
             background: THUMB_GRADIENT[imovel.tipo] ?? THUMB_GRADIENT.chacara,
             backgroundImage: imovel.fotos?.[0]
-              ? `url(${sanityImg(imovel.fotos[0], 400)})`
+              ? `url(${sanityImg(imovel.fotos[0], 800)})`
               : undefined,
             backgroundSize: "cover",
             backgroundPosition: "center",

@@ -13,7 +13,7 @@ import WppIcon from "@/components/WppIcon";
 import {
   formatArea,
   formatPreco,
-  sanityImg,
+  sanityImgCrop,
   WHATSAPP_FINATTO,
   WHATSAPP_FLAVIA,
   whatsappLink,
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: imovel.fotos?.[0]
         ? [
             {
-              url: sanityImg(imovel.fotos[0], 1200),
+              url: sanityImgCrop(imovel.fotos[0], 1200, 630),
               width: 1200,
               height: 630,
               alt: imovel.titulo,

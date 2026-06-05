@@ -26,6 +26,22 @@ export function sanityImg(url: string, width: number, quality = 75): string {
   return `${url}${sep}w=${width}&q=${quality}&auto=format&fit=max`;
 }
 
+/**
+ * Like {@link sanityImg} but crops to an exact width×height box (fit=crop).
+ * Use for fixed-ratio slots (e.g. OG images) where the declared dimensions
+ * must match the served image.
+ */
+export function sanityImgCrop(
+  url: string,
+  width: number,
+  height: number,
+  quality = 75,
+): string {
+  if (!url) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}w=${width}&h=${height}&fit=crop&auto=format&q=${quality}`;
+}
+
 export const WHATSAPP_FINATTO = "5554991636937";
 export const WHATSAPP_FLAVIA = "5554991001050";
 
