@@ -9,6 +9,7 @@ import { Imovel } from "@/lib/types";
 import {
   formatArea,
   formatPreco,
+  sanityImg,
   WHATSAPP_FINATTO,
   whatsappLink,
 } from "@/lib/utils";
@@ -61,7 +62,7 @@ export default function DestaqueCard({ imovel }: Props) {
                   className="flex-[0_0_100%] min-w-0 h-full relative"
                 >
                   <Image
-                    src={url}
+                    src={sanityImg(url, 800)}
                     alt={`${imovel.titulo} — foto ${i + 1}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

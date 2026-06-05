@@ -69,8 +69,8 @@ function formatPrecoBR(n: number): string {
 // ── Logic ────────────────────────────────────────────────────────────────────
 
 const SORTERS: Record<Ordem, (a: Imovel, b: Imovel) => number> = {
-  "mais-novos": (a, b) => Number(b.id) - Number(a.id),
-  "mais-antigos": (a, b) => Number(a.id) - Number(b.id),
+  "mais-novos": (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+  "mais-antigos": (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
   "preco-asc": (a, b) => a.preco - b.preco,
   "preco-desc": (a, b) => b.preco - a.preco,
   "area-desc": (a, b) => b.area_total - a.area_total,

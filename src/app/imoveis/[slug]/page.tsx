@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
 import type { Imovel } from "@/lib/types";
 import { client } from "@/sanity/lib/client";
@@ -14,6 +13,7 @@ import WppIcon from "@/components/WppIcon";
 import {
   formatArea,
   formatPreco,
+  sanityImg,
   WHATSAPP_FINATTO,
   WHATSAPP_FLAVIA,
   whatsappLink,
@@ -26,28 +26,13 @@ import {
   wppMsgImovel,
 } from "@/lib/constants";
 import FotoCarrossel from "@/components/FotoCarrossel";
+import { jsonLdSafe } from "@/lib/jsonld";
 
 export const revalidate = 60;
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
-
-const ArrowLeft = ({ size = 12 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="19" y1="12" x2="5" y2="12" />
-    <polyline points="12,19 5,12 12,5" />
-  </svg>
-);
 
 // ── Static params ────────────────────────────────────────────────────────────
 
@@ -67,6 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: imovel.descricao,
+    alternates: { canonical: `/imoveis/${imovel.slug}` },
     openGraph: {
       type: "website",
       locale: "pt_BR",
@@ -75,8 +61,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description: imovel.descricao,
       images: imovel.fotos?.[0]
-        ? [{ url: imovel.fotos[0], width: 1200, alt: imovel.titulo }]
-        : [{ url: "/img/hero-landscape.jpg", width: 1600, alt: imovel.titulo }],
+        ? [
+            {
+              url: sanityImg(imovel.fotos[0], 1200),
+              width: 1200,
+              height: 630,
+              alt: imovel.titulo,
+            },
+          ]
+        : [
+            {
+              url: "/img/hero-landscape.jpg",
+              width: 1600,
+              height: 900,
+              alt: imovel.titulo,
+            },
+          ],
     },
   };
 }
@@ -165,11 +165,11 @@ export default async function ImovelPage({ params }: Props) {
       <Navbar />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(listingSchema) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
       />
       <main style={{ background: "var(--bg)" }}>
         {/* Breadcrumb */}

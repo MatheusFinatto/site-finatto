@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { Space_Grotesk, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import WppFloat from "@/components/WppFloat";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
   BASE_URL,
   IMOVEIS_ENTREGUES,
   ANO_FUNDACAO,
   anosDeExperiencia,
 } from "@/lib/constants";
+import { jsonLdSafe } from "@/lib/jsonld";
 
 const businessSchema = {
   "@context": "https://schema.org",
@@ -52,6 +55,7 @@ export const metadata: Metadata = {
   title: "Finatto Incorporadora e Engenharia | Erechim, RS",
   description,
   metadataBase: new URL(BASE_URL),
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -63,6 +67,7 @@ export const metadata: Metadata = {
       {
         url: "/img/hero-landscape.jpg",
         width: 1600,
+        height: 900,
         alt: "Finatto Imóveis — Erechim, RS",
       },
     ],
@@ -95,12 +100,14 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(businessSchema) }}
         />
       </head>
       <body className="min-h-screen flex flex-col bg-bg text-fg">
         {children}
         <WppFloat />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

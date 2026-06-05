@@ -1,26 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+// External store: the theme lives on <html data-theme>, set pre-paint by the
+// inline script in layout.tsx. Reading it via useSyncExternalStore (instead of
+// useState+useEffect) avoids the hydration flash and the cascading re-render
+// that calling setState inside an effect would cause.
+const listeners = new Set<() => void>();
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", cb);
+  return () => {
+    listeners.delete(cb);
+    mq.removeEventListener("change", cb);
+  };
+}
+
+function getSnapshot() {
+  return document.documentElement.getAttribute("data-theme") === "dark";
+}
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    setDark(saved === "dark" || (!saved && prefersDark));
-  }, []);
+  const dark = useSyncExternalStore(subscribe, getSnapshot, () => false);
 
   function toggle() {
     const next = !dark;
-    setDark(next);
     localStorage.setItem("theme", next ? "dark" : "light");
     document.documentElement.setAttribute(
       "data-theme",
       next ? "dark" : "light",
     );
+    listeners.forEach((l) => l());
   }
 
   return (

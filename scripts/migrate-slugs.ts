@@ -34,7 +34,7 @@ async function run() {
   const usedSlugs = new Set(existingSlugs);
 
   for (const doc of docs) {
-    let base = slugify(doc.titulo);
+    const base = slugify(doc.titulo);
     let slug = base;
     let n = 2;
     while (usedSlugs.has(slug)) {

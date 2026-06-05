@@ -4,10 +4,9 @@ Production website for a real estate company based in Erechim, RS, Brazil. Live 
 
 ## Stack
 
-- **Next.js 15** (App Router)
+- **Next.js 16** (App Router)
 - **Sanity CMS** — property listings, team, and photos managed through embedded Sanity Studio at `/studio`
 - **TypeScript**
-- **Styled Components**
 - **Tailwind CSS**
 - **Embla Carousel / Swiper** — photo galleries
 - **Lucide React** — icons

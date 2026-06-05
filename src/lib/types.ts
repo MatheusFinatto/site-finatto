@@ -8,6 +8,7 @@ export type TipoImovel =
 export interface Imovel {
   id: string;
   slug: string;
+  createdAt: string;
   titulo: string;
   tipo: TipoImovel;
   status: "disponivel" | "vendido" | "reservado";

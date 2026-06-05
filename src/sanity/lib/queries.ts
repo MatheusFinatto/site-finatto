@@ -3,6 +3,7 @@ import { groq } from "next-sanity";
 // Campos comuns a todas as queries de imóvel
 const IMOVEL_FIELDS = groq`
   "id": _id,
+  "createdAt": _createdAt,
   "slug": coalesce(slug.current, _id),
   titulo,
   tipo,
@@ -42,6 +43,11 @@ export const imovelBySlugQuery = groq`
 
 export const allImovelSlugsQuery = groq`
   *[_type == "imovel"]{ "slug": coalesce(slug.current, _id) }.slug
+`;
+
+// Sitemap: slug + last-modified timestamp for accurate <lastmod>
+export const imovelSitemapQuery = groq`
+  *[_type == "imovel"]{ "slug": coalesce(slug.current, _id), _updatedAt }
 `;
 
 export const allImovelIdsQuery = groq`

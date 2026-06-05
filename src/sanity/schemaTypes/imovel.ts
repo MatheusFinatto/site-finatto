@@ -13,7 +13,6 @@ export const imovelType = defineType({
   name: "imovel",
   title: "Imóvel",
   type: "document",
-  options: { __experimental_formPreviewTitle: false },
   fields: [
     defineField({
       name: "titulo",
@@ -97,7 +96,19 @@ export const imovelType = defineType({
       description:
         "Use vírgula para casas decimais, e para separação de milhar use ponto ou nada.",
       components: { input: AreaInput },
-      validation: (r) => r.positive(),
+      validation: (r) =>
+        r.positive().custom((value, ctx) => {
+          const total = (ctx.document as { area_total?: number } | undefined)
+            ?.area_total;
+          if (
+            typeof value === "number" &&
+            typeof total === "number" &&
+            value > total
+          ) {
+            return "Área construída não pode ser maior que a área total.";
+          }
+          return true;
+        }),
     }),
     defineField({
       name: "quartos",

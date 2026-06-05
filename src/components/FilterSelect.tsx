@@ -31,8 +31,15 @@ export default function FilterSelect<T extends string | number>({
       if (ref.current && !ref.current.contains(e.target as Node))
         setOpen(false);
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", onClickOut);
-    return () => document.removeEventListener("mousedown", onClickOut);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClickOut);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -45,6 +52,9 @@ export default function FilterSelect<T extends string | number>({
       </span>
       <button
         onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
         className="flex items-center gap-1.5 font-medium text-fg hover:text-accent transition-colors"
         style={{
           fontSize: 12,
@@ -75,12 +85,16 @@ export default function FilterSelect<T extends string | number>({
 
       {open && (
         <div
+          role="listbox"
+          aria-label={label}
           className="absolute top-full border border-border bg-card shadow-lg z-20"
           style={{ left: 0, minWidth: 180, marginTop: 8 }}
         >
           {options.map((o) => (
             <button
               key={String(o.value)}
+              role="option"
+              aria-selected={o.value === value}
               onClick={() => {
                 onChange(o.value);
                 setOpen(false);
