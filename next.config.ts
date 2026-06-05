@@ -2,6 +2,9 @@ import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Permite testar pelo IP da LAN (celular no mesmo WiFi) sem o Next 16
+  // bloquear o HMR cross-origin. Só vale em dev; não afeta produção.
+  allowedDevOrigins: ["192.168.0.111", "192.168.19.63"],
   turbopack: {
     root: path.resolve(__dirname),
   },
