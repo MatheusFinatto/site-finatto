@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
+          {
+            // Subconjunto seguro: sem script-src/connect-src (não quebra Studio
+            // nem scripts inline de tema/JSON-LD). Cobre clickjacking, injeção
+            // de <base>, plugins e destino de formulários.
+            key: "Content-Security-Policy",
+            value:
+              "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+          },
         ],
       },
     ];
