@@ -47,7 +47,11 @@ Dados ao vivo (36 imóveis publicados):
 | DOCS | Higiene | P3 | ✅ corrigido | README dizia "Next.js 15"; `CLAUDE.md` dizia fundação 2008. Ambos corrigidos (16 / 2006). |
 | AUDIT-FIX | Segurança | P2 | ➖ parcial | `npm audit fix` aplicado (subiu next 16.2.6→16.2.7). Restam 21 vulns moderadas transitivas do toolchain Sanity (`ws`, `uuid`) — só corrigíveis com `--force` (quebra Sanity). Sem superfície de ataque em runtime. |
 
-## Backlog (não feito nesta rodada)
+## Backlog (não feito na 1ª rodada)
+
+> Status atualizado na **Rodada 2 (2026-06-05)** — ver seção no fim do documento.
+> Já feitos: alt das fotos (parcial), `FilterSelect` setas, CSP (subset). Pendente:
+> consolidar carrosséis (Embla tentado e revertido), type-ahead, bumps majors.
 
 - **P1-ALT — alt das fotos (3 partes):** (a) query descarta `alt` (`fotos[...].asset->url`); mudar para `{ "url": asset->url, alt }` exige mudar `Imovel.fotos` de `string[]` para `{url,alt}[]` e ajustar todos os consumidores; (b) tornar `alt` recomendado/obrigatório no schema; (c) **backfill** das centenas de fotos existentes (todas sem alt hoje). Como o `alt` gerado (`"título — foto N"`) já cobre o básico, priorizei outras coisas. Decisão sua se vale o refactor + backfill.
 - **P2 — consolidar carrosséis:** Swiper (Destaques) + Embla (detalhe/cards) ao mesmo tempo. Migrar tudo para Embla reduz bundle.
@@ -82,3 +86,40 @@ Mantidos no backlog (P3, decisão sua): setas ↑↓ no `FilterSelect`, validaç
 - `next build`: ✅ exit 0 (Next 16.2.7), 44 páginas, type-check limpo.
 - `tsc --noEmit`: ✅ limpo.
 - `eslint`: ✅ limpo.
+
+## Rodada 2 — backlog atacado (2026-06-05)
+
+Itens do backlog acima implementados nesta rodada. Commits: `057517d`, `286934e`, `daeff42`.
+
+- **P1-ALT (parcial):** `fotos` passou de `string[]` → `{ url, alt }[]`. O campo `alt` do
+  Sanity agora chega no front (a query antiga descartava). `alt` virou **recomendado**
+  (warning, não bloqueia publish); componentes usam o `alt` do CMS com fallback
+  `"título — foto N"` quando vazio. **Sem backfill** — intencional: o fallback já cobre o
+  piso WCAG 1.1.1; backfill em massa só escreveria o mesmo texto genérico. Falta:
+  editores preencherem alt descritivo ao longo do tempo.
+- **`FilterSelect` — teclado:** o dropdown de ordenação virou `combobox` (ARIA APG):
+  setas ↑↓, Home/End, Enter/Espaço, Escape, Tab; opção ativa rola à vista; nome acessível
+  inclui o valor selecionado; foco volta ao gatilho ao escolher. Falta (backlog): type-ahead.
+- **CSP base:** `Content-Security-Policy` com `frame-ancestors 'self'`, `base-uri 'self'`,
+  `object-src 'none'`, `form-action 'self'`. **Sem `script-src`** (de propósito) pra não
+  quebrar o Studio embarcado nem os scripts inline de tema/JSON-LD. É hardening de
+  clickjacking/base/plugin/form — **não** mitiga XSS (o vetor real já estava fechado com
+  `jsonLdSafe`). Path futuro pra XSS: `script-src` com nonce via middleware nas rotas
+  públicas, deixando `/studio` de fora.
+- **reduced-motion:** galeria do detalhe (`FotoCarrossel`) e fotos do card de destaque
+  respeitam `prefers-reduced-motion`; o autoplay das fotos do card roda só no desktop.
+- **Google Search Console:** verificado via **DNS** (propriedade de Domínio) — sem token,
+  sem código. Pendente manual: enviar o sitemap no GSC.
+
+### Carrossel de Destaques — Swiper→Embla: tentado e **revertido**
+
+Tentativa de migrar o carrossel de Swiper → Embla (tirar ~47KB do bundle + corrigir a
+usabilidade mobile: autoplay quase contínuo, movimento duplo dos cards). **Quebrou o
+desktop** (cards presos no skeleton de loading). Revertido pro **Swiper** em `main`
+(estado conhecido-bom, = produção). A versão Embla foi preservada fora do repo
+(`~/.claude/.../wip-destaques-embla.tsx`) pra retomar com calma. **A usabilidade mobile
+original continua pendente.**
+
+Lição operacional: **não rodar `next build` na mesma árvore com um `next dev` ativo** — os
+dois compartilham `.next` e corrompem o cache; foi o que travou o localhost (home virou
+404 / skeleton infinito) durante o diagnóstico. Fix: matar o dev, `rm -rf .next`, subir de novo.
