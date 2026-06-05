@@ -6,15 +6,16 @@ import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { sanityImg } from "@/lib/utils";
+import type { Foto } from "@/lib/types";
 
 interface Props {
-  fotos: string[];
+  fotos: Foto[];
   alt: string;
 }
 
 export default function FotoCarrossel({ fotos, alt }: Props) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 3500, stopOnInteraction: true }),
+    Autoplay({ delay: 3500, playOnInit: false, stopOnInteraction: true }),
   ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,6 +66,17 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
     };
   }, [emblaApi]);
 
+  // Autoplay da galeria respeita prefers-reduced-motion.
+  useEffect(() => {
+    const ap = emblaApi?.plugins()?.autoplay;
+    if (!ap) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const decide = () => (reduce.matches ? ap.stop() : ap.play());
+    decide();
+    reduce.addEventListener("change", decide);
+    return () => reduce.removeEventListener("change", decide);
+  }, [emblaApi]);
+
   if (fotos.length === 0) return null;
 
   return (
@@ -77,11 +89,11 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
       {/* Viewport */}
       <div ref={emblaRef} className="overflow-hidden w-full h-full">
         <div className="flex h-full">
-          {fotos.map((url, i) => (
+          {fotos.map((foto, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
               <Image
-                src={sanityImg(url, 1600)}
-                alt={`${alt} — foto ${i + 1}`}
+                src={sanityImg(foto.url, 1600)}
+                alt={foto.alt || `${alt} — foto ${i + 1}`}
                 fill
                 draggable={false}
                 className="object-cover select-none"

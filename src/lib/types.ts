@@ -5,6 +5,11 @@ export type TipoImovel =
   | "terreno"
   | "pavilhao";
 
+export interface Foto {
+  url: string;
+  alt: string | null;
+}
+
 export interface Imovel {
   id: string;
   slug: string;
@@ -24,5 +29,5 @@ export interface Imovel {
   logradouro?: string; // "Rua das Flores, 123" ou "Comunidade Rio Turvo"
   complemento?: string; // "Ap 201", "Galpão dos fundos", etc.
   descricao: string;
-  fotos: string[];
+  fotos: Foto[];
 }

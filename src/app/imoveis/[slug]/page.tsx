@@ -60,10 +60,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "Finatto Imóveis",
       title,
       description: imovel.descricao,
-      images: imovel.fotos?.[0]
+      images: imovel.fotos?.[0]?.url
         ? [
             {
-              url: sanityImgCrop(imovel.fotos[0], 1200, 630),
+              url: sanityImgCrop(imovel.fotos[0].url, 1200, 630),
               width: 1200,
               height: 630,
               alt: imovel.titulo,
@@ -136,7 +136,7 @@ export default async function ImovelPage({ params }: Props) {
     name: imovel.titulo,
     description: imovel.descricao,
     url: `${BASE_URL}/imoveis/${imovel.slug}`,
-    ...(imovel.fotos?.[0] ? { image: imovel.fotos[0] } : {}),
+    ...(imovel.fotos?.[0]?.url ? { image: imovel.fotos[0].url } : {}),
     offers: {
       "@type": "Offer",
       price: imovel.preco,

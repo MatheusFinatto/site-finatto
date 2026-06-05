@@ -174,6 +174,16 @@ export const imovelType = defineType({
               name: "alt",
               title: "Descrição da foto",
               type: "string",
+              description:
+                "Recomendado: descreva a foto (ex.: “varanda com vista para o vale”) — melhora SEO e leitores de tela.",
+              validation: (r) =>
+                r
+                  .custom((value) =>
+                    value
+                      ? true
+                      : "Recomendado descrever a foto para SEO e acessibilidade.",
+                  )
+                  .warning(),
             }),
           ],
         },

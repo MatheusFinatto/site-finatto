@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Imovel } from "@/lib/types";
 import {
   formatArea,
@@ -35,10 +35,31 @@ export default function DestaqueCard({ imovel }: Props) {
     wppMsgImovel(imovel.titulo, formatPreco(imovel.preco)),
   );
 
-  const autoplay = useRef(Autoplay({ delay: 2400, stopOnInteraction: false }));
-  const [emblaRef] = useEmblaCarousel({ loop: true, watchDrag: false }, [
+  const autoplay = useRef(
+    Autoplay({ delay: 4000, playOnInit: false, stopOnInteraction: false }),
+  );
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, watchDrag: false }, [
     autoplay.current,
   ]);
+
+  // Autoplay das fotos só no desktop e sem prefers-reduced-motion. No mobile
+  // vários cards ficam visíveis ao mesmo tempo (peek) — deixá-los todos trocando
+  // foto sozinhos polui a tela, que é justo o que a reescrita quer evitar.
+  useEffect(() => {
+    const ap = emblaApi?.plugins()?.autoplay;
+    if (!ap) return;
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const decide = () =>
+      desktop.matches && !reduce.matches ? ap.play() : ap.stop();
+    decide();
+    desktop.addEventListener("change", decide);
+    reduce.addEventListener("change", decide);
+    return () => {
+      desktop.removeEventListener("change", decide);
+      reduce.removeEventListener("change", decide);
+    };
+  }, [emblaApi]);
 
   const hasFotos = imovel.fotos?.length > 0;
 
@@ -56,14 +77,14 @@ export default function DestaqueCard({ imovel }: Props) {
         {hasFotos ? (
           <div ref={emblaRef} className="overflow-hidden w-full h-full">
             <div className="flex h-full">
-              {imovel.fotos.map((url, i) => (
+              {imovel.fotos.map((foto, i) => (
                 <div
                   key={i}
                   className="flex-[0_0_100%] min-w-0 h-full relative"
                 >
                   <Image
-                    src={sanityImg(url, 800)}
-                    alt={`${imovel.titulo} — foto ${i + 1}`}
+                    src={sanityImg(foto.url, 800)}
+                    alt={foto.alt || `${imovel.titulo} — foto ${i + 1}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 92vw, 48vw"
