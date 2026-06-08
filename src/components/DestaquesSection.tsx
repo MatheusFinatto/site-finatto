@@ -182,11 +182,13 @@ export default function DestaquesSection({ destaques }: Props) {
                   }
                 : false
             }
-            speed={2000}
-            loop={canScroll}
+            speed={400}
+            rewind={true}
             spaceBetween={12}
             slidesPerView={1.2}
-            centeredSlides={true}
+            centeredSlides={false}
+            slidesOffsetBefore={24}
+            slidesOffsetAfter={24}
             breakpoints={{
               768: {
                 slidesPerView: 3.15,
@@ -218,7 +220,7 @@ export default function DestaquesSection({ destaques }: Props) {
           {destaques.map((_, i) => (
             <button
               key={i}
-              onClick={() => swiperRef.current?.swiper.slideToLoop(i)}
+              onClick={() => swiperRef.current?.swiper.slideTo(i)}
               aria-label={`Destaque ${i + 1}`}
               style={{
                 width: i === current ? 18 : 6,
