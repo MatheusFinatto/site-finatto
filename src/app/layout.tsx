@@ -89,6 +89,7 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       className={`${spaceGrotesk.variable} ${dmSerif.variable}`}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>

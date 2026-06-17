@@ -31,7 +31,7 @@ export default function EquipeSection() {
             alt="Campo em Erechim e região"
             fill
             className="object-cover"
-            sizes="100vw"
+            sizes="(min-width: 768px) 1px, 100vw"
           />
           <div
             className="absolute inset-0"
@@ -137,7 +137,7 @@ export default function EquipeSection() {
             alt="Campo e natureza em Erechim e região"
             fill
             className="object-cover"
-            sizes="50vw"
+            sizes="(max-width: 767px) 1px, 50vw"
           />
           <div
             className="absolute inset-0"
