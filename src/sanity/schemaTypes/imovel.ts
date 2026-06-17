@@ -162,6 +162,28 @@ export const imovelType = defineType({
       validation: (r) => noEdgeWhitespace(r),
     }),
     defineField({
+      name: "lat",
+      title: "Latitude (mapa)",
+      type: "number",
+      description:
+        "Opcional. Para mostrar o mapa, pegue a coordenada DO PIN no Google Maps: " +
+        "clique direito no ponto exato → clique nas coordenadas para copiar (ou copie " +
+        "do trecho !3d{lat}!4d{lng} da URL — NÃO do @ inicial, que é o centro da tela, " +
+        "não o pin). Latitude é o primeiro número. Sem lat/lng, o imóvel fica sem mapa.",
+      validation: (r) =>
+        r.min(-90).max(90).error("Latitude deve estar entre -90 e 90."),
+    }),
+    defineField({
+      name: "lng",
+      title: "Longitude (mapa)",
+      type: "number",
+      description:
+        "Opcional. Longitude do mesmo pin (segundo número, o !4d da URL). " +
+        "Preencha junto com a latitude — as duas são necessárias para o mapa.",
+      validation: (r) =>
+        r.min(-180).max(180).error("Longitude deve estar entre -180 e 180."),
+    }),
+    defineField({
       name: "fotos",
       title: "Fotos",
       type: "array",

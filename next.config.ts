@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
             // de <base>, plugins e destino de formulários.
             key: "Content-Security-Policy",
             value:
-              "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+              "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; frame-src 'self' blob: https://www.openstreetmap.org",
           },
         ],
       },

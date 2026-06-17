@@ -28,6 +28,8 @@ export interface Imovel {
   bairro: string;
   logradouro?: string; // "Rua das Flores, 123" ou "Comunidade Rio Turvo"
   complemento?: string; // "Ap 201", "Galpão dos fundos", etc.
+  lat?: number; // coordenada do pin (mapa); ausente = sem mapa
+  lng?: number;
   descricao: string;
   fotos: Foto[];
 }

@@ -26,6 +26,7 @@ import {
   wppMsgImovel,
 } from "@/lib/constants";
 import FotoCarrossel from "@/components/FotoCarrossel";
+import ImovelMapa from "@/components/ImovelMapa";
 import { jsonLdSafe } from "@/lib/jsonld";
 
 export const revalidate = 60;
@@ -255,6 +256,8 @@ export default async function ImovelPage({ params }: Props) {
                 {imovel.titulo}
               </h1>
             </div>
+
+            <ImovelMapa lat={imovel.lat} lng={imovel.lng} />
 
             <div
               className="grid grid-cols-2 sm:grid-cols-4 border border-border"

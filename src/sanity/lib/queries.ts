@@ -19,6 +19,8 @@ const IMOVEL_FIELDS = groq`
   bairro,
   logradouro,
   complemento,
+  lat,
+  lng,
   descricao,
   "fotos": fotos[defined(asset)]{ "url": asset->url, alt },
 `;
