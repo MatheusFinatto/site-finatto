@@ -165,11 +165,18 @@ export const imovelType = defineType({
       name: "lat",
       title: "Latitude (mapa)",
       type: "number",
-      description:
-        "Opcional. Para mostrar o mapa, pegue a coordenada DO PIN no Google Maps: " +
-        "clique direito no ponto exato → clique nas coordenadas para copiar (ou copie " +
-        "do trecho !3d{lat}!4d{lng} da URL — NÃO do @ inicial, que é o centro da tela, " +
-        "não o pin). Latitude é o primeiro número. Sem lat/lng, o imóvel fica sem mapa.",
+      description: (
+        <div style={{ whiteSpace: "pre-line" }}>{`Opcional
+Para exibir o mapa, copie a coordenada de latitude do pin no Google Maps:
+
+Clique com o botão direito sobre o local marcado.
+Clique nas coordenadas que aparecerem para copiá-las.
+
+Exemplo:
+Se as coordenadas forem -27.6365, -52.2738, a latitude é -27.6365 (primeiro número).
+
+Se latitude e longitude não forem informadas, o imóvel será exibido sem mapa.`}</div>
+      ),
       validation: (r) =>
         r.min(-90).max(90).error("Latitude deve estar entre -90 e 90."),
     }),
@@ -177,9 +184,17 @@ export const imovelType = defineType({
       name: "lng",
       title: "Longitude (mapa)",
       type: "number",
-      description:
-        "Opcional. Longitude do mesmo pin (segundo número, o !4d da URL). " +
-        "Preencha junto com a latitude — as duas são necessárias para o mapa.",
+      description: (
+        <div style={{ whiteSpace: "pre-line" }}>{`Opcional
+Informe a longitude do mesmo pin usado na latitude.
+
+Exemplo:
+Se as coordenadas forem -27.6365, -52.2738, a longitude é -52.2738 (segundo número).
+
+Na URL do Google Maps, ela corresponde ao valor após !4d.
+
+A longitude deve ser preenchida junto com a latitude. As duas são necessárias para exibir o mapa.`}</div>
+      ),
       validation: (r) =>
         r.min(-180).max(180).error("Longitude deve estar entre -180 e 180."),
     }),
