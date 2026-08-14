@@ -19,11 +19,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Image
-              src="/img/logo-light.jpeg"
+              src="/img/logo-light.webp"
               alt="Finatto"
               width={140}
               height={36}
               className="h-8 w-auto object-contain mb-4"
+              unoptimized
             />
             <p className="text-sm text-muted-fg leading-relaxed max-w-xs">
               {anosDeExperiencia()} anos transformando sonhos em imóveis.

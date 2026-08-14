@@ -43,20 +43,22 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="/img/logo-light.jpeg"
+              src="/img/logo-light.webp"
               alt="Finatto"
               width={160}
               height={40}
               className="logo-light-img h-9 w-auto object-contain"
               priority
+              unoptimized
             />
             <Image
-              src="/img/logo-dark.jpeg"
+              src="/img/logo-dark.webp"
               alt="Finatto"
               width={160}
               height={40}
               className="logo-dark-img h-9 w-auto object-contain"
               priority
+              unoptimized
             />
           </Link>
 

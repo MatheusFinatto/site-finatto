@@ -5,7 +5,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
-import { sanityImg } from "@/lib/utils";
+import sanityLoader from "@/lib/sanityLoader";
 import type { Foto } from "@/lib/types";
 
 interface Props {
@@ -92,7 +92,8 @@ export default function FotoCarrossel({ fotos, alt }: Props) {
           {fotos.map((foto, i) => (
             <div key={i} className="flex-[0_0_100%] min-w-0 h-full relative">
               <Image
-                src={sanityImg(foto.url, 1600)}
+                loader={sanityLoader}
+                src={foto.url}
                 alt={foto.alt || `${alt} — foto ${i + 1}`}
                 fill
                 draggable={false}

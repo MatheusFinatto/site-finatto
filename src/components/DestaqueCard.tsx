@@ -13,6 +13,7 @@ import {
   WHATSAPP_FINATTO,
   whatsappLink,
 } from "@/lib/utils";
+import sanityLoader from "@/lib/sanityLoader";
 import { TIPO_LABEL, THUMB_GRADIENT, wppMsgImovel } from "@/lib/constants";
 import WppIcon from "./WppIcon";
 import {
@@ -83,7 +84,8 @@ export default function DestaqueCard({ imovel }: Props) {
                   className="flex-[0_0_100%] min-w-0 h-full relative"
                 >
                   <Image
-                    src={sanityImg(foto.url, 800)}
+                    loader={sanityLoader}
+                    src={foto.url}
                     alt={foto.alt || `${imovel.titulo} — foto ${i + 1}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
+    // As fotos do Sanity usam o loader próprio (src/lib/sanityLoader.ts) e não
+    // passam pelo otimizador da Vercel. O que sobra aqui são os assets locais
+    // de /public/img — poucos, e sempre em slots grandes. Enxugar a lista de
+    // larguras corta o número de variantes (= "transformations" cobradas).
+    deviceSizes: [640, 828, 1080, 1920],
+    imageSizes: [64, 128, 256],
+    qualities: [75],
+    // Assets locais têm nome fixo; se um deles mudar, renomeie o arquivo para
+    // furar o cache (não há como invalidar manualmente).
+    minimumCacheTTL: 2678400, // 31 dias
   },
   async headers() {
     return [
