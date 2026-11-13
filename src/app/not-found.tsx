@@ -1,149 +1,41 @@
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
 import { WHATSAPP_FINATTO, whatsappLink } from "@/lib/utils";
 import { WPP_MSG_FINATTO } from "@/lib/constants";
 
-const quickLinks = [
-  { href: "/#imoveis", label: "Imóveis" },
-  { href: "/#loteamentos", label: "Loteamentos" },
-  { href: "/#sobre", label: "Sobre" },
-  { href: "/#contato", label: "Contato" },
-];
-
 export default function NotFound() {
   return (
     <>
       <Navbar />
-      <main
-        className="relative flex flex-col items-center justify-center text-center overflow-hidden"
-        style={{
-          padding: "clamp(56px, 10vw, 120px) clamp(24px, 5vw, 60px)",
-          minHeight: "calc(100vh - 64px)",
-        }}
-      >
-        {/* Decorative oversized 404 — chácara gradient, brand-consistent */}
+      <main className="container-x flex min-h-[calc(100dvh-64px)] flex-col items-center justify-center py-16 text-center">
         <span
-          aria-hidden="true"
-          className="select-none pointer-events-none"
-          style={{
-            fontFamily: "var(--font-dm-serif)",
-            fontWeight: 400,
-            fontSize: "clamp(160px, 32vw, 360px)",
-            lineHeight: 0.82,
-            background:
-              "linear-gradient(150deg, #2a5010 0%, #3d7020 55%, #285010 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            opacity: 0.16,
-            letterSpacing: "-0.02em",
-          }}
+          aria-hidden
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-card text-green shadow-card"
         >
-          404
+          <SearchX size={28} strokeWidth={1.75} />
         </span>
-
-        {/* Foreground content, overlapping the big 404 */}
-        <div
-          className="flex flex-col items-center"
-          style={{ marginTop: "clamp(-90px, -14vw, -150px)" }}
-        >
-          <p
-            className="text-accent uppercase flex items-center gap-2"
-            style={{ fontSize: 11, letterSpacing: 3, marginBottom: 14 }}
+        <h1 className="mt-6 max-w-[18ch] text-balance text-[clamp(32px,5vw,52px)] text-fg">
+          Esta página não existe mais.
+        </h1>
+        <p className="mt-4 max-w-[46ch] text-[16px] leading-relaxed text-muted-fg">
+          O imóvel pode ter saído do catálogo ou o endereço mudou. Os imóveis
+          à venda em Erechim e região estão todos na lista.
+        </p>
+        <div className="mt-8 flex w-full max-w-[420px] flex-col gap-2.5 sm:w-auto sm:max-w-none sm:flex-row">
+          <Link href="/#imoveis" className="btn btn-lg btn-wpp">
+            Ver imóveis à venda
+          </Link>
+          <a
+            href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-lg btn-wpp-outline"
           >
-            <span
-              className="inline-block bg-accent"
-              style={{ width: 24, height: 1.5 }}
-            />
-            Erro 404
-          </p>
-
-          <h1
-            className="text-fg"
-            style={{
-              fontFamily: "var(--font-dm-serif)",
-              fontSize: "clamp(32px, 5vw, 56px)",
-              fontWeight: 400,
-              lineHeight: 1.1,
-              marginBottom: 16,
-              maxWidth: 620,
-            }}
-          >
-            Esta página saiu do{" "}
-            <em style={{ fontStyle: "italic", color: "var(--accent)" }}>
-              mapa
-            </em>
-            .
-          </h1>
-
-          <p
-            className="text-muted-fg"
-            style={{
-              fontSize: 16,
-              lineHeight: 1.8,
-              maxWidth: 460,
-              marginBottom: 32,
-            }}
-          >
-            O imóvel ou página que você procura não existe mais ou mudou de
-            endereço. Mas temos muitas outras oportunidades em Erechim e região.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-3 flex-wrap justify-center">
-            <Link
-              href="/#imoveis"
-              className="inline-block bg-fg text-bg font-medium hover:opacity-80 transition-opacity"
-              style={{
-                padding: "14px 28px",
-                fontSize: 13,
-                letterSpacing: 1,
-              }}
-            >
-              Ver imóveis
-            </Link>
-            <Link
-              href="/"
-              className="inline-block font-medium border border-border text-fg hover:bg-muted transition-colors"
-              style={{ padding: "14px 28px", fontSize: 13, letterSpacing: 1 }}
-            >
-              Voltar ao início
-            </Link>
-            <a
-              href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 font-medium hover:opacity-90 transition-opacity"
-              style={{
-                background: "var(--wpp-green)",
-                color: "#fff",
-                padding: "14px 28px",
-                fontSize: 13,
-                letterSpacing: 1,
-              }}
-            >
-              <WppIcon size={16} /> Falar com a equipe
-            </a>
-          </div>
-
-          {/* Quick links */}
-          <div
-            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2"
-            style={{ marginTop: 40 }}
-          >
-            {quickLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-muted-fg hover:text-fg transition-colors uppercase"
-                style={{ fontSize: 11, letterSpacing: 2 }}
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
+            <WppIcon size={17} /> Falar com os sócios
+          </a>
         </div>
       </main>
       <Footer />

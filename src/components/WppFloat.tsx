@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { X } from "lucide-react";
 import WppIcon from "./WppIcon";
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from "@/lib/utils";
 import { WPP_MSG_FINATTO, WPP_MSG_FLAVIA } from "@/lib/constants";
@@ -10,124 +11,91 @@ export default function WppFloat() {
   const pathname = usePathname();
   const isStudio = pathname === "/studio" || pathname.startsWith("/studio/");
   const isHome = pathname === "/";
+  // Na página do imóvel o contato fica no card lateral e na barra fixa, que
+  // já levam o nome e o preço; o flutuante mandaria a mensagem genérica.
+  const isImovel = pathname.startsWith("/imoveis/");
 
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Na homepage aparece após scroll; nas demais páginas sempre visível
+  // Na home aparece depois do primeiro scroll; nas demais páginas sempre.
   useEffect(() => {
     if (!isHome) return;
     function onScroll() {
-      setScrolled(window.scrollY > 300);
+      setScrolled(window.scrollY > 400);
     }
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
-  const visible = !isStudio && (!isHome || scrolled);
+  const visible = !isStudio && !isImovel && (!isHome || scrolled);
 
-  // Fecha ao clicar fora
   useEffect(() => {
     if (!open) return;
     function onClickOut(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node))
         setOpen(false);
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", onClickOut);
-    return () => document.removeEventListener("mousedown", onClickOut);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClickOut);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
     <div
       ref={ref}
-      className="fixed z-50 transition-all duration-300"
+      className={`fixed bottom-6 right-5 z-50 transition-all duration-300 md:bottom-7 md:right-7`}
       style={{
-        bottom: 28,
-        right: 24,
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? "auto" : "none",
         transform: visible ? "translateY(0)" : "translateY(12px)",
       }}
     >
-      {/* Popup menu */}
       {open && (
         <div
-          className="absolute flex flex-col gap-2 border border-border bg-card"
-          style={{
-            bottom: 64,
-            right: 0,
-            padding: 12,
-            minWidth: 220,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-          }}
+          role="dialog"
+          aria-label="Falar no WhatsApp"
+          className="absolute bottom-[68px] right-0 flex w-[248px] flex-col gap-2 rounded-[var(--radius-card)] border border-border bg-card p-3 shadow-float"
         >
-          <p
-            className="text-muted-fg uppercase"
-            style={{ fontSize: 10, letterSpacing: 2, marginBottom: 4 }}
-          >
+          <p className="px-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted-fg">
             Falar com
           </p>
           <a
             href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-medium hover:opacity-90 transition-opacity"
-            style={{
-              background: "var(--wpp-green)",
-              color: "#fff",
-              padding: "11px 16px",
-              fontSize: 13,
-            }}
+            className="btn btn-wpp justify-start"
           >
-            <WppIcon size={15} /> Finatto Corretor
+            <WppIcon size={15} /> Finatto · Corretor
           </a>
           <a
             href={whatsappLink(WHATSAPP_FLAVIA, WPP_MSG_FLAVIA)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-medium hover:opacity-90 transition-opacity"
-            style={{
-              color: "var(--wpp-green)",
-              padding: "11px 16px",
-              fontSize: 13,
-              border: "1px solid var(--wpp-green)",
-            }}
+            className="btn btn-wpp-outline justify-start"
           >
-            <WppIcon size={15} /> Flávia Finatto
+            <WppIcon size={15} /> Flávia · Engenheira
           </a>
         </div>
       )}
 
-      {/* Toggle button */}
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Contato via WhatsApp"
-        className="flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95"
-        style={{
-          width: 56,
-          height: 56,
-          background: "var(--wpp-green)",
-          color: "#fff",
-          border: "none",
-          cursor: "pointer",
-        }}
+        aria-label={open ? "Fechar opções de WhatsApp" : "Contato via WhatsApp"}
+        aria-expanded={open}
+        className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-float transition-transform hover:scale-105 active:scale-95"
+        style={{ background: "var(--wpp-green)" }}
       >
-        {open ? (
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        ) : (
-          <WppIcon size={26} />
-        )}
+        {open ? <X size={22} strokeWidth={2.5} /> : <WppIcon size={26} />}
       </button>
     </div>
   );

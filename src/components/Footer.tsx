@@ -1,94 +1,136 @@
 import Image from "next/image";
 import Link from "next/link";
+import { client } from "@/sanity/lib/client";
+import { tiposPublicadosQuery } from "@/sanity/lib/queries";
+import type { TipoImovel } from "@/lib/types";
 import { WHATSAPP_FINATTO, WHATSAPP_FLAVIA, whatsappLink } from "@/lib/utils";
-import {
-  ANO_FUNDACAO,
-  IMOVEIS_ENTREGUES,
-  anosDeExperiencia,
-} from "@/lib/constants";
+import { ANO_FUNDACAO, TIPO_ORDEM, TIPO_PLURAL } from "@/lib/constants";
+import FilterLink from "./FilterLink";
 import WppIcon from "./WppIcon";
 
-export default function Footer() {
+const empresa = [
+  { href: "/#imoveis", label: "Imóveis à venda" },
+  { href: "/#loteamentos", label: "Parceria em loteamentos" },
+  { href: "/#sobre", label: "Quem somos" },
+  { href: "/#contato", label: "Contato" },
+];
+
+const linkCls =
+  "text-[14.5px] text-white/75 transition-colors hover:text-white hover:underline";
+
+/** Tipos com pelo menos um imóvel publicado, na ordem do catálogo. */
+async function tiposComImoveis(): Promise<TipoImovel[]> {
+  try {
+    const tipos: TipoImovel[] = await client.fetch(tiposPublicadosQuery);
+    const presentes = new Set(tipos);
+    return TIPO_ORDEM.filter((t) => presentes.has(t));
+  } catch {
+    return TIPO_ORDEM;
+  }
+}
+
+export default async function Footer() {
+  const tipos = await tiposComImoveis();
+
   return (
-    <footer id="contato" className="border-t border-border bg-muted mt-auto">
-      <div
-        className="max-w-7xl mx-auto"
-        style={{ padding: "clamp(40px, 5vw, 60px) clamp(24px, 5vw, 60px)" }}
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-2">
+    <footer id="contato" className="mt-16 bg-green-deep text-white md:mt-24">
+      <div className="container-x py-12 md:py-16">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.2fr] md:gap-8">
+          <div>
             <Image
               src="/img/logo-light.webp"
-              alt="Finatto"
-              width={140}
-              height={36}
-              className="h-8 w-auto object-contain mb-4"
+              alt="Finatto Incorporadora e Engenharia"
+              width={160}
+              height={40}
+              className="logo-light-img h-8 w-auto rounded-md bg-white object-contain p-1"
               unoptimized
             />
-            <p className="text-sm text-muted-fg leading-relaxed max-w-xs">
-              {anosDeExperiencia()} anos transformando sonhos em imóveis.
-              Erechim e região.
-            </p>
-            <p className="text-xs text-muted-fg mt-3">
-              Fundada em {ANO_FUNDACAO} · {IMOVEIS_ENTREGUES} imóveis entregues
+            <Image
+              src="/img/logo-dark.webp"
+              alt="Finatto Incorporadora e Engenharia"
+              width={160}
+              height={40}
+              className="logo-dark-img h-8 w-auto object-contain"
+              unoptimized
+            />
+            <p className="mt-4 max-w-[34ch] text-[14.5px] leading-relaxed text-white/75">
+              Incorporadora e engenharia em Erechim, RS, desde {ANO_FUNDACAO}.
+              Chácaras, casas, terrenos e pavilhões em Erechim e região.
             </p>
           </div>
 
-          {/* Imóveis */}
-          <div>
-            <h4 className="font-semibold text-fg text-sm mb-3">Imóveis</h4>
-            <ul className="flex flex-col gap-2">
-              {["Chácaras", "Casas", "Terrenos", "Pavilhões"].map((tipo) => (
-                <li key={tipo}>
-                  <Link
-                    href="#imoveis"
-                    className="text-sm text-muted-fg hover:text-fg transition-colors"
-                  >
-                    {tipo}
+          <nav aria-label="Imóveis por tipo">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-white">
+              Imóveis
+            </p>
+            <ul className="mt-3 space-y-2">
+              {tipos.map((t) => (
+                <li key={t}>
+                  <FilterLink params={{ tipo: t }} className={linkCls}>
+                    {TIPO_PLURAL[t]}
+                  </FilterLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Empresa">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-white">
+              Empresa
+            </p>
+            <ul className="mt-3 space-y-2">
+              {empresa.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={linkCls}>
+                    {l.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          {/* Contato */}
           <div>
-            <h4 className="font-semibold text-fg text-sm mb-3">Contato</h4>
-            <ul className="flex flex-col gap-2 text-sm text-muted-fg">
-              <li>Rua Sergipe, 1707 — Bela Vista</li>
-              <li>Erechim, RS</li>
-              <li>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-white">
+              Contato
+            </p>
+            <address className="mt-3 space-y-2 text-[14.5px] not-italic text-white/75">
+              <p>
+                Rua Sergipe, 1707 · Bela Vista
+                <br />
+                Erechim, RS
+              </p>
+              <p>
                 <a
                   href={whatsappLink(WHATSAPP_FINATTO)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 hover:text-fg transition-colors"
+                  className="inline-flex items-center gap-2 whitespace-nowrap py-1.5 hover:text-white hover:underline"
                 >
-                  <WppIcon size={12} />
-                  (54) 99163-6937 · Finatto
+                  <WppIcon size={14} />
+                  <span className="tabular whitespace-nowrap">(54) 99163-6937</span> · Finatto
                 </a>
-              </li>
-              <li>
+              </p>
+              <p>
                 <a
                   href={whatsappLink(WHATSAPP_FLAVIA)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 hover:text-fg transition-colors"
+                  className="inline-flex items-center gap-2 whitespace-nowrap py-1.5 hover:text-white hover:underline"
                 >
-                  <WppIcon size={12} />
-                  (54) 99100-1050 · Flávia Finatto
+                  <WppIcon size={14} />
+                  <span className="tabular whitespace-nowrap">(54) 99100-1050</span> · Flávia
                 </a>
-              </li>
-            </ul>
+              </p>
+            </address>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-muted-fg">
-          <span>
-            © {new Date().getFullYear()} Finatto Incorporadora e Engenharia LTDA
-          </span>
-          <span>CRECI/RS 51910</span>
+        <div className="mt-12 flex flex-col gap-2 border-t border-white/15 pt-6 text-[13px] text-white/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} Finatto Incorporadora e Engenharia
+            LTDA
+          </p>
+          <p className="tabular">CRECI/RS 51910 · CREA/RS 242604</p>
         </div>
       </div>
     </footer>

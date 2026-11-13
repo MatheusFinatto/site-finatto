@@ -1,644 +1,398 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Imovel, TipoImovel } from "@/lib/types";
-import { TIPO_TABS } from "@/lib/constants";
-import ImovelRow from "./ImovelRow";
-import FilterSelect from "./FilterSelect";
-import DestaquesSection from "./DestaquesSection";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import {
+  ChevronDown,
+  Search,
+  SearchX,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
+import type { Imovel, TipoImovel } from "@/lib/types";
+import { WPP_MSG_FINATTO } from "@/lib/constants";
+import type { TipoResumo } from "./TiposSection";
+import { WHATSAPP_FINATTO, whatsappLink } from "@/lib/utils";
+import {
+  FILTROS_VAZIOS,
+  ORDEM_OPTS,
+  ORDEM_PADRAO,
+  QUARTOS_OPTS,
+  aplicarNaUrl,
+  filtrarEOrdenar,
+  filtrosFromParams,
+  formatPrecoBR,
+  paramsFromFiltros,
+  parsePrecoInput,
+  temFiltroAtivo,
+  type Filtros,
+  type Ordem,
+} from "@/lib/filtros";
+import ImovelCard from "./ImovelCard";
+import Select from "./Select";
+import WppIcon from "./WppIcon";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+const PAGINA = 12;
 
-interface Filtros {
-  busca: string;
-  tipo: TipoImovel | "";
-  precoMin: number | null;
-  precoMax: number | null;
-  quartos: number; // 0 = qualquer
-}
+// ── Preço mín/máx: texto local, compromete no blur/Enter ─────────────────────
 
-type Ordem =
-  | "mais-novos"
-  | "mais-antigos"
-  | "preco-asc"
-  | "preco-desc"
-  | "area-desc"
-  | "area-construida-desc";
-
-// ── Options ──────────────────────────────────────────────────────────────────
-
-const QUARTOS_OPTS = [
-  { label: "Qualquer", value: 0 },
-  { label: "1", value: 1 },
-  { label: "2", value: 2 },
-  { label: "3", value: 3 },
-  { label: "4+", value: 4 },
-];
-
-const ORDEM_OPTS: { label: string; value: Ordem }[] = [
-  { label: "Mais novos", value: "mais-novos" },
-  { label: "Mais antigos", value: "mais-antigos" },
-  { label: "Menor preço", value: "preco-asc" },
-  { label: "Maior preço", value: "preco-desc" },
-  { label: "Maior área", value: "area-desc" },
-  { label: "Maior área construída", value: "area-construida-desc" },
-];
-
-const FILTROS_INICIAIS: Filtros = {
-  busca: "",
-  tipo: "",
-  precoMin: null,
-  precoMax: null,
-  quartos: 0,
-};
-
-function parsePrecoInput(raw: string): number | null {
-  const cleaned = raw.replace(/[^\d.,]/g, "").trim();
-  if (!cleaned) return null;
-  const normalized = cleaned.includes(",")
-    ? cleaned.replace(/\./g, "").replace(",", ".")
-    : cleaned.replace(/\.(?=\d{3}(\D|$))/g, "");
-  const n = Number(normalized);
-  return Number.isFinite(n) && n > 0 ? n : null;
-}
-
-function formatPrecoBR(n: number): string {
-  return n.toLocaleString("pt-BR");
-}
-
-// ── Logic ────────────────────────────────────────────────────────────────────
-
-const SORTERS: Record<Ordem, (a: Imovel, b: Imovel) => number> = {
-  "mais-novos": (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
-  "mais-antigos": (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
-  "preco-asc": (a, b) => a.preco - b.preco,
-  "preco-desc": (a, b) => b.preco - a.preco,
-  "area-desc": (a, b) => b.area_total - a.area_total,
-  "area-construida-desc": (a, b) => {
-    const av = a.area_construida ?? -Infinity;
-    const bv = b.area_construida ?? -Infinity;
-    return bv - av;
-  },
-};
-
-function filtrarEOrdenar(
-  imoveis: Imovel[],
-  f: Filtros,
-  ordem: Ordem,
-): Imovel[] {
-  const lista = imoveis.filter((i) => {
-    if (f.busca && !i.titulo.toLowerCase().includes(f.busca.toLowerCase()))
-      return false;
-    if (f.tipo && i.tipo !== f.tipo) return false;
-    if (f.precoMin !== null && i.preco < f.precoMin) return false;
-    if (f.precoMax !== null && i.preco > f.precoMax) return false;
-    if (f.quartos === 4 && (i.quartos ?? 0) < 4) return false;
-    if (f.quartos > 0 && f.quartos < 4 && i.quartos !== f.quartos) return false;
-    return true;
-  });
-  return [...lista].sort(SORTERS[ordem]);
-}
-
-function temFiltroAtivo(f: Filtros) {
-  return (
-    f.busca !== "" ||
-    f.tipo !== "" ||
-    f.precoMin !== null ||
-    f.precoMax !== null ||
-    f.quartos !== 0
-  );
-}
-
-// ── Shared UI atoms ───────────────────────────────────────────────────────────
-
-const SearchIcon = ({ size = 14 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    className="text-muted-fg flex-shrink-0"
-  >
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
-
-function PrecoRange({
-  min,
-  max,
-  onChange,
-  size = "md",
+function PrecoInput({
+  valor,
+  placeholder,
+  label,
+  onCommit,
 }: {
-  min: number | null;
-  max: number | null;
-  onChange: (next: { min: number | null; max: number | null }) => void;
-  size?: "md" | "sm";
+  valor: number | null;
+  placeholder: string;
+  label: string;
+  onCommit: (n: number | null) => void;
 }) {
-  const [minTxt, setMinTxt] = useState(min === null ? "" : formatPrecoBR(min));
-  const [maxTxt, setMaxTxt] = useState(max === null ? "" : formatPrecoBR(max));
-  const [lastMin, setLastMin] = useState(min);
-  const [lastMax, setLastMax] = useState(max);
-  if (min !== lastMin) {
-    setLastMin(min);
-    setMinTxt(min === null ? "" : formatPrecoBR(min));
+  const [txt, setTxt] = useState(valor === null ? "" : formatPrecoBR(valor));
+  const [ultimo, setUltimo] = useState(valor);
+  if (valor !== ultimo) {
+    setUltimo(valor);
+    setTxt(valor === null ? "" : formatPrecoBR(valor));
   }
-  if (max !== lastMax) {
-    setLastMax(max);
-    setMaxTxt(max === null ? "" : formatPrecoBR(max));
-  }
-
-  const commit = (which: "min" | "max", raw: string) => {
-    const parsed = parsePrecoInput(raw);
-    if (which === "min") onChange({ min: parsed, max });
-    else onChange({ min, max: parsed });
-  };
-
-  const fontSize = size === "sm" ? 12 : 13;
-  const padding = size === "sm" ? "8px 10px" : "10px 12px";
-
   return (
-    <div className="flex items-center gap-2">
+    <label className="relative block">
+      <span className="sr-only">{label}</span>
       <span
-        className="text-muted-fg uppercase"
-        style={{ fontSize: 11, letterSpacing: 1 }}
+        aria-hidden
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[13px] text-muted-fg"
       >
-        Preço
+        R$
       </span>
-      <div className="flex items-center gap-1.5">
-        <span className="text-muted-fg" style={{ fontSize: 11 }}>
-          R$
-        </span>
-        <input
-          type="text"
-          inputMode="numeric"
-          placeholder="Mínimo"
-          value={minTxt}
-          onChange={(e) => setMinTxt(e.target.value)}
-          onBlur={(e) => commit("min", e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-          }}
-          className="border border-border bg-card text-fg outline-none focus:border-fg"
-          style={{ fontSize, padding, width: 96 }}
-        />
-        <span className="text-muted-fg" style={{ fontSize: 12 }}>
-          —
-        </span>
-        <span className="text-muted-fg" style={{ fontSize: 11 }}>
-          R$
-        </span>
-        <input
-          type="text"
-          inputMode="numeric"
-          placeholder="Máximo"
-          value={maxTxt}
-          onChange={(e) => setMaxTxt(e.target.value)}
-          onBlur={(e) => commit("max", e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-          }}
-          className="border border-border bg-card text-fg outline-none focus:border-fg"
-          style={{ fontSize, padding, width: 96 }}
-        />
-      </div>
-    </div>
+      <input
+        type="text"
+        inputMode="text"
+        autoComplete="off"
+        title={`${label}. Aceita 300000, 300.000 ou 300 mil.`}
+        placeholder={placeholder}
+        value={txt}
+        onChange={(e) => {
+          // Só dígitos: já separa o milhar. Com letra ("500 mil"), deixa como está.
+          const v = e.target.value;
+          const digitos = v.replace(/\D/g, "");
+          setTxt(
+            /^[\d.\s]*$/.test(v) && digitos
+              ? formatPrecoBR(Number(digitos))
+              : v,
+          );
+        }}
+        onBlur={(e) => {
+          const n = parsePrecoInput(e.target.value);
+          setTxt(n === null ? "" : formatPrecoBR(n));
+          onCommit(n);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+        }}
+        className="ctl tabular pl-9"
+      />
+    </label>
   );
 }
 
-function PillBtn({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="font-medium transition-colors"
-      style={{
-        padding: "8px 10px",
-        fontSize: 11,
-        color: active ? "var(--fg)" : "var(--muted-fg)",
-        background: active ? "var(--card)" : "transparent",
-        border: "none",
-        cursor: "pointer",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-// ── Component ────────────────────────────────────────────────────────────────
+// ── Seção ────────────────────────────────────────────────────────────────────
 
 interface Props {
   imoveis: Imovel[];
+  cidades: string[];
+  tipos: TipoResumo[]; // só tipos com imóveis publicados
 }
 
-export default function ImoveisSection({ imoveis }: Props) {
-  const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIAIS);
-  const [ordem, setOrdem] = useState<Ordem>("mais-novos");
-  const [filtroPanelOpen, setFiltroPanelOpen] = useState(false);
+export default function ImoveisSection({ imoveis, cidades, tipos }: Props) {
+  const chips: { value: TipoImovel | ""; label: string }[] = [
+    { value: "", label: "Todos" },
+    ...tipos.map((t) => ({ value: t.tipo, label: t.label })),
+  ];
+  const sp = useSearchParams();
+  const chave = sp.toString();
+  const { filtros, ordem } = useMemo(
+    () => filtrosFromParams(new URLSearchParams(chave)),
+    [chave],
+  );
 
-  const set = <K extends keyof Filtros>(key: K, value: Filtros[K]) =>
-    setFiltros((f) => ({ ...f, [key]: value }));
+  // Quantidade visível reinicia quando os filtros mudam.
+  const [vis, setVis] = useState({ chave, n: PAGINA });
+  if (vis.chave !== chave) setVis({ chave, n: PAGINA });
 
-  const filtrados = useMemo(
+  const aplicar = (patch: Partial<Filtros>, novaOrdem: Ordem = ordem) => {
+    aplicarNaUrl(paramsFromFiltros({ ...filtros, ...patch }, novaOrdem));
+  };
+  const limpar = () =>
+    aplicarNaUrl(paramsFromFiltros(FILTROS_VAZIOS, ORDEM_PADRAO));
+  // Mínimo maior que o máximo: a pessoa trocou os campos; a faixa é a mesma.
+  const aplicarPreco = (patch: Partial<Filtros>) => {
+    const f = { ...filtros, ...patch };
+    if (f.precoMin !== null && f.precoMax !== null && f.precoMin > f.precoMax) {
+      aplicar({ precoMin: f.precoMax, precoMax: f.precoMin });
+    } else {
+      aplicar(patch);
+    }
+  };
+
+  // Filtros ligados, para o estado vazio mostrar o que está zerando a lista.
+  const ativos: { label: string; tirar: Partial<Filtros> }[] = [
+    filtros.q && { label: `"${filtros.q}"`, tirar: { q: "" } },
+    filtros.tipo && {
+      label: chips.find((c) => c.value === filtros.tipo)?.label ?? filtros.tipo,
+      tirar: { tipo: "" as const },
+    },
+    filtros.cidade && { label: filtros.cidade, tirar: { cidade: "" } },
+    filtros.precoMin !== null && {
+      label: `A partir de R$ ${formatPrecoBR(filtros.precoMin)}`,
+      tirar: { precoMin: null },
+    },
+    filtros.precoMax !== null && {
+      label: `Até R$ ${formatPrecoBR(filtros.precoMax)}`,
+      tirar: { precoMax: null },
+    },
+    filtros.quartos > 0 && {
+      label: QUARTOS_OPTS.find((o) => o.value === filtros.quartos)?.label ?? "",
+      tirar: { quartos: 0 },
+    },
+  ].filter(Boolean) as { label: string; tirar: Partial<Filtros> }[];
+
+  const resultado = useMemo(
     () => filtrarEOrdenar(imoveis, filtros, ordem),
     [imoveis, filtros, ordem],
   );
-
   const ativo = temFiltroAtivo(filtros);
-  const destaques = useMemo(
-    () => imoveis.filter((i) => i.tag === "Destaque"),
-    [imoveis],
-  );
+
+  // Celular: preço, cidade, quartos e ordem ficam atrás de "Filtros e
+  // ordenação"; os chips de tipo e a busca por texto seguem à vista. Com algum
+  // deles ligado, já vem aberta. Do tablet para cima, tudo sempre visível.
+  const nAvancados =
+    Number(filtros.precoMin !== null) +
+    Number(filtros.precoMax !== null) +
+    Number(filtros.cidade !== "") +
+    Number(filtros.quartos !== 0) +
+    Number(ordem !== ORDEM_PADRAO);
+  const [abertaNaMao, setAvancadaAberta] = useState(false);
+  // Filtro ligado nunca fica escondido, venha da URL ou da busca do topo.
+  const avancadaAberta = abertaNaMao || nAvancados > 0;
+  const visiveis = resultado.slice(0, vis.n);
+  const restantes = resultado.length - visiveis.length;
 
   return (
     <section
       id="imoveis"
-      style={{ padding: "clamp(48px, 6vw, 80px) clamp(24px, 5vw, 60px)" }}
+      aria-labelledby="imoveis-titulo"
+      className="container-x scroll-mt-20 pt-14 md:pt-20"
     >
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <p
-          className="text-accent uppercase flex items-center gap-2"
-          style={{
-            fontSize: "clamp(16px, 2.5vw, 26px)",
-            letterSpacing: 3,
-            marginBottom: 8,
-          }}
-        >
-          <span
-            className="inline-block bg-accent"
-            style={{ width: 24, height: 1.5 }}
-          />
-          Portfólio
-        </p>
-      </div>
-
-      {/* Destaques — antes dos filtros */}
-      {destaques.length > 0 && <DestaquesSection destaques={destaques} />}
-
-      {/* Sub-header lista */}
-      <p
-        className="text-muted-fg uppercase"
-        style={{
-          fontSize: "clamp(12px, 1.5vw, 16px)",
-          letterSpacing: 3,
-          marginBottom: 16,
-        }}
-      >
-        Todos os imóveis
-      </p>
-
-      {/* ── Desktop filters ── */}
-      <div className="hidden md:block border border-border">
-        {/* Row 1: search + sort */}
-        <div className="flex items-stretch border-b border-border">
-          <div
-            className="flex items-center flex-1 gap-3"
-            style={{ padding: "0 16px" }}
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div>
+          <h2
+            id="imoveis-titulo"
+            className="text-[clamp(28px,3.2vw,42px)] text-fg"
           >
-            <SearchIcon size={14} />
-            <input
-              type="text"
-              placeholder="Buscar por título..."
-              value={filtros.busca}
-              onChange={(e) => set("busca", e.target.value)}
-              className="flex-1 bg-transparent text-fg placeholder:text-muted-fg outline-none"
-              style={{ fontSize: 13, padding: "14px 0" }}
-            />
-            {filtros.busca && (
-              <button
-                onClick={() => set("busca", "")}
-                className="text-muted-fg hover:text-fg"
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: 16,
-                }}
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <div style={{ width: 1, background: "var(--border)" }} />
-          <div className="flex items-center" style={{ padding: "0 16px" }}>
-            <FilterSelect<Ordem>
-              label="Ordenar"
-              options={ORDEM_OPTS}
-              value={ordem}
-              onChange={setOrdem}
-            />
-          </div>
+            Imóveis à venda
+          </h2>
+          <p className="mt-1 text-[15px] text-muted-fg" aria-live="polite">
+            <span className="tabular font-semibold text-fg">
+              {resultado.length}
+            </span>{" "}
+            {resultado.length === 1 ? "imóvel" : "imóveis"}
+            {ativo ? " com os filtros aplicados" : " em Erechim e região"}
+          </p>
         </div>
-
-        {/* Row 2: tipo + preço + quartos */}
-        <div
-          className="flex items-center flex-wrap"
-          style={{ background: "var(--muted)" }}
-        >
-          <div
-            className="flex items-center border-r border-border"
-            style={{ padding: "0 4px" }}
+        {ativo && (
+          <button
+            type="button"
+            onClick={limpar}
+            className="inline-flex items-center gap-1 text-[14px] font-semibold text-fg hover:underline"
           >
-            {TIPO_TABS.map((t) => (
-              <button
-                key={t.value}
-                onClick={() => set("tipo", t.value)}
-                className="font-medium uppercase transition-all"
-                style={{
-                  padding: "9px 14px",
-                  fontSize: 11,
-                  letterSpacing: 1,
-                  color:
-                    filtros.tipo === t.value ? "var(--fg)" : "var(--muted-fg)",
-                  background:
-                    filtros.tipo === t.value ? "var(--card)" : "transparent",
-                  boxShadow:
-                    filtros.tipo === t.value
-                      ? "0 1px 4px rgba(0,0,0,0.08)"
-                      : "none",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          <div
-            className="flex items-center border-r border-border"
-            style={{ padding: "10px 16px" }}
-          >
-            <PrecoRange
-              min={filtros.precoMin}
-              max={filtros.precoMax}
-              onChange={({ min, max }) =>
-                setFiltros((f) => ({ ...f, precoMin: min, precoMax: max }))
-              }
-            />
-          </div>
-
-          <div
-            className="flex items-center gap-2"
-            style={{ padding: "10px 16px" }}
-          >
-            <span
-              className="text-muted-fg uppercase"
-              style={{ fontSize: 11, letterSpacing: 1 }}
-            >
-              Quartos
-            </span>
-            <div className="flex">
-              {QUARTOS_OPTS.map((o) => (
-                <PillBtn
-                  key={o.value}
-                  active={filtros.quartos === o.value}
-                  onClick={() => set("quartos", o.value)}
-                >
-                  {o.label}
-                </PillBtn>
-              ))}
-            </div>
-          </div>
-
-          {ativo && (
-            <button
-              onClick={() => setFiltros(FILTROS_INICIAIS)}
-              className="text-muted-fg hover:text-fg transition-colors"
-              style={{
-                fontSize: 12,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "0 16px",
-                marginLeft: "auto",
-              }}
-            >
-              Limpar ×
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── Mobile filters ── */}
-      <div
-        className="md:hidden flex flex-wrap items-center gap-2 border-b border-border"
-        style={{ paddingBottom: 12 }}
-      >
-        <div
-          className="flex items-center gap-2 flex-1 border border-border"
-          style={{ padding: "8px 12px", minWidth: 160, position: "relative" }}
-        >
-          <SearchIcon size={13} />
-          <input
-            type="text"
-            placeholder="Buscar..."
-            value={filtros.busca}
-            onChange={(e) => set("busca", e.target.value)}
-            className="flex-1 bg-transparent text-fg placeholder:text-muted-fg outline-none"
-            style={{ fontSize: 13, paddingRight: filtros.busca ? 24 : 0 }}
-          />
-          {filtros.busca && (
-            <button
-              onClick={() => set("busca", "")}
-              className="text-muted-fg hover:text-fg"
-              style={{
-                position: "absolute",
-                right: 10,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 16,
-                lineHeight: 1,
-              }}
-            >
-              ×
-            </button>
-          )}
-        </div>
-
-        <select
-          value={filtros.tipo}
-          onChange={(e) => set("tipo", e.target.value as TipoImovel | "")}
-          className="border border-border bg-card text-fg font-medium uppercase"
-          style={{
-            padding: "8px 12px",
-            fontSize: 12,
-            letterSpacing: 1,
-            cursor: "pointer",
-          }}
-        >
-          {TIPO_TABS.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-
-        <button
-          className="inline-flex items-center gap-2 font-medium"
-          onClick={() => setFiltroPanelOpen((o) => !o)}
-          style={{
-            fontSize: 12,
-            padding: "8px 14px",
-            border: `1px solid ${ativo ? "var(--accent)" : "var(--border)"}`,
-            color: ativo ? "var(--accent)" : "var(--fg)",
-            background: "transparent",
-            cursor: "pointer",
-          }}
-        >
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="8" y1="12" x2="20" y2="12" />
-            <line x1="12" y1="18" x2="20" y2="18" />
-          </svg>
-          Filtros{ativo ? " •" : ""}
-        </button>
-
-        <select
-          value={ordem}
-          onChange={(e) => setOrdem(e.target.value as Ordem)}
-          className="border border-border bg-card text-fg font-medium"
-          style={{ padding: "8px 12px", fontSize: 12, cursor: "pointer" }}
-        >
-          {ORDEM_OPTS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Mobile filter panel */}
-      {filtroPanelOpen && (
-        <div
-          className="md:hidden flex flex-col gap-5 border-b border-border"
-          style={{ padding: "20px 0" }}
-        >
-          <div>
-            <p
-              className="text-muted-fg uppercase mb-2"
-              style={{ fontSize: 11, letterSpacing: 1 }}
-            >
-              Preço
-            </p>
-            <PrecoRange
-              size="sm"
-              min={filtros.precoMin}
-              max={filtros.precoMax}
-              onChange={({ min, max }) =>
-                setFiltros((f) => ({ ...f, precoMin: min, precoMax: max }))
-              }
-            />
-          </div>
-
-          {[
-            {
-              label: "Quartos",
-              opts: QUARTOS_OPTS,
-              key: "quartos" as const,
-              active: filtros.quartos,
-            },
-          ].map(({ label, opts, key, active }) => (
-            <div key={key}>
-              <p
-                className="text-muted-fg uppercase mb-2"
-                style={{ fontSize: 11, letterSpacing: 1 }}
-              >
-                {label}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {opts.map((o) => (
-                  <button
-                    key={o.value}
-                    onClick={() => set(key, o.value)}
-                    className="font-medium transition-colors"
-                    style={{
-                      padding: "8px 14px",
-                      fontSize: 12,
-                      color:
-                        active === o.value ? "var(--fg)" : "var(--muted-fg)",
-                      background:
-                        active === o.value ? "var(--card)" : "transparent",
-                      border: `1px solid ${active === o.value ? "var(--fg)" : "var(--border)"}`,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-          {ativo && (
-            <button
-              onClick={() => setFiltros(FILTROS_INICIAIS)}
-              className="text-muted-fg hover:text-fg transition-colors self-start"
-              style={{
-                fontSize: 12,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-              }}
-            >
-              Limpar filtros ×
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* List */}
-      <div className="flex flex-col">
-        {filtrados.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-muted-fg" style={{ fontSize: 16 }}>
-              Nenhum imóvel encontrado.
-            </p>
-            <button
-              onClick={() => setFiltros(FILTROS_INICIAIS)}
-              className="text-accent hover:opacity-70 transition-opacity mt-3"
-              style={{
-                fontSize: 13,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Limpar filtros
-            </button>
-          </div>
-        ) : (
-          filtrados.map((imovel) => (
-            <ImovelRow key={imovel.id} imovel={imovel} />
-          ))
+            <X size={15} strokeWidth={2.25} /> Limpar filtros
+          </button>
         )}
       </div>
 
-      {/* Count */}
-      <p className="text-muted-fg mt-6 text-center" style={{ fontSize: 13 }}>
-        {filtrados.length} imóve{filtrados.length !== 1 ? "is" : "l"} encontrado
-        {filtrados.length !== 1 ? "s" : ""}
-        {ativo && " com os filtros aplicados"}
-      </p>
+      {/* Tipo */}
+      <div
+        className="scroll-x -mx-4 mt-6 px-4 md:mx-0 md:flex-wrap md:px-0"
+        role="group"
+        aria-label="Tipo de imóvel"
+      >
+        {chips.map((t) => (
+          <button
+            key={t.value}
+            type="button"
+            className="chip"
+            aria-pressed={filtros.tipo === t.value}
+            onClick={() => aplicar({ tipo: t.value })}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Barra de filtros */}
+      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+        <label className="relative col-span-2 block md:col-span-1">
+          <span className="sr-only">Buscar por título, bairro ou rua</span>
+          <Search
+            size={16}
+            strokeWidth={2}
+            aria-hidden
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg"
+          />
+          <input
+            type="search"
+            placeholder="Buscar por título, bairro ou rua"
+            value={filtros.q}
+            onChange={(e) => aplicar({ q: e.target.value })}
+            className="ctl pl-9"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => setAvancadaAberta((a) => !a)}
+          aria-expanded={avancadaAberta}
+          aria-controls="filtros-ordenacao"
+          className="btn btn-ghost col-span-2 rounded-[var(--radius-ctl)] md:hidden"
+        >
+          <SlidersHorizontal size={16} strokeWidth={2} aria-hidden />
+          Filtros e ordenação
+          {nAvancados > 0 && (
+            <span className="tabular flex h-5 min-w-5 items-center justify-center rounded-full bg-green px-1.5 text-[11.5px] font-bold text-white">
+              {nAvancados}
+            </span>
+          )}
+          <ChevronDown
+            size={16}
+            strokeWidth={2.25}
+            aria-hidden
+            className={`transition-transform ${avancadaAberta ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        <div
+          id="filtros-ordenacao"
+          className={`contents ${avancadaAberta ? "" : "max-md:hidden"}`}
+        >
+          <PrecoInput
+            label="Preço mínimo"
+            placeholder="Mínimo"
+            valor={filtros.precoMin}
+            onCommit={(n) => aplicarPreco({ precoMin: n })}
+          />
+          <PrecoInput
+            label="Preço máximo"
+            placeholder="Máximo"
+            valor={filtros.precoMax}
+            onCommit={(n) => aplicarPreco({ precoMax: n })}
+          />
+
+          <Select
+            label="Cidade"
+            value={filtros.cidade}
+            onChange={(e) => aplicar({ cidade: e.target.value })}
+          >
+            <option value="">Erechim e região</option>
+            {cidades.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            label="Quartos"
+            value={filtros.quartos}
+            onChange={(e) => aplicar({ quartos: Number(e.target.value) })}
+          >
+            {QUARTOS_OPTS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            label="Ordenar por"
+            className="col-span-2 md:col-span-1"
+            value={ordem}
+            onChange={(e) => aplicar({}, e.target.value as Ordem)}
+          >
+            {ORDEM_OPTS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      {/* Grade */}
+      {resultado.length === 0 ? (
+        <div className="mt-8 flex flex-col items-center rounded-[var(--radius-card)] bg-card px-6 py-16 text-center">
+          <SearchX
+            size={30}
+            strokeWidth={1.5}
+            className="text-muted-fg"
+            aria-hidden
+          />
+          <p className="mt-4 text-[17px] font-semibold text-fg">
+            Nenhum imóvel com esses filtros.
+          </p>
+          <p className="mt-1 max-w-[42ch] text-[14.5px] text-muted-fg">
+            Tire um dos filtros abaixo para ver mais imóveis. Se quiser, conte o
+            que procura e a gente avisa quando entrar algo parecido.
+          </p>
+          <ul className="mt-5 flex flex-wrap justify-center gap-2">
+            {ativos.map((a) => (
+              <li key={a.label}>
+                <button
+                  type="button"
+                  onClick={() => aplicar(a.tirar)}
+                  aria-label={`Remover filtro ${a.label}`}
+                  className="chip gap-1.5 text-fg"
+                >
+                  {a.label} <X size={14} strokeWidth={2.25} aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <button type="button" onClick={limpar} className="btn btn-ghost">
+              Limpar filtros
+            </button>
+            <a
+              href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-wpp"
+            >
+              <WppIcon size={15} /> Contar o que procuro
+            </a>
+          </div>
+        </div>
+      ) : (
+        <>
+          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            {visiveis.map((imovel) => (
+              <li key={imovel.id}>
+                <ImovelCard imovel={imovel} />
+              </li>
+            ))}
+          </ul>
+          {restantes > 0 && (
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVis({ chave, n: vis.n + PAGINA })}
+                className="btn btn-lg btn-ghost"
+              >
+                Mostrar mais imóveis
+              </button>
+              <p className="tabular text-[13px] text-muted-fg">
+                Mostrando {visiveis.length} de {resultado.length}
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { defineField, defineType } from "sanity";
 import type { StringRule } from "sanity";
 import { AreaInput } from "../components/AreaInput";
 import { BrlNumberInput } from "../components/BrlNumberInput";
+import { StatusInput } from "../components/StatusInput";
 import { TrimmedStringInput } from "../components/TrimmedStringInput";
 
 const noEdgeWhitespace = (r: StringRule) =>
@@ -14,6 +15,23 @@ export const imovelType = defineType({
   title: "Imóvel",
   type: "document",
   fields: [
+    defineField({
+      name: "status",
+      title: "Situação",
+      description:
+        "Marque quando o imóvel for vendido ou reservado e clique em Publicar. Sem nada marcado, ele está disponível.",
+      type: "string",
+      initialValue: "disponivel",
+      options: {
+        list: [
+          { title: "Disponível", value: "disponivel" },
+          { title: "Reservado", value: "reservado" },
+          { title: "Vendido", value: "vendido" },
+        ],
+      },
+      components: { input: StatusInput },
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "titulo",
       title: "Título",
@@ -39,21 +57,6 @@ export const imovelType = defineType({
           { title: "Apartamento", value: "apartamento" },
           { title: "Terreno", value: "terreno" },
           { title: "Pavilhão", value: "pavilhao" },
-        ],
-        layout: "radio",
-      },
-      validation: (r) => r.required(),
-    }),
-    defineField({
-      name: "status",
-      title: "Status",
-      type: "string",
-      initialValue: "disponivel",
-      options: {
-        list: [
-          { title: "Disponível", value: "disponivel" },
-          { title: "Reservado", value: "reservado" },
-          { title: "Vendido", value: "vendido" },
         ],
         layout: "radio",
       },
@@ -233,9 +236,10 @@ A longitude deve ser preenchida junto com a latitude. As duas são necessárias 
     select: {
       title: "titulo",
       subtitle: "tipo",
+      status: "status",
       media: "fotos.0",
     },
-    prepare({ title, subtitle, media }) {
+    prepare({ title, subtitle, status, media }) {
       const tipos: Record<string, string> = {
         chacara: "Chácara",
         casa: "Casa",
@@ -243,7 +247,15 @@ A longitude deve ser preenchida junto com a latitude. As duas são necessárias 
         terreno: "Terreno",
         pavilhao: "Pavilhão",
       };
-      return { title, subtitle: tipos[subtitle] ?? subtitle, media };
+      const situacao: Record<string, string> = {
+        vendido: " · VENDIDO",
+        reservado: " · Reservado",
+      };
+      return {
+        title,
+        subtitle: `${tipos[subtitle] ?? subtitle}${situacao[status] ?? ""}`,
+        media,
+      };
     },
   },
 });

@@ -1,15 +1,34 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { Metadata } from "next";
+import {
+  ArrowRight,
+  Bath,
+  BedDouble,
+  Car,
+  ChevronRight,
+  Grid2x2,
+  MapPin,
+  SquareDashed,
+  type LucideIcon,
+} from "lucide-react";
 import type { Imovel } from "@/lib/types";
 import { client } from "@/sanity/lib/client";
 import {
   allImovelSlugsQuery,
+  imoveisParecidosQuery,
   imovelBySlugQuery,
 } from "@/sanity/lib/queries";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
+import GaleriaImovel from "@/components/GaleriaImovel";
+import ImovelCard from "@/components/ImovelCard";
+import ImovelMapa from "@/components/ImovelMapa";
+import Compartilhar from "@/components/Compartilhar";
+import DescricaoImovel from "@/components/DescricaoImovel";
+import BarraContato from "@/components/BarraContato";
 import {
   formatArea,
   formatPreco,
@@ -20,14 +39,41 @@ import {
 } from "@/lib/utils";
 import {
   BASE_URL,
+  STATUS_SELO,
+  TAG_BADGE,
   TIPO_LABEL,
-  THUMB_GRADIENT,
-  TAG_COLORS,
+  TIPO_PLURAL,
   wppMsgImovel,
+  wppMsgParecido,
 } from "@/lib/constants";
-import FotoCarrossel from "@/components/FotoCarrossel";
-import ImovelMapa from "@/components/ImovelMapa";
 import { jsonLdSafe } from "@/lib/jsonld";
+
+const SITE_NAME = "Finatto Incorporadora e Engenharia";
+
+/** Resumo para buscador e prévia de link: sem emoji, uma linha, até 160 caracteres. */
+function resumoParaMeta(descricao: string): string {
+  const limpo = descricao
+    .replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, "")
+    .replace(/[_=~*]{2,}/g, " ")
+    .replace(/\s*[•·▪●]\s*/g, " · ")
+    .replace(/^[\s·]+|(?<=:)\s*·/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (limpo.length <= 160) return limpo;
+  const corte = limpo.slice(0, 157);
+  return `${corte.slice(0, corte.lastIndexOf(" "))}…`;
+}
+
+/** "Outras chácaras", "Outros terrenos": concorda com o gênero do tipo. */
+const OUTROS: Record<Imovel["tipo"], string> = {
+  chacara: "Outras chácaras",
+  casa: "Outras casas",
+  apartamento: "Outros apartamentos",
+  terreno: "Outros terrenos",
+  pavilhao: "Outros pavilhões",
+};
+
+const H2 = "text-[clamp(22px,2.2vw,28px)] text-fg";
 
 export const revalidate = 60;
 
@@ -48,19 +94,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) return {};
-  const title = `${imovel.titulo} em ${imovel.cidade}/RS — Finatto Imóveis`;
+  const title = `${imovel.titulo} em ${imovel.cidade}/RS | ${SITE_NAME}`;
+  const description = resumoParaMeta(imovel.descricao ?? "");
   const url = `${BASE_URL}/imoveis/${imovel.slug}`;
   return {
     title,
-    description: imovel.descricao,
+    description,
     alternates: { canonical: `/imoveis/${imovel.slug}` },
     openGraph: {
       type: "website",
       locale: "pt_BR",
       url,
-      siteName: "Finatto Imóveis",
+      siteName: SITE_NAME,
       title,
-      description: imovel.descricao,
+      description,
       images: imovel.fotos?.[0]?.url
         ? [
             {
@@ -89,27 +136,91 @@ export default async function ImovelPage({ params }: Props) {
   const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) notFound();
 
-  const waMsg = wppMsgImovel(imovel.titulo, formatPreco(imovel.preco));
+  const preco = formatPreco(imovel.preco);
+  const vendido = imovel.status === "vendido";
+  const waMsg = vendido
+    ? wppMsgParecido(imovel.titulo)
+    : wppMsgImovel(imovel.titulo, preco, imovel.slug);
+  const tipoLabel = TIPO_LABEL[imovel.tipo];
+  const hrefTipo = `/?tipo=${imovel.tipo}#imoveis`;
 
-  const attrs: { label: string; value: string }[] = [
-    { label: "Área total", value: formatArea(imovel.area_total) },
-    ...(imovel.area_construida != null
-      ? [
-          {
-            label: "Área construída",
-            value: formatArea(imovel.area_construida),
-          },
-        ]
-      : []),
-    ...(imovel.quartos != null
-      ? [{ label: "Quartos", value: String(imovel.quartos) }]
-      : []),
-    ...(imovel.banheiros != null
-      ? [{ label: "Banheiros", value: String(imovel.banheiros) }]
-      : []),
-    ...(imovel.vagas != null
-      ? [{ label: "Vagas", value: String(imovel.vagas) }]
-      : []),
+  const candidatos: Imovel[] = await client.fetch(imoveisParecidosQuery, {
+    tipo: imovel.tipo,
+    slug: imovel.slug,
+  });
+  const parecidos = candidatos
+    .sort(
+      (a, b) =>
+        Math.abs(a.preco - imovel.preco) - Math.abs(b.preco - imovel.preco),
+    )
+    .slice(0, 3);
+
+  const attrs = [
+    imovel.area_total > 0 && {
+      I: SquareDashed,
+      label: "Área total",
+      value: formatArea(imovel.area_total),
+    },
+    imovel.area_construida != null &&
+      imovel.area_construida > 0 && {
+        I: Grid2x2,
+        label: "Área construída",
+        value: formatArea(imovel.area_construida),
+      },
+    imovel.quartos != null && {
+      I: BedDouble,
+      label: imovel.quartos === 1 ? "Quarto" : "Quartos",
+      value: String(imovel.quartos),
+    },
+    imovel.banheiros != null && {
+      I: Bath,
+      label: imovel.banheiros === 1 ? "Banheiro" : "Banheiros",
+      value: String(imovel.banheiros),
+    },
+    imovel.vagas != null && {
+      I: Car,
+      label: imovel.vagas === 1 ? "Vaga" : "Vagas",
+      value: String(imovel.vagas),
+    },
+  ].filter(Boolean) as { I: LucideIcon; label: string; value: string }[];
+
+  const endereco = [
+    [imovel.logradouro, imovel.complemento].filter(Boolean).join(", "),
+    imovel.bairro,
+    `${imovel.cidade}/RS`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const resumo = [
+    tipoLabel,
+    imovel.area_total > 0 ? formatArea(imovel.area_total) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const statusSelo = STATUS_SELO[imovel.status];
+  const selos =
+    imovel.tag || statusSelo ? (
+      <>
+        {statusSelo && (
+          <span className={`badge ${statusSelo.cls}`}>{statusSelo.label}</span>
+        )}
+        {imovel.tag && !vendido && (
+          <span className={`badge ${TAG_BADGE[imovel.tag] ?? "badge-ink"}`}>
+            {imovel.tag}
+          </span>
+        )}
+      </>
+    ) : null;
+
+  const contatos = [
+    { label: "Finatto · Corretor", numero: WHATSAPP_FINATTO, cls: "btn-wpp" },
+    {
+      label: "Flávia · Engenheira",
+      numero: WHATSAPP_FLAVIA,
+      cls: "btn-wpp-outline",
+    },
   ];
 
   const breadcrumbSchema = {
@@ -135,7 +246,7 @@ export default async function ImovelPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: imovel.titulo,
-    description: imovel.descricao,
+    description: resumoParaMeta(imovel.descricao ?? ""),
     url: `${BASE_URL}/imoveis/${imovel.slug}`,
     ...(imovel.fotos?.[0]?.url ? { image: imovel.fotos[0].url } : {}),
     offers: {
@@ -163,7 +274,7 @@ export default async function ImovelPage({ params }: Props) {
 
   return (
     <>
-      <Navbar />
+      <Navbar mensagem={waMsg} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbSchema) }}
@@ -172,208 +283,203 @@ export default async function ImovelPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
       />
-      <main style={{ background: "var(--bg)" }}>
-        {/* Breadcrumb */}
-        <div
-          className="border-b border-border"
-          style={{ padding: "10px clamp(24px, 5vw, 60px)" }}
-        >
-          <div className="max-w-7xl mx-auto flex items-center gap-4">
-            <BackButton />
-            <span className="text-muted-fg" style={{ fontSize: 13 }}>
-              /
-            </span>
-            <span className="text-fg truncate" style={{ fontSize: 13 }}>
-              {imovel.titulo}
-            </span>
+      <main>
+        <div className="container-x flex items-center gap-4 py-3 md:py-4">
+          <BackButton />
+          <nav aria-label="Você está em" className="hidden min-w-0 md:block">
+            <ol className="flex items-center gap-1.5 text-[13.5px] text-muted-fg">
+              <li>
+                <Link
+                  href="/#imoveis"
+                  className="hover:text-fg hover:underline"
+                >
+                  Imóveis
+                </Link>
+              </li>
+              <ChevronRight size={14} aria-hidden className="shrink-0" />
+              <li>
+                <Link href={hrefTipo} className="hover:text-fg hover:underline">
+                  {TIPO_PLURAL[imovel.tipo]}
+                </Link>
+              </li>
+              <ChevronRight size={14} aria-hidden className="shrink-0" />
+              <li aria-current="page" className="truncate text-fg">
+                {imovel.titulo}
+              </li>
+            </ol>
+          </nav>
+          <div className="ml-auto">
+            <Compartilhar
+              titulo={imovel.titulo}
+              texto={`${imovel.titulo} · ${preco}`}
+            />
           </div>
         </div>
 
-        {/* Photo hero / carrossel */}
-        <div
-          className="w-full relative"
-          style={{ background: THUMB_GRADIENT[imovel.tipo] }}
-        >
-          {imovel.fotos?.length > 0 ? (
-            <FotoCarrossel fotos={imovel.fotos} alt={imovel.titulo} />
-          ) : (
-            <div
-              className="w-full flex items-center justify-center opacity-10"
-              style={{ height: "clamp(280px, 45vw, 560px)" }}
-            >
-              <span
-                className="text-white font-bold"
-                style={{
-                  fontSize: "clamp(60px, 12vw, 120px)",
-                  letterSpacing: 8,
-                }}
-              >
-                {TIPO_LABEL[imovel.tipo].toUpperCase()}
-              </span>
-            </div>
-          )}
-          {imovel.tag && (
-            <span
-              className={`absolute top-5 left-5 px-3 py-1 text-xs font-semibold uppercase z-10 ${TAG_COLORS[imovel.tag] ?? "bg-fg text-bg"}`}
-              style={{ letterSpacing: 1 }}
-            >
-              {imovel.tag}
-            </span>
-          )}
-          <span
-            className="absolute top-5 right-16 bg-bg/90 text-fg px-3 py-1 text-xs font-semibold uppercase z-10"
-            style={{ letterSpacing: 1 }}
-          >
-            {TIPO_LABEL[imovel.tipo]}
-          </span>
-        </div>
+        <GaleriaImovel
+          fotos={imovel.fotos ?? []}
+          titulo={imovel.titulo}
+          selos={selos}
+        />
 
-        {/* Content grid */}
-        <div
-          className="max-w-7xl mx-auto detail-grid"
-          style={{ padding: "clamp(32px, 5vw, 60px) clamp(24px, 5vw, 60px)" }}
-        >
-          {/* Left */}
-          <div className="flex flex-col gap-8">
-            <div>
-              <p
-                className="text-accent uppercase"
-                style={{ fontSize: 11, letterSpacing: 3, marginBottom: 8 }}
-              >
-                {imovel.cidade}/RS ·{" "}
-                {[imovel.bairro, imovel.logradouro].filter(Boolean).join(" · ")}
-                {imovel.complemento ? `, ${imovel.complemento}` : ""}
-              </p>
-              <h1
-                className="text-fg"
-                style={{
-                  fontFamily: "var(--font-dm-serif)",
-                  fontSize: "clamp(28px, 3.5vw, 44px)",
-                  fontWeight: 400,
-                  lineHeight: 1.15,
-                }}
-              >
+        <div className="container-x grid gap-10 pt-6 md:grid-cols-[minmax(0,1fr)_340px] md:gap-12 md:pt-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
+          <div className="flex min-w-0 flex-col gap-10 md:gap-12">
+            <header className="rise">
+              <h1 className="text-balance break-words text-[clamp(28px,3.4vw,44px)] text-fg">
                 {imovel.titulo}
               </h1>
-            </div>
+              <p className="mt-3 flex items-start gap-1.5 text-[15px] leading-snug text-muted-fg">
+                <MapPin
+                  size={16}
+                  strokeWidth={2}
+                  aria-hidden
+                  className="mt-0.5 shrink-0 text-green"
+                />
+                {endereco}
+              </p>
+              <p
+                id="preco-topo"
+                className="display tabular mt-5 text-[32px] text-fg md:hidden"
+              >
+                {preco}
+              </p>
+
+              {attrs.length > 0 && (
+                <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-y border-border py-5 sm:flex sm:flex-wrap sm:gap-x-10 md:mt-8">
+                  {attrs.map((a) => (
+                    <div key={a.label} className="flex items-center gap-3">
+                      <a.I
+                        size={22}
+                        strokeWidth={1.6}
+                        aria-hidden
+                        className="shrink-0 text-green"
+                      />
+                      <div className="flex flex-col-reverse">
+                        <dt className="text-[13px] text-muted-fg">{a.label}</dt>
+                        <dd className="tabular text-[18px] font-semibold leading-tight text-fg">
+                          {a.value}
+                        </dd>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </header>
+
+            {imovel.descricao && (
+              <section aria-labelledby="sobre-titulo">
+                <h2 id="sobre-titulo" className={`${H2} scroll-mt-20`}>
+                  Sobre {imovel.tipo === "terreno" ? "o terreno" : "o imóvel"}
+                </h2>
+                <DescricaoImovel descricao={imovel.descricao} />
+              </section>
+            )}
 
             <ImovelMapa lat={imovel.lat} lng={imovel.lng} />
-
-            <div
-              className="grid grid-cols-2 sm:grid-cols-4 border border-border"
-              style={{ gap: 1, background: "var(--border)" }}
-            >
-              {attrs.map((attr) => (
-                <div
-                  key={attr.label}
-                  className="flex flex-col gap-1 bg-card"
-                  style={{ padding: "16px 20px" }}
-                >
-                  <span
-                    className="text-muted-fg uppercase"
-                    style={{ fontSize: 10, letterSpacing: 2 }}
-                  >
-                    {attr.label}
-                  </span>
-                  <span
-                    className="text-fg font-semibold"
-                    style={{ fontFamily: "var(--font-dm-serif)", fontSize: 22 }}
-                  >
-                    {attr.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div>
-              <h2
-                className="text-fg font-semibold mb-3"
-                style={{ fontSize: 16 }}
-              >
-                Descrição
-              </h2>
-              <p
-                className="text-muted-fg"
-                style={{
-                  fontSize: 16,
-                  lineHeight: 1.9,
-                  maxWidth: 640,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {imovel.descricao}
-              </p>
-            </div>
-
-            <BackButton size={13} style={{ fontSize: 13, padding: "10px 18px" }} />
           </div>
 
-          {/* Right — sticky price card */}
-          <div>
-            <div
-              className="sticky border border-border bg-card flex flex-col gap-5"
-              style={{ top: 88, padding: "28px 24px" }}
-            >
-              <div>
-                <p
-                  className="text-muted-fg uppercase"
-                  style={{ fontSize: 10, letterSpacing: 2, marginBottom: 6 }}
-                >
-                  Preço
-                </p>
-                <p
-                  className="text-fg"
-                  style={{
-                    fontFamily: "var(--font-dm-serif)",
-                    fontSize: 36,
-                    lineHeight: 1,
-                  }}
-                >
-                  {formatPreco(imovel.preco)}
-                </p>
+          <aside aria-label="Preço e contato">
+            <div className="rounded-[var(--radius-card)] bg-card p-5 shadow-card md:sticky md:top-[88px] md:p-6 md:shadow-float">
+              <div className="hidden border-b border-border pb-5 md:block">
+                <p className="display tabular text-[36px] text-fg">{preco}</p>
+                <p className="mt-2 text-[14px] text-muted-fg">{resumo}</p>
               </div>
-              <div className="border-t border-border pt-4 flex flex-col gap-2">
-                <p
-                  className="text-muted-fg"
-                  style={{ fontSize: 12, marginBottom: 4 }}
-                >
-                  Fale diretamente com a equipe:
-                </p>
-                <a
-                  href={whatsappLink(WHATSAPP_FINATTO, waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    background: "var(--wpp-green)",
-                    color: "#fff",
-                    padding: "13px 20px",
-                    fontSize: 14,
-                  }}
-                >
-                  <WppIcon size={16} /> Finatto Corretor
-                </a>
-                <a
-                  href={whatsappLink(WHATSAPP_FLAVIA, waMsg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    color: "var(--wpp-green)",
-                    padding: "13px 20px",
-                    fontSize: 14,
-                    border: "1px solid var(--wpp-green)",
-                  }}
-                >
-                  <WppIcon size={16} /> Flávia Finatto
-                </a>
+              <h2 className="text-[19px] text-fg md:mt-5">
+                {vendido ? "Este imóvel foi vendido" : "Fale com os sócios"}
+              </h2>
+              <p className="mt-1.5 text-[14px] leading-relaxed text-muted-fg">
+                {vendido
+                  ? "Fale com os sócios para ver imóveis parecidos."
+                  : "A mensagem já vai com o nome e o preço deste imóvel."}
+              </p>
+              <div className="mt-4 flex flex-col gap-2.5">
+                {contatos.map((c) => (
+                  <a
+                    key={c.label}
+                    href={whatsappLink(c.numero, waMsg)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`btn btn-lg ${c.cls} w-full`}
+                  >
+                    <WppIcon size={17} /> {c.label}
+                  </a>
+                ))}
               </div>
-              <p className="text-muted-fg text-center" style={{ fontSize: 11 }}>
+              <p className="mt-4 text-center text-[12.5px] text-muted-fg">
                 CRECI/RS 51910 · CREA/RS 242604
               </p>
             </div>
-          </div>
+          </aside>
         </div>
+
+        {parecidos.length > 0 && (
+          <section
+            aria-labelledby="parecidos-titulo"
+            className="pt-16 md:pt-24"
+          >
+            <div className="container-x flex flex-wrap items-end justify-between gap-4">
+              <h2
+                id="parecidos-titulo"
+                className="text-[clamp(26px,3vw,38px)] text-fg"
+              >
+                {OUTROS[imovel.tipo]}
+              </h2>
+              <Link
+                href={hrefTipo}
+                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-green hover:underline"
+              >
+                Ver{" "}
+                {imovel.tipo === "chacara" || imovel.tipo === "casa"
+                  ? "todas"
+                  : "todos"}{" "}
+                <ArrowRight size={15} strokeWidth={2.5} aria-hidden />
+              </Link>
+            </div>
+            <ul className="scroll-x snap-row mt-6 px-[clamp(16px,4vw,32px)] pb-3 [gap:16px] lg:mx-auto lg:grid lg:max-w-[1320px] lg:grid-cols-3 lg:overflow-visible lg:[gap:20px]">
+              {parecidos.map((p) => (
+                <li
+                  key={p.id}
+                  className="w-[82%] shrink-0 sm:w-[360px] lg:w-auto"
+                >
+                  <ImovelCard
+                    imovel={p}
+                    sizes="(max-width: 640px) 82vw, 380px"
+                  />
+                </li>
+              ))}
+              <li aria-hidden className="w-px shrink-0 lg:hidden" />
+            </ul>
+          </section>
+        )}
+
+        {/* Celular: preço e WhatsApp à mão depois que o preço do topo sai da
+            tela; para ao fim do conteúdo, sem cobrir o rodapé. */}
+        <BarraContato
+          alvoId="preco-topo"
+          resumo={
+            <>
+              <p className="display tabular text-[19px] text-fg">{preco}</p>
+              <p className="mt-1 truncate text-[12.5px] text-muted-fg">
+                {resumo}
+              </p>
+            </>
+          }
+        >
+          <a
+            href={whatsappLink(WHATSAPP_FINATTO, waMsg)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-wpp"
+            aria-label={
+              vendido
+                ? "Pedir imóveis parecidos no WhatsApp"
+                : `Falar no WhatsApp sobre ${imovel.titulo}`
+            }
+          >
+            <WppIcon size={16} />{" "}
+            {vendido ? "Ver parecidos" : "Falar no WhatsApp"}
+          </a>
+        </BarraContato>
       </main>
       <Footer />
     </>

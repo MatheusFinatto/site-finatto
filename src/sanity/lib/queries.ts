@@ -43,6 +43,13 @@ export const imovelBySlugQuery = groq`
   }
 `;
 
+// Página do imóvel: outros do mesmo tipo ainda à venda
+export const imoveisParecidosQuery = groq`
+  *[_type == "imovel" && tipo == $tipo && status != "vendido" && coalesce(slug.current, _id) != $slug] {
+    ${IMOVEL_FIELDS}
+  }
+`;
+
 export const allImovelSlugsQuery = groq`
   *[_type == "imovel"]{ "slug": coalesce(slug.current, _id) }.slug
 `;
@@ -54,4 +61,9 @@ export const imovelSitemapQuery = groq`
 
 export const allImovelIdsQuery = groq`
   *[_type == "imovel"]._id
+`;
+
+// Rodapé: tipos com pelo menos um imóvel publicado
+export const tiposPublicadosQuery = groq`
+  array::unique(*[_type == "imovel"].tipo)
 `;
