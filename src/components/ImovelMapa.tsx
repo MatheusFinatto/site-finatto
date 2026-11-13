@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Maximize2, X, MapPin, Eye } from "lucide-react";
+import { useVoltarFecha } from "@/lib/useVoltarFecha";
 
 interface Props {
   lat?: number;
@@ -9,24 +10,26 @@ interface Props {
 }
 
 // Mapa da localização na página de detalhe (OpenStreetMap via iframe).
-// Sem lat/lng → não renderiza (fallback silencioso). A moldura segue o tema do site;
-// o conteúdo do mapa é sempre claro (embed de terceiro não herda data-theme).
-// Botão de tela cheia abre um overlay (position:fixed) — funciona em desktop e mobile,
-// incluindo iOS Safari (a Fullscreen API nativa não cobre elementos não-vídeo no iOS).
+// Sem lat/lng → não renderiza (fallback silencioso).
+// A tela cheia é um <dialog> nativo, como o visualizador de fotos: foco preso,
+// Esc fecha. Funciona no iOS Safari, onde a Fullscreen API não cobre iframes.
 export default function ImovelMapa({ lat, lng }: Props) {
   const [open, setOpen] = useState(false);
+  const dialogo = useRef<HTMLDialogElement>(null);
+  const { empilhar, desempilhar } = useVoltarFecha(dialogo);
+  const abrir = () => {
+    empilhar();
+    setOpen(true);
+  };
 
-  // Esc fecha o overlay e trava o scroll do body enquanto aberto.
+  // Abre como modal e trava o scroll da página enquanto aberto.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
+    const d = dialogo.current;
+    if (d && !d.open) d.showModal();
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
   }, [open]);
@@ -34,7 +37,7 @@ export default function ImovelMapa({ lat, lng }: Props) {
   if (lat == null || lng == null) return null;
 
   // bbox do OSM é "lon,lat" (não "lat,lon") e exige layer=mapnik, senão fica em branco.
-  const d = 0.01; // ~1 km de margem ao redor do ponto
+  const d = 0.004; // ~400 m ao redor do ponto: mostra o bairro, não a cidade
   const bbox = `${lng - d},${lat - d},${lng + d},${lat + d}`;
   const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
 
@@ -43,95 +46,93 @@ export default function ImovelMapa({ lat, lng }: Props) {
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
 
   return (
-    <div>
-      <h2 className="text-fg font-semibold mb-3" style={{ fontSize: 16 }}>
+    <section aria-labelledby="localizacao-titulo">
+      <h2
+        id="localizacao-titulo"
+        className="text-[clamp(22px,2.2vw,28px)] text-fg"
+      >
         Localização
       </h2>
-      <div
-        className="relative w-full overflow-hidden border border-border"
-        style={{ height: 280 }}
-      >
+      <div className="relative mt-4 h-[280px] w-full overflow-hidden rounded-[var(--radius-card)] border border-card-border bg-muted md:h-[340px]">
+        {/* No celular o mapa não recebe o toque, senão o dedo que rola a
+            página fica preso nele; tocar abre a tela cheia, onde ele é livre. */}
         <iframe
           src={src}
           title="Mapa da localização do imóvel"
           loading="lazy"
           width="100%"
           height="100%"
+          className="max-md:pointer-events-none"
           style={{ border: 0, display: "block" }}
         />
         <button
-          onClick={() => setOpen(true)}
+          type="button"
+          onClick={abrir}
+          aria-label="Abrir o mapa em tela cheia"
+          className="absolute inset-0 z-[1] md:hidden"
+        />
+        <button
+          type="button"
+          onClick={abrir}
           aria-label="Ver mapa em tela cheia"
-          className="absolute bottom-3 right-3 flex items-center justify-center transition-opacity opacity-80 hover:opacity-100"
-          style={{
-            background: "rgba(0,0,0,0.55)",
-            border: "none",
-            cursor: "pointer",
-            width: 36,
-            height: 36,
-            zIndex: 2,
-          }}
+          className="absolute left-3 top-3 z-[2] flex h-11 w-11 items-center justify-center rounded-full bg-card text-fg shadow-arrow transition-colors hover:bg-muted max-md:pointer-events-none"
         >
-          <Maximize2 size={16} color="white" />
+          <Maximize2 size={17} strokeWidth={2} aria-hidden />
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 mt-3">
+      <div className="mt-3 flex flex-wrap gap-2">
         <a
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 border border-border text-fg no-underline hover:bg-muted transition-colors"
-          style={{ fontSize: 13, padding: "8px 12px" }}
+          className="btn btn-sm btn-ghost"
         >
-          <MapPin size={14} /> Ver no Google Maps
+          <MapPin size={15} strokeWidth={2} aria-hidden /> Abrir no Google Maps
         </a>
         <a
           href={streetViewUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 border border-border text-fg no-underline hover:bg-muted transition-colors"
-          style={{ fontSize: 13, padding: "8px 12px" }}
+          className="btn btn-sm btn-ghost"
         >
-          <Eye size={14} /> Ver no Street View
+          <Eye size={15} strokeWidth={2} aria-hidden /> Ver no Street View
         </a>
       </div>
 
       {open && (
-        <div
-          className="fixed inset-0 flex flex-col"
-          style={{ zIndex: 100, background: "rgba(0,0,0,0.85)" }}
-          role="dialog"
-          aria-modal="true"
+        <dialog
+          ref={dialogo}
+          onClose={() => {
+            desempilhar();
+            setOpen(false);
+          }}
           aria-label="Mapa da localização em tela cheia"
+          className="visualizador"
         >
-          <div className="flex justify-end" style={{ padding: 12 }}>
-            <button
-              onClick={() => setOpen(false)}
-              aria-label="Fechar mapa"
-              className="flex items-center justify-center transition-opacity opacity-80 hover:opacity-100"
-              style={{
-                background: "rgba(0,0,0,0.55)",
-                border: "none",
-                cursor: "pointer",
-                width: 40,
-                height: 40,
-              }}
-            >
-              <X size={20} color="white" />
-            </button>
+          <div className="flex h-full flex-col">
+            <div className="flex justify-end px-4 py-3">
+              <button
+                type="button"
+                onClick={() => dialogo.current?.close()}
+                aria-label="Fechar mapa"
+                className="visualizador-btn flex"
+              >
+                <X size={20} strokeWidth={2} aria-hidden />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1">
+              <iframe
+                src={src}
+                title="Mapa da localização do imóvel em tela cheia"
+                width="100%"
+                height="100%"
+                style={{ border: 0, display: "block" }}
+              />
+            </div>
           </div>
-          <div className="flex-1" style={{ minHeight: 0 }}>
-            <iframe
-              src={src}
-              title="Mapa da localização do imóvel em tela cheia"
-              width="100%"
-              height="100%"
-              style={{ border: 0, display: "block" }}
-            />
-          </div>
-        </div>
+        </dialog>
       )}
-    </div>
+    </section>
   );
 }

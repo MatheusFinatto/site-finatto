@@ -1,43 +1,46 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
-const ArrowLeft = ({ size = 12 }: { size?: number }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="19" y1="12" x2="5" y2="12" />
-    <polyline points="12,19 5,12 12,5" />
-  </svg>
-);
-
-export default function BackButton({ label = "Voltar", size = 12, style }: {
-  label?: string;
-  size?: number;
-  style?: React.CSSProperties;
-}) {
+/**
+ * Volta para a lista preservando filtros e posição de scroll. Quem chegou de
+ * fora (Google, link compartilhado) não tem lista para onde voltar: nesse
+ * caso vai para a lista de imóveis, em vez de ser devolvido ao site anterior.
+ */
+export default function BackButton({ label = "Voltar" }: { label?: string }) {
   const router = useRouter();
   const handleBack = () => {
-    if (window.history.length > 1) {
+    let veioDoSite = false;
+    try {
+      veioDoSite =
+        document.referrer !== "" &&
+        new URL(document.referrer).origin === window.location.origin;
+    } catch {
+      veioDoSite = false;
+    }
+    // Navegação interna do Next não muda o referrer do documento; o card
+    // marca na sessão qual imóvel foi aberto de dentro do site.
+    let navegouAqui = false;
+    try {
+      navegouAqui =
+        sessionStorage.getItem("finatto:navegou") === window.location.pathname;
+    } catch {
+      navegouAqui = false;
+    }
+    if ((veioDoSite || navegouAqui) && window.history.length > 1) {
       router.back();
     } else {
-      router.push("/");
+      router.push("/#imoveis");
     }
   };
   return (
     <button
+      type="button"
       onClick={handleBack}
-      className="btn-details inline-flex items-center gap-2 font-medium flex-shrink-0"
-      style={style ?? { fontSize: 12, padding: "8px 14px" }}
+      className="btn btn-sm btn-ghost shrink-0"
     >
-      <ArrowLeft size={size} /> {label}
+      <ArrowLeft size={15} strokeWidth={2.25} aria-hidden /> {label}
     </button>
   );
 }

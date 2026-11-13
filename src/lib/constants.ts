@@ -29,7 +29,22 @@ export const THUMB_GRADIENT: Record<TipoImovel, string> = {
   pavilhao: "linear-gradient(150deg, #1e2a3a 0%, #2a3a50 60%, #161e2a 100%)",
 };
 
-/** Tailwind classes por tag — fallback: 'bg-fg text-bg' */
+/** Selo de status no card e na página; disponível não tem selo. */
+export const STATUS_SELO: Partial<
+  Record<"disponivel" | "reservado" | "vendido", { label: string; cls: string }>
+> = {
+  reservado: { label: "Reservado", cls: "badge-amber" },
+  vendido: { label: "Vendido", cls: "badge-dark" },
+};
+
+/** Classes de badge (home) por tag — fallback: 'badge-ink' */
+export const TAG_BADGE: Record<string, string> = {
+  Destaque: "badge-ink",
+  Oportunidade: "badge-amber",
+  "Última Unidade": "badge-danger",
+};
+
+/** Tailwind classes por tag (página do imóvel) — fallback: 'bg-fg text-bg' */
 export const TAG_COLORS: Record<string, string> = {
   Destaque: "bg-accent text-accent-fg",
   Oportunidade: "bg-yellow-500 text-black",
@@ -38,13 +53,29 @@ export const TAG_COLORS: Record<string, string> = {
 
 // ── Filter tabs ──────────────────────────────────────────────────────────────
 
+/** Ordem de exibição dos tipos (chips, tiles, rodapé) */
+export const TIPO_ORDEM: TipoImovel[] = [
+  "chacara",
+  "casa",
+  "terreno",
+  "apartamento",
+  "pavilhao",
+];
+
+export const TIPO_PLURAL: Record<TipoImovel, string> = {
+  chacara: "Chácaras",
+  casa: "Casas",
+  apartamento: "Apartamentos",
+  terreno: "Terrenos",
+  pavilhao: "Pavilhões",
+};
+
 export const TIPO_TABS: { value: TipoImovel | ""; label: string }[] = [
   { value: "", label: "Todos" },
-  { value: "chacara", label: "Chácaras" },
-  { value: "casa", label: "Casas" },
-  { value: "apartamento", label: "Apartamentos" },
-  { value: "terreno", label: "Terrenos" },
-  { value: "pavilhao", label: "Pavilhões" },
+  ...(Object.keys(TIPO_PLURAL) as TipoImovel[]).map((t) => ({
+    value: t,
+    label: TIPO_PLURAL[t],
+  })),
 ];
 
 // ── WhatsApp messages ────────────────────────────────────────────────────────
@@ -56,6 +87,12 @@ export const WPP_MSG_FLAVIA =
 export const WPP_MSG_PARCERIA =
   "Olá! Tenho uma área e gostaria de conversar sobre a possibilidade de um loteamento.";
 
-export function wppMsgImovel(titulo: string, preco: string): string {
-  return `Olá! Tenho interesse no imóvel: ${titulo} (${preco}). Poderia me dar mais informações?`;
+/** Imóvel já vendido: o contato vira busca por algo parecido. */
+export function wppMsgParecido(titulo: string): string {
+  return `Olá! Vi que o imóvel "${titulo}" foi vendido. Vocês têm algo parecido?`;
+}
+
+/** Com o link, o sócio abre o anúncio em um toque e a conversa ganha a foto. */
+export function wppMsgImovel(titulo: string, preco: string, slug: string): string {
+  return `Olá! Tenho interesse no imóvel: ${titulo} (${preco}). Poderia me dar mais informações?\n${BASE_URL}/imoveis/${slug}`;
 }

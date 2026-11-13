@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, DM_Serif_Display } from "next/font/google";
+import { Bricolage_Grotesque, Figtree } from "next/font/google";
 import "./globals.css";
 import WppFloat from "@/components/WppFloat";
 import { Analytics } from "@vercel/analytics/next";
@@ -36,17 +36,16 @@ const businessSchema = {
   priceRange: "$$",
 };
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const dmSerif = DM_Serif_Display({
-  variable: "--font-dm-serif",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
+  display: "swap",
 });
 
 const description = `Encontre seu imóvel ideal em Erechim e região. Chácaras, casas, terrenos e pavilhões. ${anosDeExperiencia()} anos de mercado, ${IMOVEIS_ENTREGUES} imóveis entregues.`;
@@ -60,7 +59,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: BASE_URL,
-    siteName: "Finatto Imóveis",
+    siteName: "Finatto Incorporadora e Engenharia",
     title: "Finatto Incorporadora e Engenharia | Erechim, RS",
     description,
     images: [
@@ -68,7 +67,7 @@ export const metadata: Metadata = {
         url: "/img/hero-landscape.jpg",
         width: 1600,
         height: 900,
-        alt: "Finatto Imóveis — Erechim, RS",
+        alt: "Finatto Incorporadora e Engenharia — Erechim, RS",
       },
     ],
   },
@@ -88,17 +87,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${spaceGrotesk.variable} ${dmSerif.variable}`}
+      className={`${figtree.variable} ${bricolage.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
         {/* Apply theme before first paint to avoid flash */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark')}}catch(e){}})()`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdSafe(businessSchema) }}

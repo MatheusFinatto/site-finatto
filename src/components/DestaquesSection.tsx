@@ -1,240 +1,63 @@
 "use client";
 
-import { useRef, useState, useEffect, startTransition } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import "swiper/css";
-import type { SwiperRef } from "swiper/react";
-import { Imovel } from "@/lib/types";
-import DestaqueCard from "./DestaqueCard";
+import { useRef } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import type { Imovel } from "@/lib/types";
+import ImovelCard from "./ImovelCard";
+import SetasRolagem from "./SetasRolagem";
 
 interface Props {
   destaques: Imovel[];
+  recentes: boolean;
 }
 
-export default function DestaquesSection({ destaques }: Props) {
-  const swiperRef = useRef<SwiperRef>(null);
-  const [current, setCurrent] = useState(0);
-  const [mounted, setMounted] = useState(false);
-  const [canScroll, setCanScroll] = useState(false);
-
-  useEffect(() => {
-    startTransition(() => setMounted(true));
-  }, []);
-
-  useEffect(() => {
-    const check = () => {
-      const w = window.innerWidth;
-      if (w >= 1024) setCanScroll(destaques.length > 4);
-      else if (w >= 768) setCanScroll(destaques.length > 3);
-      else setCanScroll(destaques.length >= 2);
-    };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, [destaques.length]);
+/** Fileira rolável com snap nativo; sem biblioteca de carrossel. */
+export default function DestaquesSection({ destaques, recentes }: Props) {
+  const fileira = useRef<HTMLUListElement>(null);
+  if (destaques.length === 0) return null;
 
   return (
-    <div style={{ marginBottom: 48 }}>
-      {/* Sub-header */}
-      <div
-        className="flex items-center justify-between"
-        style={{ marginBottom: 16 }}
-      >
-        <p
-          className="text-muted-fg uppercase"
-          style={{ fontSize: "clamp(12px, 1.5vw, 16px)", letterSpacing: 3 }}
-        >
-          Destaques
-        </p>
+    <section aria-labelledby="destaques-titulo" className="md:pt-24">
+      <div className="container-x flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2
+            id="destaques-titulo"
+            className="text-[clamp(28px,3.2vw,42px)] text-fg"
+          >
+            Em destaque
+          </h2>
+          <p className="mt-1.5 text-[15px] text-muted-fg">
+            {recentes
+              ? "Os imóveis mais recentes."
+              : "Destaques e oportunidades escolhidos pelos sócios."}
+          </p>
+        </div>
+        <div className="flex items-center gap-5">
+          <Link
+            href="/#imoveis"
+            className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-green hover:underline"
+          >
+            Ver todos os imóveis <ArrowRight size={15} strokeWidth={2.5} />
+          </Link>
+          <SetasRolagem alvo={fileira} rotulo="imóveis" emLinha />
+        </div>
       </div>
 
-      {/* Skeleton pré-mount */}
-      {!mounted && (
-        <div className="flex gap-3" style={{ overflow: "hidden" }}>
-          {[1, 0.15].map((w, i) => (
-            <div key={i} style={{ flex: `0 0 ${w * 82}%`, minWidth: 0 }}>
-              <div
-                className="animate-pulse bg-muted"
-                style={{ height: "clamp(180px, 20vw, 260px)" }}
-              />
-              <div
-                className="bg-card border-x border-b border-border"
-                style={{ padding: "16px 16px 14px" }}
-              >
-                <div
-                  className="animate-pulse bg-muted"
-                  style={{ height: 10, width: "50%", marginBottom: 8 }}
-                />
-                <div
-                  className="animate-pulse bg-muted"
-                  style={{ height: 18, width: "85%", marginBottom: 12 }}
-                />
-                <div className="flex gap-2">
-                  <div
-                    className="animate-pulse bg-muted flex-1"
-                    style={{ height: 34 }}
-                  />
-                  <div
-                    className="animate-pulse bg-muted flex-1"
-                    style={{ height: 34 }}
-                  />
-                </div>
-              </div>
-            </div>
+      <ul
+        ref={fileira}
+        className="scroll-x snap-row fileira-pagina mt-6 pb-3 [gap:16px] md:[gap:20px]"
+      >
+          {destaques.map((imovel, i) => (
+            <li
+              key={imovel.id}
+              className="w-[82%] shrink-0 sm:w-[360px] lg:w-[380px]"
+            >
+              <ImovelCard imovel={imovel} priority={i < 3} />
+            </li>
           ))}
-        </div>
-      )}
-
-      {/* Carousel */}
-      {mounted && (
-        <div
-          style={{
-            margin: "0 calc(-1 * clamp(24px, 5vw, 60px))",
-            position: "relative",
-          }}
-        >
-          {/* Setas laterais — só desktop */}
-          {destaques.length > 1 && (
-            <>
-              <button
-                onClick={() => {
-                  const s = swiperRef.current?.swiper;
-                  s?.autoplay.stop();
-                  s?.slidePrev(300);
-                }}
-                aria-label="Anterior"
-                className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
-                style={{
-                  position: "absolute",
-                  left: 12,
-                  top: "40%",
-                  transform: "translateY(-50%)",
-                  width: 40,
-                  height: 40,
-                  background: "var(--bg)",
-                  border: "1px solid var(--border)",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="19" y1="12" x2="5" y2="12" />
-                  <polyline points="12,19 5,12 12,5" />
-                </svg>
-              </button>
-              <button
-                onClick={() => {
-                  const s = swiperRef.current?.swiper;
-                  s?.autoplay.stop();
-                  s?.slideNext(300);
-                }}
-                aria-label="Próximo"
-                className="hidden md:flex items-center justify-center transition-opacity hover:opacity-80 z-10"
-                style={{
-                  position: "absolute",
-                  right: 12,
-                  top: "40%",
-                  transform: "translateY(-50%)",
-                  width: 40,
-                  height: 40,
-                  background: "var(--bg)",
-                  border: "1px solid var(--border)",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12,5 19,12 12,19" />
-                </svg>
-              </button>
-            </>
-          )}
-
-          <Swiper
-            ref={swiperRef}
-            modules={[Navigation, Pagination, Autoplay]}
-            autoplay={
-              canScroll
-                ? {
-                    delay: 2000,
-                    pauseOnMouseEnter: true,
-                    disableOnInteraction: true,
-                  }
-                : false
-            }
-            speed={400}
-            rewind={true}
-            spaceBetween={12}
-            slidesPerView={1.2}
-            centeredSlides={false}
-            slidesOffsetBefore={24}
-            slidesOffsetAfter={24}
-            breakpoints={{
-              768: {
-                slidesPerView: 3.15,
-                centeredSlides: false,
-                slidesOffsetBefore: 40,
-                slidesOffsetAfter: 40,
-              },
-              1024: {
-                slidesPerView: 4.15,
-                centeredSlides: false,
-                slidesOffsetBefore: 60,
-                slidesOffsetAfter: 60,
-              },
-            }}
-            onSlideChange={(s) => setCurrent(s.realIndex)}
-          >
-            {destaques.map((imovel) => (
-              <SwiperSlide key={imovel.id} style={{ height: "auto" }}>
-                <DestaqueCard imovel={imovel} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      )}
-
-      {/* Dots */}
-      {destaques.length > 1 && (
-        <div className="flex justify-center gap-2" style={{ marginTop: 14 }}>
-          {destaques.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => swiperRef.current?.swiper.slideTo(i)}
-              aria-label={`Destaque ${i + 1}`}
-              style={{
-                width: i === current ? 18 : 6,
-                height: 6,
-                background: i === current ? "var(--fg)" : "var(--border)",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "all 0.2s",
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+          <li aria-hidden className="w-px shrink-0" />
+      </ul>
+    </section>
   );
 }
