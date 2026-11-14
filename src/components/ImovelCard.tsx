@@ -17,6 +17,7 @@ import {
   formatPreco,
   WHATSAPP_FINATTO,
   whatsappLink,
+  altFoto,
 } from "@/lib/utils";
 import sanityLoader from "@/lib/sanityLoader";
 import {
@@ -102,11 +103,11 @@ export default function ImovelCard({
           <Image
             loader={sanityLoader}
             src={foto.url}
-            alt={foto.alt || imovel.titulo}
+            alt={altFoto(foto.alt, imovel.titulo)}
             fill
-            priority={priority}
+            preload={priority}
             sizes={sizes}
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]${vendido ? " card-foto-vendida" : ""}`}
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-fg">
@@ -114,14 +115,21 @@ export default function ImovelCard({
             <span className="text-xs">Fotos em breve</span>
           </div>
         )}
-        {(statusSelo || imovel.tag) && (
+        {/* Vendido: faixa diagonal no canto, como a tarja da página do
+            imóvel. Os outros status seguem como selo. */}
+        {vendido && (
+          <span className="card-faixa-vendido" aria-hidden>
+            Vendido
+          </span>
+        )}
+        {!vendido && (statusSelo || imovel.tag) && (
           <div className="absolute left-3 top-3 flex gap-1.5">
             {statusSelo && (
               <span className={`badge ${statusSelo.cls}`}>
                 {statusSelo.label}
               </span>
             )}
-            {imovel.tag && !vendido && (
+            {imovel.tag && (
               <span className={`badge ${TAG_BADGE[imovel.tag] ?? "badge-ink"}`}>
                 {imovel.tag}
               </span>
@@ -133,9 +141,11 @@ export default function ImovelCard({
             <Camera size={12} strokeWidth={2.25} aria-hidden /> {nFotos}
           </span>
         )}
-        <span className="badge badge-price tabular absolute bottom-3 left-3">
-          {formatPreco(imovel.preco)}
-        </span>
+        {!vendido && (
+          <span className="badge badge-price tabular absolute bottom-3 left-3">
+            {formatPreco(imovel.preco)}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col px-4 pb-4 pt-2">

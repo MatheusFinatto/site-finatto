@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
-  ArrowRight,
   Bath,
   BedDouble,
   Car,
@@ -18,13 +17,15 @@ import {
   allImovelSlugsQuery,
   imoveisParecidosQuery,
   imovelBySlugQuery,
+  outrosAVendaQuery,
 } from "@/sanity/lib/queries";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
 import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
 import GaleriaImovel from "@/components/GaleriaImovel";
-import ImovelCard from "@/components/ImovelCard";
+import FileiraParecidos from "@/components/FileiraParecidos";
+import ImovelVendido from "@/components/ImovelVendido";
 import ImovelMapa from "@/components/ImovelMapa";
 import Compartilhar from "@/components/Compartilhar";
 import DescricaoImovel from "@/components/DescricaoImovel";
@@ -43,6 +44,7 @@ import {
   TAG_BADGE,
   TIPO_LABEL,
   TIPO_PLURAL,
+  generoTipo,
   wppMsgImovel,
   wppMsgParecido,
 } from "@/lib/constants";
@@ -94,7 +96,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) return {};
-  const title = `${imovel.titulo} em ${imovel.cidade}/RS | ${SITE_NAME}`;
+  const title = `${imovel.status === "vendido" ? "Vendido: " : ""}${imovel.titulo} em ${imovel.cidade}/RS | ${SITE_NAME}`;
   const description = resumoParaMeta(imovel.descricao ?? "");
   const url = `${BASE_URL}/imoveis/${imovel.slug}`;
   return {
@@ -129,6 +131,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// ── Barra do topo: voltar, trilha e compartilhar ─────────────────────────────
+
+function BarraTopo({
+  imovel,
+  hrefTipo,
+  textoCompartilhar,
+}: {
+  imovel: Imovel;
+  hrefTipo: string;
+  textoCompartilhar: string;
+}) {
+  const vendido = imovel.status === "vendido";
+  return (
+    <div className="container-x flex items-center gap-4 py-3 md:py-4">
+      <BackButton />
+      <nav aria-label="Você está em" className="hidden min-w-0 md:block">
+        <ol className="flex items-center gap-1.5 text-[13.5px] text-muted-fg">
+          <li>
+            <Link
+              href="/#imoveis"
+              className="hover:text-fg hover:underline"
+            >
+              Imóveis
+            </Link>
+          </li>
+          <ChevronRight size={14} aria-hidden className="shrink-0" />
+          <li>
+            <Link href={hrefTipo} className="hover:text-fg hover:underline">
+              {TIPO_PLURAL[imovel.tipo]}
+            </Link>
+          </li>
+          <ChevronRight size={14} aria-hidden className="shrink-0" />
+          <li aria-current="page" className="truncate text-fg">
+            {imovel.titulo}
+            {vendido && <span className="text-muted-fg"> · Vendido</span>}
+          </li>
+        </ol>
+      </nav>
+      <div className="ml-auto">
+        <Compartilhar
+          titulo={imovel.titulo}
+          texto={textoCompartilhar}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ImovelPage({ params }: Props) {
@@ -144,16 +194,121 @@ export default async function ImovelPage({ params }: Props) {
   const tipoLabel = TIPO_LABEL[imovel.tipo];
   const hrefTipo = `/?tipo=${imovel.tipo}#imoveis`;
 
-  const candidatos: Imovel[] = await client.fetch(imoveisParecidosQuery, {
-    tipo: imovel.tipo,
-    slug: imovel.slug,
-  });
+  // Parecidos: mesmo tipo, preço mais perto. Vendido completa com os à venda
+  // mais recentes de qualquer tipo; as duas buscas saem juntas.
+  const [candidatos, outros]: [Imovel[], Imovel[]] = await Promise.all([
+    client.fetch(imoveisParecidosQuery, {
+      tipo: imovel.tipo,
+      slug: imovel.slug,
+    }),
+    vendido
+      ? client.fetch(outrosAVendaQuery, { slug: imovel.slug })
+      : Promise.resolve([]),
+  ]);
   const parecidos = candidatos
     .sort(
       (a, b) =>
         Math.abs(a.preco - imovel.preco) - Math.abs(b.preco - imovel.preco),
     )
     .slice(0, 3);
+
+  const endereco = [
+    [imovel.logradouro, imovel.complemento].filter(Boolean).join(", "),
+    imovel.bairro,
+    `${imovel.cidade}/RS`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Imóveis",
+        item: `${BASE_URL}/#imoveis`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: imovel.titulo,
+        item: `${BASE_URL}/imoveis/${imovel.slug}`,
+      },
+    ],
+  };
+
+  const listingSchema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    name: imovel.titulo,
+    description: resumoParaMeta(imovel.descricao ?? ""),
+    url: `${BASE_URL}/imoveis/${imovel.slug}`,
+    ...(imovel.fotos?.[0]?.url ? { image: imovel.fotos[0].url } : {}),
+    offers: {
+      "@type": "Offer",
+      // Vendido não mostra preço na página; o dado estruturado também não.
+      ...(vendido ? {} : { price: imovel.preco, priceCurrency: "BRL" }),
+      availability:
+        imovel.status === "disponivel"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/SoldOut",
+    },
+    floorSize: {
+      "@type": "QuantitativeValue",
+      value: imovel.area_total,
+      unitCode: "MTK",
+    },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: imovel.cidade,
+      addressRegion: "RS",
+      addressCountry: "BR",
+      ...(imovel.bairro ? { neighborhood: imovel.bairro } : {}),
+    },
+  };
+
+  if (vendido) {
+    const ja = new Set(parecidos.map((p) => p.id));
+    const lista = [...parecidos, ...outros.filter((o) => !ja.has(o.id))].slice(
+      0,
+      3,
+    );
+    const soDoTipo =
+      lista.length > 0 && lista.every((p) => p.tipo === imovel.tipo);
+    return (
+      <>
+        <Navbar mensagem={waMsg} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
+        />
+        <main>
+          <BarraTopo
+            imovel={imovel}
+            hrefTipo={hrefTipo}
+            textoCompartilhar={`${imovel.titulo} · vendido`}
+          />
+          <ImovelVendido
+            titulo={imovel.titulo}
+            foto={imovel.fotos?.[0]}
+            endereco={endereco}
+            parecidos={lista}
+            tituloParecidos={
+              soDoTipo ? `${OUTROS[imovel.tipo]} à venda` : "À venda agora"
+            }
+            hrefParecidos={soDoTipo ? hrefTipo : "/#imoveis"}
+          />
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   const attrs = [
     imovel.area_total > 0 && {
@@ -184,14 +339,6 @@ export default async function ImovelPage({ params }: Props) {
     },
   ].filter(Boolean) as { I: LucideIcon; label: string; value: string }[];
 
-  const endereco = [
-    [imovel.logradouro, imovel.complemento].filter(Boolean).join(", "),
-    imovel.bairro,
-    `${imovel.cidade}/RS`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
   const resumo = [
     tipoLabel,
     imovel.area_total > 0 ? formatArea(imovel.area_total) : null,
@@ -206,7 +353,7 @@ export default async function ImovelPage({ params }: Props) {
         {statusSelo && (
           <span className={`badge ${statusSelo.cls}`}>{statusSelo.label}</span>
         )}
-        {imovel.tag && !vendido && (
+        {imovel.tag && (
           <span className={`badge ${TAG_BADGE[imovel.tag] ?? "badge-ink"}`}>
             {imovel.tag}
           </span>
@@ -223,55 +370,6 @@ export default async function ImovelPage({ params }: Props) {
     },
   ];
 
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Imóveis",
-        item: `${BASE_URL}/#imoveis`,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: imovel.titulo,
-        item: `${BASE_URL}/imoveis/${imovel.slug}`,
-      },
-    ],
-  };
-
-  const listingSchema = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateListing",
-    name: imovel.titulo,
-    description: resumoParaMeta(imovel.descricao ?? ""),
-    url: `${BASE_URL}/imoveis/${imovel.slug}`,
-    ...(imovel.fotos?.[0]?.url ? { image: imovel.fotos[0].url } : {}),
-    offers: {
-      "@type": "Offer",
-      price: imovel.preco,
-      priceCurrency: "BRL",
-      availability:
-        imovel.status === "disponivel"
-          ? "https://schema.org/InStock"
-          : "https://schema.org/SoldOut",
-    },
-    floorSize: {
-      "@type": "QuantitativeValue",
-      value: imovel.area_total,
-      unitCode: "MTK",
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: imovel.cidade,
-      addressRegion: "RS",
-      addressCountry: "BR",
-      ...(imovel.bairro ? { neighborhood: imovel.bairro } : {}),
-    },
-  };
-
   return (
     <>
       <Navbar mensagem={waMsg} />
@@ -284,37 +382,11 @@ export default async function ImovelPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
       />
       <main>
-        <div className="container-x flex items-center gap-4 py-3 md:py-4">
-          <BackButton />
-          <nav aria-label="Você está em" className="hidden min-w-0 md:block">
-            <ol className="flex items-center gap-1.5 text-[13.5px] text-muted-fg">
-              <li>
-                <Link
-                  href="/#imoveis"
-                  className="hover:text-fg hover:underline"
-                >
-                  Imóveis
-                </Link>
-              </li>
-              <ChevronRight size={14} aria-hidden className="shrink-0" />
-              <li>
-                <Link href={hrefTipo} className="hover:text-fg hover:underline">
-                  {TIPO_PLURAL[imovel.tipo]}
-                </Link>
-              </li>
-              <ChevronRight size={14} aria-hidden className="shrink-0" />
-              <li aria-current="page" className="truncate text-fg">
-                {imovel.titulo}
-              </li>
-            </ol>
-          </nav>
-          <div className="ml-auto">
-            <Compartilhar
-              titulo={imovel.titulo}
-              texto={`${imovel.titulo} · ${preco}`}
-            />
-          </div>
-        </div>
+        <BarraTopo
+          imovel={imovel}
+          hrefTipo={hrefTipo}
+          textoCompartilhar={`${imovel.titulo} · ${preco}`}
+        />
 
         <GaleriaImovel
           fotos={imovel.fotos ?? []}
@@ -385,12 +457,10 @@ export default async function ImovelPage({ params }: Props) {
                 <p className="mt-2 text-[14px] text-muted-fg">{resumo}</p>
               </div>
               <h2 className="text-[19px] text-fg md:mt-5">
-                {vendido ? "Este imóvel foi vendido" : "Fale com os sócios"}
+                Fale com os sócios
               </h2>
               <p className="mt-1.5 text-[14px] leading-relaxed text-muted-fg">
-                {vendido
-                  ? "Fale com os sócios para ver imóveis parecidos."
-                  : "A mensagem já vai com o nome e o preço deste imóvel."}
+                A mensagem já vai com o nome e o preço deste imóvel.
               </p>
               <div className="mt-4 flex flex-col gap-2.5">
                 {contatos.map((c) => (
@@ -412,45 +482,12 @@ export default async function ImovelPage({ params }: Props) {
           </aside>
         </div>
 
-        {parecidos.length > 0 && (
-          <section
-            aria-labelledby="parecidos-titulo"
-            className="pt-16 md:pt-24"
-          >
-            <div className="container-x flex flex-wrap items-end justify-between gap-4">
-              <h2
-                id="parecidos-titulo"
-                className="text-[clamp(26px,3vw,38px)] text-fg"
-              >
-                {OUTROS[imovel.tipo]}
-              </h2>
-              <Link
-                href={hrefTipo}
-                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-green hover:underline"
-              >
-                Ver{" "}
-                {imovel.tipo === "chacara" || imovel.tipo === "casa"
-                  ? "todas"
-                  : "todos"}{" "}
-                <ArrowRight size={15} strokeWidth={2.5} aria-hidden />
-              </Link>
-            </div>
-            <ul className="scroll-x snap-row mt-6 px-[clamp(16px,4vw,32px)] pb-3 [gap:16px] lg:mx-auto lg:grid lg:max-w-[1320px] lg:grid-cols-3 lg:overflow-visible lg:[gap:20px]">
-              {parecidos.map((p) => (
-                <li
-                  key={p.id}
-                  className="w-[82%] shrink-0 sm:w-[360px] lg:w-auto"
-                >
-                  <ImovelCard
-                    imovel={p}
-                    sizes="(max-width: 640px) 82vw, 380px"
-                  />
-                </li>
-              ))}
-              <li aria-hidden className="w-px shrink-0 lg:hidden" />
-            </ul>
-          </section>
-        )}
+        <FileiraParecidos
+          titulo={OUTROS[imovel.tipo]}
+          imoveis={parecidos}
+          href={hrefTipo}
+          rotuloLink={`Ver ${generoTipo(imovel.tipo) === "f" ? "todas" : "todos"}`}
+        />
 
         {/* Celular: preço e WhatsApp à mão depois que o preço do topo sai da
             tela; para ao fim do conteúdo, sem cobrir o rodapé. */}
@@ -470,14 +507,10 @@ export default async function ImovelPage({ params }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-wpp"
-            aria-label={
-              vendido
-                ? "Pedir imóveis parecidos no WhatsApp"
-                : `Falar no WhatsApp sobre ${imovel.titulo}`
-            }
+            aria-label={`Falar no WhatsApp sobre ${imovel.titulo}`}
           >
             <WppIcon size={16} />{" "}
-            {vendido ? "Ver parecidos" : "Falar no WhatsApp"}
+            Falar no WhatsApp
           </a>
         </BarraContato>
       </main>

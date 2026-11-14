@@ -1,42 +1,45 @@
-import Link from "next/link";
-import { SearchX } from "lucide-react";
+import type { Metadata } from "next";
+import { connection } from "next/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WppIcon from "@/components/WppIcon";
-import { WHATSAPP_FINATTO, whatsappLink } from "@/lib/utils";
-import { WPP_MSG_FINATTO } from "@/lib/constants";
+import Conteudo404 from "@/components/Conteudo404";
+import type { LoteTipo } from "@/components/PlantaLoteamento";
+import { client } from "@/sanity/lib/client";
+import { tiposAVendaQuery } from "@/sanity/lib/queries";
+import type { TipoImovel } from "@/lib/types";
 
-export default function NotFound() {
+export const metadata: Metadata = {
+  title: "Página não encontrada | Finatto Incorporadora e Engenharia",
+};
+
+async function contarPorTipo(): Promise<LoteTipo[]> {
+  try {
+    const tipos: TipoImovel[] = await client.fetch(
+      tiposAVendaQuery,
+      {},
+      { next: { revalidate: 60 } },
+    );
+    const cont = new Map<TipoImovel, number>();
+    for (const t of tipos) cont.set(t, (cont.get(t) ?? 0) + 1);
+    return [...cont].map(([tipo, count]) => ({ tipo, count }));
+  } catch {
+    // Sem o Sanity a prancha continua de pé, só sem os lotes por tipo.
+    return [];
+  }
+}
+
+export default async function NotFound() {
+  // Renderiza por pedido: a 404 da raiz seria gerada uma vez no build, com as
+  // contagens congeladas até o próximo deploy. A busca no Sanity tem cache de
+  // 60s, como o resto do site.
+  await connection();
+  const lotes = await contarPorTipo();
+
   return (
     <>
       <Navbar />
-      <main className="container-x flex min-h-[calc(100dvh-64px)] flex-col items-center justify-center py-16 text-center">
-        <span
-          aria-hidden
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-card text-green shadow-card"
-        >
-          <SearchX size={28} strokeWidth={1.75} />
-        </span>
-        <h1 className="mt-6 max-w-[18ch] text-balance text-[clamp(32px,5vw,52px)] text-fg">
-          Esta página não existe mais.
-        </h1>
-        <p className="mt-4 max-w-[46ch] text-[16px] leading-relaxed text-muted-fg">
-          O imóvel pode ter saído do catálogo ou o endereço mudou. Os imóveis
-          à venda em Erechim e região estão todos na lista.
-        </p>
-        <div className="mt-8 flex w-full max-w-[420px] flex-col gap-2.5 sm:w-auto sm:max-w-none sm:flex-row">
-          <Link href="/#imoveis" className="btn btn-lg btn-wpp">
-            Ver imóveis à venda
-          </Link>
-          <a
-            href={whatsappLink(WHATSAPP_FINATTO, WPP_MSG_FINATTO)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-lg btn-wpp-outline"
-          >
-            <WppIcon size={17} /> Falar com os sócios
-          </a>
-        </div>
+      <main className="container-x grid items-center gap-12 py-12 md:py-16 lg:min-h-[calc(100svh-64px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16 lg:py-10">
+        <Conteudo404 lotes={lotes} />
       </main>
       <Footer />
     </>

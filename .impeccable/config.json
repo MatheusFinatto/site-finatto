@@ -1,0 +1,53 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/planta.html"
+        ],
+        "createdAt": "2026-11-14T14:53:49.665Z",
+        "reason": "agent: throwaway decision sketch, not shipped; paper ground is the site's incumbent --bg"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/guindaste.html"
+        ],
+        "createdAt": "2026-11-14T14:53:49.675Z",
+        "reason": "agent: throwaway decision sketch, not shipped; paper ground is the site's incumbent --bg"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/polaroid.html"
+        ],
+        "createdAt": "2026-11-14T14:53:49.683Z",
+        "reason": "agent: throwaway decision sketch, not shipped; paper ground is the site's incumbent --bg"
+      },
+      {
+        "rule": "kicker-above-heading",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/guindaste.html"
+        ],
+        "createdAt": "2026-11-14T14:53:49.691Z",
+        "reason": "agent: unchosen decision sketch, not shipped; the built 404 has no kicker"
+      },
+      {
+        "rule": "kicker-above-heading",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/polaroid.html"
+        ],
+        "createdAt": "2026-11-14T14:53:49.700Z",
+        "reason": "agent: unchosen decision sketch, not shipped; the built 404 has no kicker"
+      }
+    ]
+  }
+}
