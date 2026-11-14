@@ -112,7 +112,15 @@ export default async function HomePage() {
     <>
       <Navbar />
       <main>
-        <Hero cidades={cidades} tipos={tipos} />
+        <Hero
+          cidades={cidades}
+          tipos={tipos}
+          slugsAtivos={
+            new Set(
+              imoveis.filter((i) => i.status !== "vendido").map((i) => i.slug),
+            )
+          }
+        />
         <DestaquesSection
           destaques={destaques.lista}
           recentes={destaques.recentes}
