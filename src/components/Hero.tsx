@@ -1,5 +1,6 @@
-import Image from "next/image";
-import { Suspense } from "react";
+import Image, { getImageProps } from "next/image";
+import { Suspense, type CSSProperties } from "react";
+import { preload } from "react-dom";
 import HeroPolaroids from "./HeroPolaroids";
 import SearchBar, { SearchBarFromUrl } from "./SearchBar";
 import type { TipoResumo } from "./TiposSection";
@@ -16,23 +17,50 @@ const POLAROID_EXTRA_PX = 50;
 // Desloca a pilha na vertical (negativo = sobe), sem mudar o tamanho.
 const POLAROID_DESLOCA_Y_PX = -20;
 
+// Quanto a pilha passa do bloco de texto em cima e embaixo, já com o
+// deslocamento. Vira padding da grade no desktop: em tela baixa o hero cresce
+// em vez de a pilha entrar por baixo do header.
+const FOLGA_TOPO_PX = Math.max(0, POLAROID_EXTRA_PX - POLAROID_DESLOCA_Y_PX);
+const FOLGA_BASE_PX = Math.max(0, POLAROID_EXTRA_PX + POLAROID_DESLOCA_Y_PX);
+
+const FUNDO_MOBILE = "/img/hero-landscape.jpg";
+const FUNDO_MOBILE_SIZES = "100vw";
+
 interface Props {
   cidades: string[];
   tipos: TipoResumo[];
+  /** Slugs dos imóveis à venda; polaroid de imóvel fora do ar fica sem link. */
+  slugsAtivos: ReadonlySet<string>;
 }
 
-export default function Hero({ cidades, tipos }: Props) {
+export default function Hero({ cidades, tipos, slugsAtivos }: Props) {
+  // A foto de fundo só aparece no celular/tablet: pré-carrega só lá (no
+  // desktop o LCP é a pilha de polaroids, que tem o próprio preload).
+  const { props: fundo } = getImageProps({
+    src: FUNDO_MOBILE,
+    alt: "",
+    fill: true,
+    sizes: FUNDO_MOBILE_SIZES,
+  });
+  preload(fundo.src, {
+    as: "image",
+    imageSrcSet: fundo.srcSet,
+    imageSizes: fundo.sizes,
+    fetchPriority: "high",
+    media: "(max-width: 1023px)",
+  });
+
   return (
     <section aria-labelledby="hero-titulo" className="relative overflow-x-clip">
       {/* Celular e tablet: a foto fica ao fundo, sob um véu de papel forte o
           bastante para o texto escuro manter contraste em qualquer ponto dela */}
       <div aria-hidden className="absolute inset-0 overflow-hidden lg:hidden">
         <Image
-          src="/img/hero-landscape.jpg"
+          src={FUNDO_MOBILE}
           alt=""
           fill
-          priority
-          sizes="100vw"
+          fetchPriority="high"
+          sizes={FUNDO_MOBILE_SIZES}
           className="object-cover object-[60%_45%]"
         />
         <div
@@ -50,7 +78,15 @@ export default function Hero({ cidades, tipos }: Props) {
             centralizada nessa caixa; a altura da linha vem só do texto, e a
             pilha (absoluta) acompanha essa altura. */}
         <div className="lg:flex lg:min-h-[max(600px,calc(100svh-8rem))] lg:items-center">
-          <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
+          <div
+            className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12 lg:pt-(--folga-topo) lg:pb-(--folga-base)"
+            style={
+              {
+                "--folga-topo": `${FOLGA_TOPO_PX}px`,
+                "--folga-base": `${FOLGA_BASE_PX}px`,
+              } as CSSProperties
+            }
+          >
             <div className="min-w-0">
               <h1
                 id="hero-titulo"
@@ -78,18 +114,20 @@ export default function Hero({ cidades, tipos }: Props) {
             </div>
 
             {/* Desktop: pilha de polaroids animada em CSS (HeroPolaroids), com a
-              mesma altura do bloco de texto. A foto do topo voa para
-              cima/direita e passa por baixo do header; a section corta o
-              excesso na horizontal. */}
-            <div className="relative hidden lg:block">
+              altura do bloco de texto + POLAROID_EXTRA_PX. A foto do topo voa
+              para cima/direita e passa por baixo do header; a section corta o
+              excesso na horizontal. isolate: os z-index das polaroids ficam
+              presos aqui dentro. [container-type:size] deixa a pilha medir
+              largura e altura disponíveis (cqw/cqh). */}
+            <div className="relative isolate hidden lg:block">
               <div
-                className="absolute inset-x-0 flex justify-end"
+                className="absolute inset-x-0 flex items-center justify-end [container-type:size]"
                 style={{
                   top: -POLAROID_EXTRA_PX + POLAROID_DESLOCA_Y_PX,
                   bottom: -POLAROID_EXTRA_PX - POLAROID_DESLOCA_Y_PX,
                 }}
               >
-                <HeroPolaroids />
+                <HeroPolaroids slugsAtivos={slugsAtivos} />
               </div>
             </div>
           </div>

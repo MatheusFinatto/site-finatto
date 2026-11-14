@@ -681,6 +681,18 @@
    quando a foto do topo vai para trás (x% → x,1%: em degrau, nunca
    interpolado, senão duas fotos empatam). */
 @keyframes polaroid-ciclo {
+  /* Durante o voo e a volta (9–22%) a foto não recebe o mouse: senão o
+     cursor parado no caminho dela dispara o :hover e congela a foto no ar. */
+  0%,
+  8.9%,
+  22.1%,
+  100% {
+    pointer-events: auto;
+  }
+  9%,
+  22% {
+    pointer-events: none;
+  }
   0%,
   9% {
     transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
@@ -743,8 +755,10 @@
   will-change: transform;
 }
 
-/* Mouse em cima da pilha pausa a troca (dá tempo de ler e clicar). */
-.pilha-polaroids:hover .polaroid {
+/* Mouse em cima da pilha ou foco de teclado num dos links pausa a troca
+   (dá tempo de ler e clicar; WCAG 2.2.2). */
+.pilha-polaroids:hover .polaroid,
+.pilha-polaroids:focus-within .polaroid {
   animation-play-state: paused;
 }
 
