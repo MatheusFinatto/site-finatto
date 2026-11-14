@@ -671,3 +671,88 @@
   }
 }
 
+
+/* ── Hero: pilha de polaroids (src/components/HeroPolaroids.tsx) ─────── */
+/* Uma volta = 5 fotos × 2,6s (PASSO no componente). Cada faixa de 20% é a vez de uma foto no topo:
+   ela segura (0–9%), voa para cima/direita girando (9–15%) — pode passar por
+   baixo do header —, vai para trás de todas e volta ao seu lugar (15–22%).
+   As outras não se mexem: cada foto tem posição e inclinação fixas
+   (--tx/--ty/--rot, definidas no componente) e só o z-index sobe um degrau
+   quando a foto do topo vai para trás (x% → x,1%: em degrau, nunca
+   interpolado, senão duas fotos empatam). */
+@keyframes polaroid-ciclo {
+  0%,
+  9% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 5;
+  }
+  15% {
+    transform: translate(calc(var(--tx) + 125%), calc(var(--ty) - 80%)) rotate(calc(var(--rot) + 16deg));
+    z-index: 5;
+  }
+  15.1% {
+    transform: translate(calc(var(--tx) + 125%), calc(var(--ty) - 80%)) rotate(calc(var(--rot) + 16deg));
+    z-index: 1;
+  }
+  22% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 1;
+  }
+  35% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 1;
+  }
+  35.1% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 2;
+  }
+  55% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 2;
+  }
+  55.1% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 3;
+  }
+  75% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 3;
+  }
+  75.1% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 4;
+  }
+  95% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 4;
+  }
+  95.1% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 5;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+    z-index: 5;
+  }
+}
+
+.polaroid {
+  transform: translate(var(--tx), var(--ty)) rotate(var(--rot));
+  z-index: var(--z);
+  animation: polaroid-ciclo 13s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+/* Mouse em cima da pilha pausa a troca (dá tempo de ler e clicar). */
+.pilha-polaroids:hover .polaroid {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* A regra global encurta as animações para 0,001ms, o que faria a pilha
+     piscar e voltar ao estado sem transform. Aqui ela fica parada no
+     arranjo de repouso. */
+  .polaroid {
+    animation: none !important;
+  }
+}

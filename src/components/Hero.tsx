@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Suspense } from "react";
+import HeroPolaroids from "./HeroPolaroids";
 import SearchBar, { SearchBarFromUrl } from "./SearchBar";
 import type { TipoResumo } from "./TiposSection";
 import {
@@ -8,6 +9,13 @@ import {
   IMOVEIS_ENTREGUES,
 } from "@/lib/constants";
 
+// Tamanho das polaroids no desktop: quantos px a pilha passa da altura do
+// bloco de texto, em cima e embaixo (0 = mesma altura do texto; negativo =
+// menor). A largura acompanha sozinha.
+const POLAROID_EXTRA_PX = 50;
+// Desloca a pilha na vertical (negativo = sobe), sem mudar o tamanho.
+const POLAROID_DESLOCA_Y_PX = -20;
+
 interface Props {
   cidades: string[];
   tipos: TipoResumo[];
@@ -15,7 +23,7 @@ interface Props {
 
 export default function Hero({ cidades, tipos }: Props) {
   return (
-    <section aria-labelledby="hero-titulo" className="relative">
+    <section aria-labelledby="hero-titulo" className="relative overflow-x-clip">
       {/* Celular e tablet: a foto fica ao fundo, sob um véu de papel forte o
           bastante para o texto escuro manter contraste em qualquer ponto dela */}
       <div aria-hidden className="absolute inset-0 overflow-hidden lg:hidden">
@@ -37,44 +45,53 @@ export default function Hero({ cidades, tipos }: Props) {
       </div>
 
       <div className="container-x relative pt-10 pb-14 md:pt-14 lg:py-8">
-        <div className="grid grid-cols-1 items-center gap-10 lg:min-h-[600px] lg:grid-cols-2 lg:gap-12">
-          <div className="min-w-0">
-            <h1
-              id="hero-titulo"
-              className="rise max-w-[15ch] text-balance text-[clamp(42px,5.2vw,70px)] text-fg"
-            >
-              Encontre seu imóvel ideal em{" "}
-              <span className="text-green">Erechim e região.</span>
-            </h1>
-            <p className="rise rise-2 mt-5 max-w-[50ch] text-[clamp(16px,1.3vw,19px)] leading-relaxed text-fg lg:text-muted-fg">
-              Chácaras, casas e terrenos com avaliação técnica de engenheira
-              civil. Você fala direto com os sócios, pelo WhatsApp.
-            </p>
-            <div className="rise rise-3 mt-7">
-              <Suspense
-                fallback={<SearchBar cidades={cidades} tipos={tipos} />}
+        {/* No desktop o hero ocupa a primeira tela inteira (janela − header de
+            4rem − padding vertical de 4rem), com mínimo de 600px. A grade fica
+            centralizada nessa caixa; a altura da linha vem só do texto, e a
+            pilha (absoluta) acompanha essa altura. */}
+        <div className="lg:flex lg:min-h-[max(600px,calc(100svh-8rem))] lg:items-center">
+          <div className="grid w-full grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
+            <div className="min-w-0">
+              <h1
+                id="hero-titulo"
+                className="rise max-w-[15ch] text-balance text-[clamp(42px,5.2vw,76px)] text-fg"
               >
-                <SearchBarFromUrl cidades={cidades} tipos={tipos} />
-              </Suspense>
+                Encontre seu imóvel ideal em{" "}
+                <span className="text-green">Erechim e região.</span>
+              </h1>
+              <p className="rise rise-2 mt-5 max-w-[50ch] lg:mt-8 text-[clamp(16px,1.3vw,21px)] leading-relaxed text-fg lg:text-muted-fg">
+                Chácaras, casas e terrenos com avaliação técnica de engenheira
+                civil. Você fala direto com os sócios, pelo WhatsApp.
+              </p>
+              <div className="rise rise-3 mt-7 lg:mt-12">
+                <Suspense
+                  fallback={<SearchBar cidades={cidades} tipos={tipos} />}
+                >
+                  <SearchBarFromUrl cidades={cidades} tipos={tipos} />
+                </Suspense>
+              </div>
+              <p className="mt-5 text-[13.5px] lg:mt-10 text-fg lg:text-muted-fg">
+                Em Erechim desde {ANO_FUNDACAO} · {IMOVEIS_ENTREGUES} imóveis
+                entregues · {ANOS_CONSTRUTORA} anos como construtora · CRECI/RS
+                51910 · CREA/RS 242604
+              </p>
             </div>
-            <p className="mt-5 text-[13.5px] text-fg lg:text-muted-fg">
-              Em Erechim desde {ANO_FUNDACAO} · {IMOVEIS_ENTREGUES} imóveis
-              entregues · {ANOS_CONSTRUTORA} anos como construtora · CRECI/RS
-              51910 · CREA/RS 242604
-            </p>
-          </div>
 
-          {/* Desktop: a foto ocupa a coluna e termina na mesma margem da
-              esquerda */}
-          <div className="relative hidden self-stretch overflow-hidden rounded-[28px] lg:block">
-            <Image
-              src="/img/hero-landscape.jpg"
-              alt="Campo ao entardecer no interior do Rio Grande do Sul"
-              fill
-              priority
-              sizes="(max-width: 1320px) 48vw, 620px"
-              className="object-cover object-[62%_55%]"
-            />
+            {/* Desktop: pilha de polaroids animada em CSS (HeroPolaroids), com a
+              mesma altura do bloco de texto. A foto do topo voa para
+              cima/direita e passa por baixo do header; a section corta o
+              excesso na horizontal. */}
+            <div className="relative hidden lg:block">
+              <div
+                className="absolute inset-x-0 flex justify-end"
+                style={{
+                  top: -POLAROID_EXTRA_PX + POLAROID_DESLOCA_Y_PX,
+                  bottom: -POLAROID_EXTRA_PX - POLAROID_DESLOCA_Y_PX,
+                }}
+              >
+                <HeroPolaroids />
+              </div>
+            </div>
           </div>
         </div>
       </div>

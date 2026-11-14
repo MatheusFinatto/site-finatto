@@ -18,7 +18,7 @@ export default function DestaquesSection({ destaques, recentes }: Props) {
   if (destaques.length === 0) return null;
 
   return (
-    <section aria-labelledby="destaques-titulo" className="md:pt-24">
+    <section aria-labelledby="destaques-titulo" className="md:pt-12">
       <div className="container-x flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2
