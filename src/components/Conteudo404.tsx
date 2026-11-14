@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import type { TipoImovel } from "@/lib/types";
 import Numero404 from "@/components/Numero404";
 import PlantaLoteamento, {
@@ -9,18 +9,49 @@ import PlantaLoteamento, {
 } from "@/components/PlantaLoteamento";
 import WppIcon from "@/components/WppIcon";
 import { WHATSAPP_FINATTO, whatsappLink } from "@/lib/utils";
-import { BASE_URL, TIPO_PLURAL, WPP_MSG_FINATTO } from "@/lib/constants";
+import {
+  BASE_URL,
+  TIPO_PLURAL,
+  WPP_MSG_FINATTO,
+  generoTipo,
+} from "@/lib/constants";
 
-/** Tipo deduzido do slug ("chacara-bairro-…", "terreno-…"), quando dá. */
+/** Palavras do slug que indicam o tipo, na ordem em que vencem: o tipo do
+ *  imóvel ("casa", "pavilhao") ganha de onde ele fica ("loteamento"). */
+const PALAVRAS_TIPO: [TipoImovel, string[]][] = [
+  ["apartamento", ["apartamento", "apto"]],
+  ["pavilhao", ["pavilhao", "galpao"]],
+  ["chacara", ["chacara", "sitio"]],
+  ["casa", ["casa", "sobrado"]],
+  ["terreno", ["terreno", "lote"]],
+];
+
+/** Tipo deduzido do slug ("chacara-bairro-…", "terreno-…"), quando dá. Compara
+ *  palavras inteiras: "loteamento" não conta como "lote". */
 function tipoDoSlug(slug: string): TipoImovel | null {
-  const s = slug.toLowerCase();
-  if (s.includes("chacara") || s.includes("area-rural")) return "chacara";
-  if (s.includes("terreno") || s.includes("lote")) return "terreno";
-  if (s.includes("apartamento") || s.includes("apto")) return "apartamento";
-  if (s.includes("pavilh")) return "pavilhao";
-  if (s.includes("casa")) return "casa";
+  const palavras = new Set(slug.toLowerCase().split(/[^a-z0-9]+/));
+  if (palavras.has("area") && palavras.has("rural")) return "chacara";
+  for (const [tipo, chaves] of PALAVRAS_TIPO) {
+    if (chaves.some((c) => palavras.has(c))) return tipo;
+  }
   return null;
 }
+
+function decodificar(s: string): string {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    // Link truncado ("%C3" sem o resto): segue com o texto como veio.
+    return s;
+  }
+}
+
+// O caminho vem do navegador. A 404 da raiz é gerada uma vez no servidor,
+// sem saber o endereço pedido; no servidor (e na hidratação) fica a versão
+// genérica, e o cliente troca pela específica sem divergir do HTML.
+const assinarNada = () => () => {};
+const caminhoNoCliente = () => window.location.pathname;
+const caminhoNoServidor = () => "";
 
 /**
  * Corpo da página 404. Endereço qualquer: "Seu próximo imóvel está em outro
@@ -30,16 +61,20 @@ function tipoDoSlug(slug: string): TipoImovel | null {
  * link. Continua respondendo 404 (o servidor decide; aqui só muda o texto).
  */
 export default function Conteudo404({ lotes }: { lotes: LoteTipo[] }) {
-  const path = usePathname() ?? "";
+  const path = useSyncExternalStore(
+    assinarNada,
+    caminhoNoCliente,
+    caminhoNoServidor,
+  );
   const slug = path.startsWith("/imoveis/")
-    ? decodeURIComponent(path.slice("/imoveis/".length).split("/")[0] ?? "")
+    ? decodificar(path.slice("/imoveis/".length).split("/")[0] ?? "")
     : "";
   const imovel = slug.length > 0;
   const tipo = imovel ? tipoDoSlug(slug) : null;
   const temTipo = !!tipo && lotes.some((l) => l.tipo === tipo && l.count > 0);
   const plural = tipo ? TIPO_PLURAL[tipo] : "";
   // Concordância: "As chácaras … marcadas", "Os terrenos … marcados".
-  const feminino = tipo === "chacara" || tipo === "casa";
+  const feminino = !!tipo && generoTipo(tipo) === "f";
 
   const titulo = imovel
     ? "Este imóvel saiu do catálogo."

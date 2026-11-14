@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff, Images, X } from "lucide-react";
 import sanityLoader from "@/lib/sanityLoader";
+import { altFoto } from "@/lib/utils";
 import type { Foto } from "@/lib/types";
 import SetasRolagem, { comportamento } from "./SetasRolagem";
 import { useVoltarFecha } from "@/lib/useVoltarFecha";
@@ -78,7 +79,8 @@ export default function GaleriaImovel({ fotos, titulo, selos }: Props) {
     );
   }
 
-  const altDe = (i: number) => fotos[i].alt || `${titulo}, foto ${i + 1}`;
+  const altDe = (i: number) =>
+    altFoto(fotos[i].alt, `${titulo}, foto ${i + 1}`);
 
   return (
     <div className="galeria-wrap">

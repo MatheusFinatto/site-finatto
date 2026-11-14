@@ -29,12 +29,12 @@ export const THUMB_GRADIENT: Record<TipoImovel, string> = {
   pavilhao: "linear-gradient(150deg, #1e2a3a 0%, #2a3a50 60%, #161e2a 100%)",
 };
 
-/** Selo de status no card e na página; disponível não tem selo. */
+/** Selo de status no card e na página. Disponível não tem selo; vendido tem
+ *  tratamento próprio (faixa no card, página de vendido). */
 export const STATUS_SELO: Partial<
   Record<"disponivel" | "reservado" | "vendido", { label: string; cls: string }>
 > = {
   reservado: { label: "Reservado", cls: "badge-amber" },
-  vendido: { label: "Vendido", cls: "badge-dark" },
 };
 
 /** Classes de badge (home) por tag — fallback: 'badge-ink' */
@@ -69,6 +69,11 @@ export const TIPO_PLURAL: Record<TipoImovel, string> = {
   terreno: "Terrenos",
   pavilhao: "Pavilhões",
 };
+
+/** Gênero gramatical do tipo: "as chácaras", "os terrenos". */
+export function generoTipo(tipo: TipoImovel): "f" | "m" {
+  return tipo === "chacara" || tipo === "casa" ? "f" : "m";
+}
 
 export const TIPO_TABS: { value: TipoImovel | ""; label: string }[] = [
   { value: "", label: "Todos" },

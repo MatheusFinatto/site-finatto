@@ -17,6 +17,7 @@ import {
   formatPreco,
   WHATSAPP_FINATTO,
   whatsappLink,
+  altFoto,
 } from "@/lib/utils";
 import sanityLoader from "@/lib/sanityLoader";
 import {
@@ -102,13 +103,9 @@ export default function ImovelCard({
           <Image
             loader={sanityLoader}
             src={foto.url}
-            // Alguns alts no Sanity receberam a descrição inteira do anúncio;
-            // texto alternativo longo assim vira ruído no leitor de tela.
-            alt={
-              foto.alt && foto.alt.length <= 140 ? foto.alt : imovel.titulo
-            }
+            alt={altFoto(foto.alt, imovel.titulo)}
             fill
-            priority={priority}
+            preload={priority}
             sizes={sizes}
             className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]${vendido ? " card-foto-vendida" : ""}`}
           />
@@ -132,7 +129,7 @@ export default function ImovelCard({
                 {statusSelo.label}
               </span>
             )}
-            {imovel.tag && !vendido && (
+            {imovel.tag && (
               <span className={`badge ${TAG_BADGE[imovel.tag] ?? "badge-ink"}`}>
                 {imovel.tag}
               </span>

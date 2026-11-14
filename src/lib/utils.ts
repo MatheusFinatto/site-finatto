@@ -49,3 +49,12 @@ export function whatsappLink(numero: string, mensagem?: string): string {
   const msg = mensagem ? encodeURIComponent(mensagem) : "";
   return `https://wa.me/${numero}${msg ? `?text=${msg}` : ""}`;
 }
+
+/**
+ * Texto alternativo de uma foto do imóvel. Alguns alts no Sanity receberam a
+ * descrição inteira do anúncio; texto longo assim vira ruído no leitor de
+ * tela, então cai para o reserva (o título, ou "título, foto N").
+ */
+export function altFoto(alt: string | undefined | null, reserva: string): string {
+  return alt && alt.length <= 140 ? alt : reserva;
+}
