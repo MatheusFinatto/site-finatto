@@ -770,3 +770,543 @@
     animation: none !important;
   }
 }
+
+/* ── 404: prancha de loteamento (PlantaLoteamento.tsx) ───────────────── */
+/* Traço técnico verde-escuro sobre papel milimetrado. Cada lote é um tipo à
+   venda, todos da mesma largura; o lote 404 é tracejado. Ao abrir, a
+   prancha "é plotada": os lotes surgem em sequência (--i, no componente).
+   Medidas e cores ajustáveis nas variáveis do .prancha. */
+.prancha {
+  --traco: var(--green-deep);
+  --prancha-pad: 22px;
+  --prancha-gap: 14px;
+  --fileira-gap: 12px;
+  --lote-pad: 14px 16px;
+  --lote-min-h: 140px;
+  --lote-vazio-w: 112px;
+  --grade: rgb(23 63 38 / 0.055);
+  --grade-passo: 24px;
+  --plota-passo: 90ms;
+
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--prancha-gap);
+  padding: var(--prancha-pad);
+  border: 1.5px solid var(--traco);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 calc(var(--grade-passo) - 1px), var(--grade) 0 var(--grade-passo)),
+    repeating-linear-gradient(90deg, transparent 0 calc(var(--grade-passo) - 1px), var(--grade) 0 var(--grade-passo)),
+    color-mix(in oklab, var(--bg) 60%, white);
+}
+.prancha-fileira {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fileira-gap);
+}
+.lote {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 2px;
+  min-height: var(--lote-min-h);
+  padding: var(--lote-pad);
+  border: 1.5px solid var(--traco);
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  color: var(--fg);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+  animation: lote-plota 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * var(--plota-passo) + 120ms);
+}
+a.lote:hover {
+  background: var(--green-soft);
+  border-color: var(--green);
+}
+a.lote:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.lote-nome {
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
+  font-size: clamp(15px, 1.25vw, 19px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.lote-conta {
+  font-size: 13.5px;
+  color: var(--muted-fg);
+}
+.lote-alto:not(.lote-vazio) .lote-conta {
+  white-space: nowrap;
+}
+/* Ícone do tipo (Phosphor, traço "light"), no alto do lote: máscara pintada
+   com o verde da prancha; no hover, verde da marca. */
+.lote-desenho {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: clamp(36px, 30cqi, 52px);
+  aspect-ratio: 1;
+  background: var(--traco);
+  -webkit-mask: var(--icone) center / contain no-repeat;
+  mask: var(--icone) center / contain no-repeat;
+  transition:
+    background-color 0.25s ease,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+a.lote:hover .lote-desenho {
+  background: var(--green);
+  transform: translateY(-2px);
+}
+/* Lote do mesmo tipo do imóvel que saiu do catálogo. */
+.lote-marcado {
+  background: var(--green-soft);
+  border-color: var(--green);
+  border-width: 2px;
+}
+.lote-marcado .lote-conta {
+  color: var(--green-deep);
+  font-weight: 600;
+}
+.lote-largo {
+  grid-column: 1 / -1;
+}
+/* O lote 404: tracejado, vazio, com o endereço pedido escrito. No celular
+   ocupa a primeira linha inteira. */
+.lote-vazio {
+  grid-column: 1 / -1;
+  order: -1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed var(--green);
+  background: transparent;
+  animation-delay: 700ms;
+}
+.lote-404 {
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
+  font-size: min(38cqi, 76px);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--green);
+}
+.lote-endereco {
+  max-width: 100%;
+  margin-top: 6px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 12.5px;
+  color: var(--green-deep);
+}
+/* Cota do lote 404: linha com o "? m" no meio, no topo do lote (dentro dele:
+   a animação de plotagem recorta o que passa da borda). */
+.lote-cota {
+  position: absolute;
+  top: 12px;
+  inset-inline: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1;
+  color: var(--green);
+}
+.lote-cota::before,
+.lote-cota::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: currentColor;
+}
+/* A rua atravessa a prancha de borda a borda (anula o padding). */
+.prancha-rua {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  margin-inline: calc(-1 * var(--prancha-pad));
+  border-block: 1.5px solid var(--traco);
+  background: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+/* Faixa central tracejada da rua. */
+.prancha-rua::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  border-top: 1.5px dashed color-mix(in oklab, var(--traco) 35%, transparent);
+}
+.prancha-rua span {
+  position: relative;
+  padding: 0 12px;
+  background: color-mix(in oklab, var(--muted) 85%, white);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-fg);
+}
+@media (min-width: 1024px) {
+  .prancha {
+    --prancha-pad: 30px;
+    --prancha-gap: 16px;
+    --fileira-gap: 14px;
+  }
+  .prancha-fileira {
+    display: flex;
+  }
+  .prancha-fileira > .lote {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  /* Fileira de baixo: se não couber (4 lotes em tela estreita), quebra em
+     duas linhas em vez de espremer o nome. */
+  .prancha-baixo {
+    flex-wrap: wrap;
+  }
+  .prancha-fileira > .lote-baixo {
+    flex: 1 1 150px;
+  }
+  .prancha-fileira > .lote-vazio {
+    flex: 0 0 var(--lote-vazio-w);
+    order: 0;
+  }
+  .lote-alto {
+    min-height: clamp(200px, 26vh, 270px);
+    padding-inline: 12px;
+  }
+  .lote-baixo {
+    min-height: clamp(140px, 17vh, 180px);
+  }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .prancha {
+    --prancha-pad: 20px;
+    --fileira-gap: 10px;
+  }
+}
+@keyframes lote-plota {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.2;
+  }
+  to {
+    clip-path: inset(0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lote {
+    animation: none !important;
+  }
+}
+
+/* ── Imóvel vendido: selo da placa com tarja (ImovelVendido.tsx) ──────── */
+.vendido-foto {
+  aspect-ratio: 4 / 3;
+}
+/* Selo gráfico chapado e assumido no canto da foto (não uma placa
+   realista): marca da Finatto, "VENDE" e a tarja VENDIDO colada por cima,
+   com o topo e a base de "VENDE" aparecendo, como na rua. As medidas
+   internas usam cqi (% da largura do selo), então o selo inteiro escala
+   com --placa-largura. */
+.placa {
+  --placa-largura: clamp(112px, 24%, 190px);
+  --placa-margem: clamp(12px, 4%, 28px);
+  --placa-pad: clamp(10px, 1.4vw, 17px);
+  --tarja-angulo: -4deg;
+
+  position: absolute;
+  left: var(--placa-margem);
+  bottom: var(--placa-margem);
+  width: var(--placa-largura);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--placa-pad);
+  border: 3px solid #fff;
+  border-radius: 6px;
+  background: var(--green);
+  color: #fff;
+  text-align: center;
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
+  container-type: inline-size;
+  pointer-events: none;
+}
+.placa-marca {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.placa-vende {
+  position: relative;
+  width: 100%;
+  margin-top: 6cqi;
+  padding-block: 5cqi 4cqi;
+  border-top: 1px solid rgb(255 255 255 / 0.5);
+  font-size: 26cqi;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+}
+.placa-tarja {
+  position: absolute;
+  inset-inline: -16%;
+  top: 7.5cqi;
+  padding-block: 1.8cqi 1.6cqi;
+  background: var(--danger);
+  color: #fff;
+  font-size: 11cqi;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  transform: rotate(var(--tarja-angulo));
+  animation: tarja-cola 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+/* A tarja "cola": chega maior e mais torta e assenta no ângulo final. */
+@keyframes tarja-cola {
+  from {
+    opacity: 0;
+    transform: rotate(calc(var(--tarja-angulo) - 7deg)) scale(1.3);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--tarja-angulo)) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .placa-tarja {
+    animation: none !important;
+  }
+}
+
+/* ── 404: número com o último 4 tombado (Numero404.tsx) ──────────────── */
+/* Em loop: o martelo dá três golpes (o 4 sente cada um), o 4 levanta, o 404
+   fica inteiro, o 4 tomba de novo, o martelo leva um susto e os "!" estouram
+   e somem. Tudo que se ajusta está nas variáveis abaixo; os keyframes só
+   dizem em que fração do ciclo cada coisa acontece. O estado base (sem
+   animação) é o 4 deitado. */
+.num404 {
+  /* duração de uma volta inteira; as três animações usam a mesma */
+  --num404-ciclo: 3.5s;
+  /* espaço à direita para o 4 deitado e o martelo */
+  --num404-folga: 1.22em;
+  /* quanto o 4 deitado sobe para encostar na linha do chão */
+  --num404-chao: -0.05em;
+  /* martelo: tamanho, posição (a partir do canto de baixo à direita) e
+     ângulos de repouso, erguido, golpe e susto */
+  --martelo-tamanho: 0.66em;
+  --martelo-direita: 0em;
+  --martelo-base: 0.3em;
+  --martelo-repouso: 0deg;
+  --martelo-erguido: 38deg;
+  --martelo-golpe: -16deg;
+  --martelo-susto: 14deg;
+  /* "!": tamanho e ajuste fino do grupo (positivo = esquerda / cima) */
+  --pow-tamanho: 0.36em;
+  --pow-ajuste-x: 10px;
+  --pow-ajuste-y: -25px;
+
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: fit-content;
+  padding-right: var(--num404-folga);
+  padding-bottom: 0.04em;
+  border-bottom: 2px solid var(--green-deep);
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
+  font-size: clamp(96px, 11vw, 176px);
+  font-weight: 800;
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  color: var(--green-deep);
+}
+/* Onde o 4 deveria estar: só o contorno. */
+.num404-vaga {
+  position: relative;
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in oklab, var(--green) 55%, transparent);
+}
+/* O 4 que caiu: gira sobre o canto de baixo à direita e deita no chão. */
+.num404-caido {
+  --deitado: translateY(var(--num404-chao)) rotate(90deg);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  color: var(--green);
+  -webkit-text-stroke: 0;
+  transform-origin: 100% 100%;
+  transform: var(--deitado);
+  animation: num404-conserta var(--num404-ciclo) infinite;
+}
+@keyframes num404-conserta {
+  0%,
+  10%,
+  14%,
+  20%,
+  24%,
+  30%,
+  34% {
+    transform: var(--deitado);
+  }
+  /* golpes: o 4 afunda um pouco */
+  12%,
+  22%,
+  32% {
+    transform: translateY(calc(var(--num404-chao) + 0.03em)) rotate(91deg);
+  }
+  /* levanta, passa um pouco do prumo e assenta */
+  44% {
+    transform: rotate(-5deg);
+    animation-timing-function: ease-out;
+  }
+  48%,
+  66% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  /* tomba, quica e deita */
+  73% {
+    transform: translateY(var(--num404-chao)) rotate(94deg);
+  }
+  76% {
+    transform: translateY(var(--num404-chao)) rotate(87deg);
+  }
+  79%,
+  100% {
+    transform: var(--deitado);
+  }
+}
+/* Martelo (Fluent Emoji: cabeça em cima à esquerda, cabo descendo para a
+   direita), sempre à vista. Gira pelo pé do cabo. */
+.num404-martelo {
+  position: absolute;
+  right: var(--martelo-direita);
+  bottom: var(--martelo-base);
+  width: var(--martelo-tamanho);
+  height: var(--martelo-tamanho);
+  transform-origin: 84% 84%;
+  transform: rotate(var(--martelo-repouso));
+  animation: num404-martela var(--num404-ciclo) infinite;
+}
+@keyframes num404-martela {
+  0%,
+  4% {
+    transform: rotate(var(--martelo-repouso));
+  }
+  /* sobe devagar, desce rápido */
+  9%,
+  19%,
+  29% {
+    transform: rotate(var(--martelo-erguido));
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.6);
+  }
+  12%,
+  22%,
+  32% {
+    transform: rotate(var(--martelo-golpe));
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+  40%,
+  70% {
+    transform: rotate(var(--martelo-repouso));
+  }
+  74% {
+    transform: rotate(var(--martelo-susto));
+  }
+  80%,
+  100% {
+    transform: rotate(var(--martelo-repouso));
+  }
+}
+/* "!" em volta do martelo no susto: entram crescendo, somem encolhendo.
+   Cada um tem posição própria (--x, --y, em ems do próprio "!") e
+   inclinação (--r), definidas no componente; o grupo todo se ajusta com
+   --pow-ajuste-x / --pow-ajuste-y. */
+.num404-pow {
+  position: absolute;
+  right: calc(var(--x) + var(--pow-ajuste-x));
+  bottom: calc(var(--y) + var(--pow-ajuste-y));
+  font-size: var(--pow-tamanho);
+  line-height: 1;
+  color: var(--danger);
+  -webkit-text-stroke: 0;
+  transform: rotate(var(--r)) scale(0);
+  animation: num404-pow var(--num404-ciclo) infinite;
+}
+@keyframes num404-pow {
+  0%,
+  73% {
+    transform: rotate(var(--r)) scale(0);
+  }
+  77% {
+    transform: rotate(var(--r)) scale(1.3);
+  }
+  80% {
+    transform: rotate(var(--r)) scale(1);
+  }
+  84% {
+    transform: rotate(calc(var(--r) * -0.5)) scale(1.05);
+  }
+  88% {
+    transform: rotate(var(--r)) scale(1);
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+  }
+  94%,
+  100% {
+    transform: rotate(var(--r)) scale(0);
+  }
+}
+/* Movimento reduzido: só o 404 inteiro, normal. */
+@media (prefers-reduced-motion: reduce) {
+  .num404 {
+    --num404-folga: 0;
+  }
+  .num404-caido {
+    animation: none !important;
+    transform: none;
+  }
+  .num404-martelo,
+  .num404-pow {
+    display: none;
+  }
+}
+
+/* ── Card de imóvel vendido (ImovelCard.tsx) ─────────────────────────────
+   Faixa diagonal no canto de cima, no vermelho e na letra da tarja da
+   página do imóvel vendido; a foto recua um pouco sem sumir. */
+.card-faixa-vendido {
+  --faixa-largura: 180px;
+  --faixa-angulo: -38deg;
+
+  position: absolute;
+  top: 22px;
+  left: calc(var(--faixa-largura) * -0.255);
+  width: var(--faixa-largura);
+  padding-block: 6px 5px;
+  background: var(--danger);
+  color: #fff;
+  text-align: center;
+  font-family: var(--font-bricolage), var(--font-figtree), sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: rotate(var(--faixa-angulo));
+  box-shadow: 0 4px 10px -4px rgb(0 0 0 / 0.4);
+  pointer-events: none;
+}
+.card-foto-vendida {
+  filter: saturate(0.55);
+}

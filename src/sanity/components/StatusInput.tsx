@@ -4,7 +4,8 @@ const OPCOES = [
   {
     valor: "vendido",
     titulo: "Vendido",
-    ajuda: "Continua no site com o selo “Vendido” e sem botão de contato.",
+    ajuda:
+      "A página do imóvel vira “Vendido”: foto com a placa e a tarja VENDIDO, sem preço, e logo abaixo imóveis parecidos à venda. Sai dos destaques da página inicial.",
   },
   {
     valor: "reservado",

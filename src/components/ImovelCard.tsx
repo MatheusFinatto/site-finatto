@@ -102,11 +102,15 @@ export default function ImovelCard({
           <Image
             loader={sanityLoader}
             src={foto.url}
-            alt={foto.alt || imovel.titulo}
+            // Alguns alts no Sanity receberam a descrição inteira do anúncio;
+            // texto alternativo longo assim vira ruído no leitor de tela.
+            alt={
+              foto.alt && foto.alt.length <= 140 ? foto.alt : imovel.titulo
+            }
             fill
             priority={priority}
             sizes={sizes}
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            className={`object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]${vendido ? " card-foto-vendida" : ""}`}
           />
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-fg">
@@ -114,7 +118,14 @@ export default function ImovelCard({
             <span className="text-xs">Fotos em breve</span>
           </div>
         )}
-        {(statusSelo || imovel.tag) && (
+        {/* Vendido: faixa diagonal no canto, como a tarja da página do
+            imóvel. Os outros status seguem como selo. */}
+        {vendido && (
+          <span className="card-faixa-vendido" aria-hidden>
+            Vendido
+          </span>
+        )}
+        {!vendido && (statusSelo || imovel.tag) && (
           <div className="absolute left-3 top-3 flex gap-1.5">
             {statusSelo && (
               <span className={`badge ${statusSelo.cls}`}>
@@ -133,9 +144,11 @@ export default function ImovelCard({
             <Camera size={12} strokeWidth={2.25} aria-hidden /> {nFotos}
           </span>
         )}
-        <span className="badge badge-price tabular absolute bottom-3 left-3">
-          {formatPreco(imovel.preco)}
-        </span>
+        {!vendido && (
+          <span className="badge badge-price tabular absolute bottom-3 left-3">
+            {formatPreco(imovel.preco)}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col px-4 pb-4 pt-2">

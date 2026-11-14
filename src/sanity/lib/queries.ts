@@ -67,3 +67,15 @@ export const allImovelIdsQuery = groq`
 export const tiposPublicadosQuery = groq`
   array::unique(*[_type == "imovel"].tipo)
 `;
+
+/** Tipo de cada imóvel à venda (não vendido): a 404 conta quantos há de cada. */
+export const tiposAVendaQuery = groq`
+  *[_type == "imovel" && status != "vendido"].tipo
+`;
+
+/** Imóveis à venda mais recentes, fora o atual: completa os parecidos de um vendido. */
+export const outrosAVendaQuery = groq`
+  *[_type == "imovel" && status != "vendido" && coalesce(slug.current, _id) != $slug] | order(_createdAt desc)[0...6] {
+    ${IMOVEL_FIELDS}
+  }
+`;

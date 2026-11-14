@@ -18,6 +18,7 @@ import {
   allImovelSlugsQuery,
   imoveisParecidosQuery,
   imovelBySlugQuery,
+  outrosAVendaQuery,
 } from "@/sanity/lib/queries";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
@@ -25,6 +26,7 @@ import Footer from "@/components/Footer";
 import WppIcon from "@/components/WppIcon";
 import GaleriaImovel from "@/components/GaleriaImovel";
 import ImovelCard from "@/components/ImovelCard";
+import ImovelVendido from "@/components/ImovelVendido";
 import ImovelMapa from "@/components/ImovelMapa";
 import Compartilhar from "@/components/Compartilhar";
 import DescricaoImovel from "@/components/DescricaoImovel";
@@ -94,7 +96,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const imovel: Imovel | null = await client.fetch(imovelBySlugQuery, { slug });
   if (!imovel) return {};
-  const title = `${imovel.titulo} em ${imovel.cidade}/RS | ${SITE_NAME}`;
+  const title = `${imovel.status === "vendido" ? "Vendido: " : ""}${imovel.titulo} em ${imovel.cidade}/RS | ${SITE_NAME}`;
   const description = resumoParaMeta(imovel.descricao ?? "");
   const url = `${BASE_URL}/imoveis/${imovel.slug}`;
   return {
@@ -127,6 +129,54 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           ],
     },
   };
+}
+
+// ── Barra do topo: voltar, trilha e compartilhar ─────────────────────────────
+
+function BarraTopo({
+  imovel,
+  hrefTipo,
+  textoCompartilhar,
+}: {
+  imovel: Imovel;
+  hrefTipo: string;
+  textoCompartilhar: string;
+}) {
+  const vendido = imovel.status === "vendido";
+  return (
+    <div className="container-x flex items-center gap-4 py-3 md:py-4">
+      <BackButton />
+      <nav aria-label="Você está em" className="hidden min-w-0 md:block">
+        <ol className="flex items-center gap-1.5 text-[13.5px] text-muted-fg">
+          <li>
+            <Link
+              href="/#imoveis"
+              className="hover:text-fg hover:underline"
+            >
+              Imóveis
+            </Link>
+          </li>
+          <ChevronRight size={14} aria-hidden className="shrink-0" />
+          <li>
+            <Link href={hrefTipo} className="hover:text-fg hover:underline">
+              {TIPO_PLURAL[imovel.tipo]}
+            </Link>
+          </li>
+          <ChevronRight size={14} aria-hidden className="shrink-0" />
+          <li aria-current="page" className="truncate text-fg">
+            {imovel.titulo}
+            {vendido && <span className="text-muted-fg"> · Vendido</span>}
+          </li>
+        </ol>
+      </nav>
+      <div className="ml-auto">
+        <Compartilhar
+          titulo={imovel.titulo}
+          texto={textoCompartilhar}
+        />
+      </div>
+    </div>
+  );
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -272,6 +322,50 @@ export default async function ImovelPage({ params }: Props) {
     },
   };
 
+  if (vendido) {
+    // Vendido: mesmos parecidos (mesmo tipo, preço mais perto); se faltarem,
+    // completa com os à venda mais recentes de qualquer tipo.
+    let lista = parecidos;
+    if (lista.length < 3) {
+      const outros: Imovel[] = await client.fetch(outrosAVendaQuery, {
+        slug: imovel.slug,
+      });
+      const ja = new Set(lista.map((p) => p.id));
+      lista = [...lista, ...outros.filter((o) => !ja.has(o.id))].slice(0, 3);
+    }
+    const soDoTipo = lista.every((p) => p.tipo === imovel.tipo);
+    return (
+      <>
+        <Navbar mensagem={waMsg} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(breadcrumbSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
+        />
+        <main>
+          <BarraTopo
+            imovel={imovel}
+            hrefTipo={hrefTipo}
+            textoCompartilhar={`${imovel.titulo} · vendido`}
+          />
+          <ImovelVendido
+            imovel={imovel}
+            endereco={endereco}
+            parecidos={lista}
+            tituloParecidos={
+              soDoTipo ? `${OUTROS[imovel.tipo]} à venda` : "À venda agora"
+            }
+            hrefParecidos={soDoTipo ? hrefTipo : "/#imoveis"}
+          />
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar mensagem={waMsg} />
@@ -284,37 +378,11 @@ export default async function ImovelPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: jsonLdSafe(listingSchema) }}
       />
       <main>
-        <div className="container-x flex items-center gap-4 py-3 md:py-4">
-          <BackButton />
-          <nav aria-label="Você está em" className="hidden min-w-0 md:block">
-            <ol className="flex items-center gap-1.5 text-[13.5px] text-muted-fg">
-              <li>
-                <Link
-                  href="/#imoveis"
-                  className="hover:text-fg hover:underline"
-                >
-                  Imóveis
-                </Link>
-              </li>
-              <ChevronRight size={14} aria-hidden className="shrink-0" />
-              <li>
-                <Link href={hrefTipo} className="hover:text-fg hover:underline">
-                  {TIPO_PLURAL[imovel.tipo]}
-                </Link>
-              </li>
-              <ChevronRight size={14} aria-hidden className="shrink-0" />
-              <li aria-current="page" className="truncate text-fg">
-                {imovel.titulo}
-              </li>
-            </ol>
-          </nav>
-          <div className="ml-auto">
-            <Compartilhar
-              titulo={imovel.titulo}
-              texto={`${imovel.titulo} · ${preco}`}
-            />
-          </div>
-        </div>
+        <BarraTopo
+          imovel={imovel}
+          hrefTipo={hrefTipo}
+          textoCompartilhar={`${imovel.titulo} · ${preco}`}
+        />
 
         <GaleriaImovel
           fotos={imovel.fotos ?? []}
